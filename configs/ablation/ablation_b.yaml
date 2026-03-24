@@ -1,0 +1,11 @@
+# Ablation B: Text extraction + rule engine (no SNKG)
+# Isolates: What the rule engine achieves without graph context
+# Uses FlatEvidenceProvider (attribute name matching, no spatial joins)
+# Output: list[RuleVerdict] (rules requiring spatial grounding get incomplete evidence)
+
+use_snkg: false
+use_rule_engine: true
+use_confidence_gating: true
+use_assessability_engine: true
+use_evidence_reconciliation: true
+use_vlm: true

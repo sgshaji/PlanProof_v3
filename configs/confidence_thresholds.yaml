@@ -1,0 +1,50 @@
+# PlanProof — Confidence thresholds per extraction method and entity type
+#
+# Per Section 4.2 of the implementation plan.
+#
+# Gate logic: if entity.confidence < threshold[extraction_method][entity_type],
+# the entity is flagged as LOW_CONFIDENCE.  Low-confidence entities are still
+# stored in the knowledge graph but the assessability engine treats them as
+# insufficient evidence.
+#
+# These thresholds should be calibrated empirically using reliability diagrams
+# on the annotated dataset after Phase 2 is complete.
+
+thresholds:
+  OCR_LLM:
+    ADDRESS: 0.85
+    MEASUREMENT: 0.80
+    CERTIFICATE: 0.90
+    BOUNDARY: 0.80
+    ZONE: 0.85
+    OWNERSHIP: 0.85
+
+  VLM_ZEROSHOT:
+    # WHY: Higher bar because zero-shot VLM is less reliable than structured
+    MEASUREMENT: 0.70
+    BOUNDARY: 0.75
+    ADDRESS: 0.80
+    ZONE: 0.80
+
+  VLM_STRUCTURED:
+    # WHY: Structured prompting improves reliability, so thresholds are lower
+    MEASUREMENT: 0.60
+    BOUNDARY: 0.65
+    ADDRESS: 0.70
+    ZONE: 0.70
+
+  VLM_FINETUNED:
+    # WHY: Fine-tuned models are the most reliable VLM variant
+    MEASUREMENT: 0.50
+    BOUNDARY: 0.55
+    ADDRESS: 0.60
+    ZONE: 0.60
+
+  MANUAL:
+    # WHY: Manual entries are assumed trustworthy; low thresholds are a safety net
+    ADDRESS: 0.30
+    MEASUREMENT: 0.30
+    CERTIFICATE: 0.30
+    BOUNDARY: 0.30
+    ZONE: 0.30
+    OWNERSHIP: 0.30

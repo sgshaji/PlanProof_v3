@@ -1,0 +1,21 @@
+# VS Code Dev Container compose file
+# References the main dev compose file in docker/
+# This file exists because .devcontainer/ expects a local docker-compose.yml
+
+services:
+  neo4j:
+    extends:
+      file: ../docker/docker-compose.dev.yml
+      service: neo4j
+
+  planproof-dev:
+    extends:
+      file: ../docker/docker-compose.dev.yml
+      service: planproof-dev
+    volumes:
+      # Override mounts: VS Code manages the workspace mount
+      - ..:/app:cached
+
+volumes:
+  neo4j_data:
+  neo4j_logs:

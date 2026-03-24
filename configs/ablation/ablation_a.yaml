@@ -1,0 +1,11 @@
+# Ablation A: Text extraction + SNKG only (no rule engine)
+# Isolates: KG contribution to evidence organisation
+# Output: list[ExtractedEntity] + populated SNKG (no verdicts)
+# Evaluate on: evidence completeness and linkage quality, not violation recall
+
+use_snkg: true
+use_rule_engine: false
+use_confidence_gating: false
+use_assessability_engine: false
+use_evidence_reconciliation: true
+use_vlm: true

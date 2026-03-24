@@ -1,0 +1,10 @@
+# Ablation C: Full pipeline minus confidence gating
+# Isolates: Gating contribution to precision
+# Output: Full output, but low-confidence extractions flow into rule evaluation unchecked
+
+use_snkg: true
+use_rule_engine: true
+use_confidence_gating: false
+use_assessability_engine: true
+use_evidence_reconciliation: true
+use_vlm: true

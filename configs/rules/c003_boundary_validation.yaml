@@ -1,0 +1,24 @@
+# C3: Boundary Validation (Simplified)
+# Compare stated site area on the application form against Land Registry
+# parcel area. PASS if within ±15% tolerance.
+#
+# SCOPE: Full polygon extraction from drawings is deferred. This simplified
+# version tests the evidence reconciliation logic without requiring CV.
+
+rule_id: C003
+description: "Stated site area must be within 15% of Land Registry parcel area"
+policy_source: "BCC Validation Checklist"
+evaluation_type: numeric_tolerance
+parameters:
+  attribute_a: stated_site_area
+  attribute_b: reference_parcel_area
+  tolerance_pct: 0.15  # ±15%
+required_evidence:
+  - attribute: stated_site_area
+    acceptable_sources: ["FORM", "REPORT"]
+    min_confidence: 0.80
+    spatial_grounding: null
+  - attribute: reference_parcel_area
+    acceptable_sources: ["EXTERNAL_DATA"]
+    min_confidence: 1.0
+    spatial_grounding: null

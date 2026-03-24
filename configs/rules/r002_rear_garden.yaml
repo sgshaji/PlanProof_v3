@@ -1,0 +1,30 @@
+# Rule R002 — Minimum Rear Garden Depth
+#
+# BCC Local Plan Policy DM32: Rear garden depth shall be at least
+# 10 metres for new dwellings in suburban zones.
+
+rule_id: R002
+description: "Minimum rear garden depth shall be at least 10 metres"
+policy_source: "BCC Local Plan Policy DM32"
+evaluation_type: numeric_threshold
+
+parameters:
+  attribute: rear_garden_depth
+  operator: ">="
+  threshold: 10.0
+  unit: metres
+
+required_evidence:
+  - attribute: rear_garden_depth
+    acceptable_sources:
+      - DRAWING
+      - REPORT
+    min_confidence: 0.80
+    spatial_grounding: null
+
+  - attribute: zone_category
+    acceptable_sources:
+      - FORM
+      - EXTERNAL_DATA
+    min_confidence: 0.90
+    spatial_grounding: LOCATED_WITHIN

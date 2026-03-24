@@ -1,0 +1,37 @@
+# Rule R003 — Maximum Site Coverage Ratio
+#
+# BCC Local Plan Policy DM35: The ratio of building footprint to total
+# site area shall not exceed 50% in low-density residential zones.
+
+rule_id: R003
+description: "Site coverage ratio shall not exceed 50%"
+policy_source: "BCC Local Plan Policy DM35"
+evaluation_type: ratio_threshold
+
+parameters:
+  numerator_attribute: building_footprint_area
+  denominator_attribute: total_site_area
+  operator: "<="
+  threshold: 0.50
+
+required_evidence:
+  - attribute: building_footprint_area
+    acceptable_sources:
+      - DRAWING
+    min_confidence: 0.75
+    spatial_grounding: null
+
+  - attribute: total_site_area
+    acceptable_sources:
+      - DRAWING
+      - REPORT
+      - FORM
+    min_confidence: 0.80
+    spatial_grounding: null
+
+  - attribute: zone_category
+    acceptable_sources:
+      - FORM
+      - EXTERNAL_DATA
+    min_confidence: 0.90
+    spatial_grounding: LOCATED_WITHIN

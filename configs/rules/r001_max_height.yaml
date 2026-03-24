@@ -1,0 +1,30 @@
+# Rule R001 — Maximum Building Height
+#
+# BCC Local Plan Policy DM30: Building height shall not exceed 8 metres
+# in residential zones.
+
+rule_id: R001
+description: "Maximum building height shall not exceed 8 metres"
+policy_source: "BCC Local Plan Policy DM30"
+evaluation_type: numeric_threshold
+
+parameters:
+  attribute: building_height
+  operator: "<="
+  threshold: 8.0
+  unit: metres
+
+required_evidence:
+  - attribute: building_height
+    acceptable_sources:
+      - DRAWING
+      - REPORT
+    min_confidence: 0.80
+    spatial_grounding: null
+
+  - attribute: zone_category
+    acceptable_sources:
+      - FORM
+      - EXTERNAL_DATA
+    min_confidence: 0.90
+    spatial_grounding: LOCATED_WITHIN

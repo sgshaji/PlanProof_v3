@@ -1,0 +1,20 @@
+# C1: Certificate Type Validity
+# Verify that the correct ownership certificate (A, B, C, or D) was submitted
+# and matches the declared ownership structure.
+
+rule_id: C001
+description: "Ownership certificate type must be valid and consistent with declared ownership"
+policy_source: "Town and Country Planning (Development Management Procedure) Order 2015, Article 14"
+evaluation_type: enum_check
+parameters:
+  attribute: certificate_type
+  valid_values: ["A", "B", "C", "D"]
+required_evidence:
+  - attribute: certificate_type
+    acceptable_sources: ["FORM", "CERTIFICATE"]
+    min_confidence: 0.90
+    spatial_grounding: null
+  - attribute: ownership_declaration
+    acceptable_sources: ["FORM"]
+    min_confidence: 0.85
+    spatial_grounding: null

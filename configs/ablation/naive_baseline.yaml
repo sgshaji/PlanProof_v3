@@ -1,0 +1,18 @@
+# Naive Baseline: LLM-only evaluation
+# Concatenates all OCR text from an application into a single prompt.
+# Single LLM call with a compliance prompt listing all rules.
+# No graph, no reconciliation, no assessability.
+# Output: list[RuleVerdict] (forced PASS/FAIL, no NOT_ASSESSABLE)
+#
+# This is the LOWER BOUND reference point for the ablation study.
+
+evaluation_strategy: naive_llm
+
+# Component toggles are ignored — the naive baseline bypasses the pipeline.
+# Listed here for schema completeness.
+use_snkg: false
+use_rule_engine: false
+use_confidence_gating: false
+use_assessability_engine: false
+use_evidence_reconciliation: false
+use_vlm: false

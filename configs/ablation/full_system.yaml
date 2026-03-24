@@ -1,0 +1,11 @@
+# Ablation config: Full System
+#
+# All components enabled. This is the primary experimental configuration
+# that represents PlanProof as designed.
+
+use_snkg: true
+use_rule_engine: true
+use_confidence_gating: true
+use_assessability_engine: true
+use_evidence_reconciliation: true
+use_vlm: true

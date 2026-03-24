@@ -1,0 +1,21 @@
+# C2: Address Consistency
+# Confirm the address on the application form matches the address on the
+# architectural drawing (at postcode level).
+
+rule_id: C002
+description: "Application form address must match drawing title block address at postcode level"
+policy_source: "BCC Validation Checklist"
+evaluation_type: fuzzy_string_match
+parameters:
+  attribute_a: form_address
+  attribute_b: drawing_address
+  min_similarity: 0.85  # Levenshtein ratio threshold at postcode level
+required_evidence:
+  - attribute: form_address
+    acceptable_sources: ["FORM"]
+    min_confidence: 0.85
+    spatial_grounding: null
+  - attribute: drawing_address
+    acceptable_sources: ["DRAWING"]
+    min_confidence: 0.70
+    spatial_grounding: null

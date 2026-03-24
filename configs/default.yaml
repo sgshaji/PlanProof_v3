@@ -1,0 +1,76 @@
+# PlanProof — Default pipeline configuration
+#
+# Values here can be overridden by environment variables prefixed PLANPROOF_
+# (e.g. PLANPROOF_LLM_PROVIDER=openai).
+
+# --- LLM Provider ---
+# Options: "ollama" (free, local), "groq" (free tier), "openai" (paid)
+llm_provider: "ollama"
+llm_model: "llama3.1"         # Model name for the chosen provider
+llm_api_key: ""               # Required for groq/openai, ignored for ollama
+ollama_base_url: "http://localhost:11434"
+
+# --- VLM Provider (multimodal — drawing analysis) ---
+vlm_provider: "ollama"
+vlm_model: "llava"            # Ollama: llava, OpenAI: gpt-4o
+
+# --- Neo4j ---
+neo4j_uri: "bolt://localhost:7687"
+neo4j_user: "neo4j"
+neo4j_password: "planproof-dev"
+
+# --- Paths ---
+cache_dir: "data/.llm_cache"
+configs_dir: "configs"
+
+# --- Performance ---
+max_concurrent_llm_calls: 5
+
+# --- Confidence Thresholds ---
+# Per extraction method, per entity type: minimum confidence to pass gating.
+# See configs/confidence_thresholds.yaml for annotated version with WHY comments.
+# See docs/CONFIGURATION.md Section 4 for full explanation.
+# NOTE: This is the authoritative source loaded by PipelineConfig.
+# confidence_thresholds.yaml is the documented reference copy.
+confidence:
+  thresholds:
+    OCR_LLM:
+      ADDRESS: 0.85
+      MEASUREMENT: 0.80
+      CERTIFICATE: 0.90
+      BOUNDARY: 0.80
+      ZONE: 0.85
+      OWNERSHIP: 0.85
+    VLM_ZEROSHOT:
+      MEASUREMENT: 0.70
+      BOUNDARY: 0.75
+      ADDRESS: 0.80
+      ZONE: 0.80
+    VLM_STRUCTURED:
+      MEASUREMENT: 0.60
+      BOUNDARY: 0.65
+      ADDRESS: 0.70
+      ZONE: 0.70
+    VLM_FINETUNED:
+      MEASUREMENT: 0.50
+      BOUNDARY: 0.55
+      ADDRESS: 0.60
+      ZONE: 0.60
+    MANUAL:
+      ADDRESS: 0.30
+      MEASUREMENT: 0.30
+      CERTIFICATE: 0.30
+      BOUNDARY: 0.30
+      ZONE: 0.30
+      OWNERSHIP: 0.30
+
+# --- Ablation Toggles ---
+# Toggle system components on/off for the ablation study.
+# See configs/ablation/ for pre-defined configurations.
+ablation:
+  use_snkg: true
+  use_rule_engine: true
+  use_confidence_gating: true
+  use_assessability_engine: true
+  use_evidence_reconciliation: true
+  use_vlm: true

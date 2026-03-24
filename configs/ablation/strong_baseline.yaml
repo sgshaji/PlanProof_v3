@@ -1,0 +1,18 @@
+# Strong Baseline: Per-rule CoT LLM evaluation
+# Same OCR text extraction as naive, but:
+# - Separate LLM call per rule with chain-of-thought prompting
+# - Prompt includes: rule text, instruction to cite evidence, flag uncertainty
+# - Structured JSON output: verdict, cited evidence, reasoning chain
+#
+# This isolates the contribution of the ARCHITECTURE (graph, reconciliation,
+# assessability) vs what sophisticated prompt engineering alone achieves.
+
+evaluation_strategy: strong_llm
+
+# Component toggles are ignored — the strong baseline bypasses the pipeline.
+use_snkg: false
+use_rule_engine: false
+use_confidence_gating: false
+use_assessability_engine: false
+use_evidence_reconciliation: false
+use_vlm: false

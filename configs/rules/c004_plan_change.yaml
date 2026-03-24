@@ -1,0 +1,34 @@
+# C4: Plan Change Detection (Simplified)
+# Compare key numeric attributes between proposed drawings and previously
+# approved drawings. Flag differences exceeding per-attribute tolerance.
+#
+# SCOPE: Attribute-level comparison only. No visual/structural drawing
+# comparison. If approved plan lacks dimension annotations, returns
+# NOT_ASSESSABLE — the assessability engine working as designed.
+
+rule_id: C004
+description: "Key attributes in proposed plan must be compared against approved plan for material changes"
+policy_source: "BCC Validation Checklist"
+evaluation_type: attribute_diff
+parameters:
+  attributes:
+    - building_height
+    - building_footprint_area
+    - number_of_storeys
+required_evidence:
+  - attribute: proposed_building_height
+    acceptable_sources: ["DRAWING", "REPORT"]
+    min_confidence: 0.75
+    spatial_grounding: null
+  - attribute: approved_building_height
+    acceptable_sources: ["DRAWING", "REPORT"]
+    min_confidence: 0.75
+    spatial_grounding: null
+  - attribute: proposed_building_footprint_area
+    acceptable_sources: ["DRAWING", "REPORT"]
+    min_confidence: 0.75
+    spatial_grounding: null
+  - attribute: approved_building_footprint_area
+    acceptable_sources: ["DRAWING", "REPORT"]
+    min_confidence: 0.75
+    spatial_grounding: null

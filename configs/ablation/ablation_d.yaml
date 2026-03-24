@@ -1,0 +1,11 @@
+# Ablation D: Full pipeline minus assessability engine
+# Isolates: NOT_ASSESSABLE verdict contribution
+# Output: All rules forced to PASS/FAIL (traditional compliance tool behaviour)
+# This measures the value of the core research contribution
+
+use_snkg: true
+use_rule_engine: true
+use_confidence_gating: true
+use_assessability_engine: false
+use_evidence_reconciliation: true
+use_vlm: true

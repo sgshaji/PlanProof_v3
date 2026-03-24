@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  neo4j:
+    image: neo4j:5-community
+    container_name: planproof-neo4j
+    ports:
+      - "7474:7474"   # HTTP browser
+      - "7687:7687"   # Bolt protocol
+    environment:
+      NEO4J_AUTH: neo4j/planproof-dev
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "neo4j status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  planproof-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: planproof-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    environment:
+      PLANPROOF_NEO4J_URI: bolt://neo4j:7687
+      PLANPROOF_NEO4J_USER: neo4j
+      PLANPROOF_NEO4J_PASSWORD: planproof-dev
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    volumes:
+      - ../data:/app/data
+      - ../configs:/app/configs
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
