@@ -2,7 +2,7 @@
 
 > **Last updated**: 2026-03-25
 > **Current phase**: Phase 1 (Data Pipeline & Synthetic Generation)
-> **Overall status**: Phase 0 complete. Phase 1 synthetic data generator built and generating.
+> **Overall status**: Phase 0 complete. Phase 1 Section 1.2 (synthetic data generator) complete. 50-set evaluation dataset generated.
 
 ---
 
@@ -132,7 +132,7 @@ pip install -e ".[geo,pdf,dev]"
 
 ## Phase 1: Synthetic Data Generator — Detailed Status
 
-### 1.2 Synthetic Dataset Generation
+### 1.2 Synthetic Dataset Generation — Complete
 - [x] Design spec written and reviewed (2026-03-25)
 - [x] Implementation plan (20 tasks) written and reviewed (2026-03-25)
 - [x] Scenario models — Value, Verdict, DocumentSpec, Scenario (frozen dataclasses) (2026-03-25)
@@ -142,21 +142,41 @@ pip install -e ".[geo,pdf,dev]"
 - [x] Rendering models + coordinate utils (PDF-point ↔ pixel conversion) (2026-03-25)
 - [x] Document generator registry (Protocol-based plugin architecture) (2026-03-25)
 - [x] FormGenerator — 7-page PDF planning application with bbox tracking (2026-03-25)
-- [x] SitePlanGenerator — PDF with setback dimensions and site coverage (2026-03-25)
-- [x] FloorPlanGenerator — PDF with room layouts and dimensions (2026-03-25)
-- [x] ElevationGenerator — PNG raster with height dimension annotation (2026-03-25)
+- [x] SitePlanGenerator — PDF with 5 shape families (rectangle, L-shaped, trapezoidal, L-building, angled) (2026-03-25)
+- [x] FloorPlanGenerator — PDF with 5 layout families (simple, L-shaped, open plan, two-storey, bay window) (2026-03-25)
+- [x] ElevationGenerator — PNG raster with varied width, windows, doors, chimney, roof type (2026-03-25)
+- [x] Polygon diversity — seeded variation in property shapes, building footprints, room layouts (2026-03-25)
 - [x] 8 degradation transforms with TransformResult affine tracking (2026-03-25)
 - [x] compose() utility + YAML preset loader (2026-03-25)
 - [x] BBox affine adjustment + PDF rasterisation (2026-03-25)
 - [x] Output writers — sidecar (ground_truth.json), reference (parcel.geojson, zone.json), file (BCC naming) (2026-03-25)
 - [x] CLI runner with --seed/--category/--count flags (2026-03-25)
+- [x] Subtype-based dispatch — FORM, SITE_PLAN, FLOOR_PLAN, ELEVATION each use correct generator (2026-03-25)
 - [x] Integration tests — 8 tests covering full pipeline, determinism, output structure (2026-03-25)
 - [x] Coverage tests + verify_data module (2026-03-25)
-- [x] Full evaluation dataset generated — 20 compliant + 20 noncompliant + 10 edgecase (2026-03-25)
+- [x] Full evaluation dataset generated — 20 compliant + 20 noncompliant + 10 edgecase (50 sets, 350+ files) (2026-03-25)
+
+### 1.1 BCC Real Data
+- [x] 10 real BCC application sets placed in `data/raw/` (2026-03-25)
+- [ ] PII anonymisation script — not yet implemented
+- [ ] Provenance documentation
+
+### 1.3 Test Set Sealing
+- [ ] Seeded train/val/test split
+- [ ] MD5 integrity manifest
+- [ ] Verification script
 
 ### Test Summary
-- 137+ unit tests + 8 integration tests, all passing
+- 129 unit tests + 8 integration tests, all passing (1 skipped — pymupdf page count)
 - ruff clean, mypy --strict clean across all datagen modules
+- Full pipeline smoke-tested: seed 42 → 50 sets with ground truth + reference files
+
+### Architecture Highlights
+- **Hybrid FP/OOP**: pure functions for scenario generation + degradation, Protocol-based plugins for rendering
+- **Immutable data**: frozen dataclasses with tuple collections throughout
+- **Seed deterministic**: same seed always produces identical output
+- **Extraction-level ground truth**: every placed value tracked with pixel-accurate bounding boxes
+- **Plugin extensible**: new rules = YAML config, new doc types = one generator class, new degradation = one pure function
 
 ---
 
