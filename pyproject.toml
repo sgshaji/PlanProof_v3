@@ -12,14 +12,19 @@ dependencies = [
     "pydantic-settings",
     "structlog",
     "neo4j",
-    "shapely",
     "openai",
-    "pymupdf",
     "pyyaml",
     "requests",
+    "groq",
 ]
 
 [project.optional-dependencies]
+geo = [
+    "shapely",
+]
+pdf = [
+    "pymupdf",
+]
 dev = [
     "pytest",
     "pytest-cov",
