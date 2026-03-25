@@ -30,6 +30,8 @@ dev = [
     "pytest-cov",
     "ruff",
     "mypy",
+    "types-PyYAML",
+    "types-requests",
 ]
 
 [tool.hatch.build.targets.wheel]

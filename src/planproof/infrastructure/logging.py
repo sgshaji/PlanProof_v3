@@ -48,4 +48,5 @@ def get_logger(name: str) -> structlog.BoundLogger:
     name:
         Typically ``__name__`` of the calling module.
     """
-    return structlog.get_logger(name)
+    logger: structlog.BoundLogger = structlog.get_logger(name)
+    return logger

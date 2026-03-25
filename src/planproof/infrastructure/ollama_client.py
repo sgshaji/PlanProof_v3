@@ -61,7 +61,8 @@ class OllamaClient:
                 timeout=120,
             )
             response.raise_for_status()
-            return response.json().get("response", "")
+            result: str = response.json().get("response", "")
+            return result
         except requests.ConnectionError:
             msg = (
                 f"Cannot connect to Ollama at {self._base_url}. "

@@ -35,7 +35,15 @@ from planproof.reasoning.evaluators.fuzzy_match import FuzzyMatchEvaluator
 from planproof.reasoning.evaluators.numeric_threshold import NumericThresholdEvaluator
 from planproof.reasoning.evaluators.numeric_tolerance import NumericToleranceEvaluator
 from planproof.reasoning.evaluators.ratio_threshold import RatioThresholdEvaluator
+from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.config import PipelineConfig
+from planproof.schemas.entities import (
+    ClassifiedDocument,
+    ExtractedEntity,
+    RawTextResult,
+)
+from planproof.schemas.pipeline import EvidenceRequest
+from planproof.schemas.reconciliation import ReconciledEvidence
 
 logger = get_logger(__name__)
 
@@ -136,7 +144,7 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
     )
 
     if config.ablation.use_vlm:
-        pipeline.register(VLMExtractionStep(vlm_extractor=_stub_vlm()))
+        pipeline.register(VLMExtractionStep(vlm=_stub_vlm()))
 
     # Layer 2: Representation
     pipeline.register(NormalisationStep())
@@ -149,7 +157,10 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
     # Layer 3: Reasoning
     if config.ablation.use_evidence_reconciliation:
         pipeline.register(
-            ReconciliationStep(reconciler=_stub_reconciler())
+            ReconciliationStep(
+                reconciler=_stub_reconciler(),
+                evidence_provider=_stub_evidence_provider(),
+            )
         )
 
     if config.ablation.use_confidence_gating:
@@ -170,7 +181,7 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
 
     # Layer 4: Output — always active
     pipeline.register(ScoringStep())
-    pipeline.register(EvidenceRequestStep())
+    pipeline.register(EvidenceRequestStep(generator=_stub_evidence_request_generator()))
 
     logger.info(
         "pipeline_built",
@@ -190,60 +201,64 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
 class _StubClassifier:
     """Placeholder until Phase 2."""
 
-    def classify(self, file_path: Path) -> None:  # type: ignore[override]
+    def classify(self, file_path: Path) -> ClassifiedDocument:
         raise NotImplementedError("Concrete classifier implemented in Phase 2")
 
 
 class _StubOCR:
     """Placeholder until Phase 2."""
 
-    def extract_text(self, document: Path) -> None:  # type: ignore[override]
+    def extract_text(self, document: Path) -> RawTextResult:
         raise NotImplementedError("Concrete OCR implemented in Phase 2")
 
 
 class _StubEntityExtractor:
     """Placeholder until Phase 2."""
 
-    def extract_entities(self, text: object) -> list:  # type: ignore[override]
+    def extract_entities(self, text: RawTextResult) -> list[ExtractedEntity]:
         raise NotImplementedError("Concrete entity extractor implemented in Phase 2")
 
 
 class _StubVLM:
     """Placeholder until Phase 2."""
 
-    def extract_spatial_attributes(self, image: Path) -> list:  # type: ignore[override]
+    def extract_spatial_attributes(self, image: Path) -> list[ExtractedEntity]:
         raise NotImplementedError("Concrete VLM extractor implemented in Phase 2")
 
 
 class _StubPopulator:
     """Placeholder until Phase 3."""
 
-    def populate_from_entities(self, entities: list) -> None:
+    def populate_from_entities(self, entities: list[ExtractedEntity]) -> None:
         raise NotImplementedError("Concrete graph populator implemented in Phase 3")
 
 
 class _StubReconciler:
     """Placeholder until Phase 4."""
 
-    def reconcile(self, entities: list, attribute: str) -> None:  # type: ignore[override]
+    def reconcile(
+        self, entities: list[ExtractedEntity], attribute: str
+    ) -> ReconciledEvidence:
         raise NotImplementedError("Concrete reconciler implemented in Phase 4")
 
 
 class _StubGate:
     """Placeholder until Phase 4."""
 
-    def is_trustworthy(self, entity: object) -> bool:
+    def is_trustworthy(self, entity: ExtractedEntity) -> bool:
         raise NotImplementedError("Concrete confidence gate implemented in Phase 4")
 
-    def filter_trusted(self, entities: list) -> list:
+    def filter_trusted(
+        self, entities: list[ExtractedEntity]
+    ) -> list[ExtractedEntity]:
         raise NotImplementedError("Concrete confidence gate implemented in Phase 4")
 
 
 class _StubAssessability:
     """Placeholder until Phase 4."""
 
-    def evaluate(self, rule_id: str) -> None:  # type: ignore[override]
-        msg = "Concrete assessability evaluator implemented in Phase 4"
+    def evaluate(self, rule_id: str) -> AssessabilityResult:
+        msg = "Concrete assessability evaluator: Phase 4"
         raise NotImplementedError(msg)
 
 
@@ -277,3 +292,33 @@ def _stub_gate() -> _StubGate:
 
 def _stub_assessability() -> _StubAssessability:
     return _StubAssessability()
+
+
+class _StubEvidenceProvider:
+    """Placeholder until Phase 3."""
+
+    def get_evidence_for_rule(self, rule_id: str) -> list[ExtractedEntity]:
+        raise NotImplementedError("Concrete evidence provider implemented in Phase 3")
+
+    def get_conflicting_evidence(
+        self, attribute: str
+    ) -> list[tuple[ExtractedEntity, ExtractedEntity]]:
+        raise NotImplementedError("Concrete evidence provider implemented in Phase 3")
+
+
+class _StubEvidenceRequestGenerator:
+    """Placeholder until Phase 5."""
+
+    def generate_requests(
+        self, not_assessable: list[AssessabilityResult]
+    ) -> list[EvidenceRequest]:
+        msg = "Concrete evidence request generator: Phase 5"
+        raise NotImplementedError(msg)
+
+
+def _stub_evidence_provider() -> _StubEvidenceProvider:
+    return _StubEvidenceProvider()
+
+
+def _stub_evidence_request_generator() -> _StubEvidenceRequestGenerator:
+    return _StubEvidenceRequestGenerator()

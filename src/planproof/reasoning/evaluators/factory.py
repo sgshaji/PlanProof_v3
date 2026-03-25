@@ -85,5 +85,6 @@ class RuleFactory:
                 f"No evaluator registered for type {eval_type!r}. "
                 f"Registered types: {registered}"
             )
-        cls = self._registry[eval_type]
-        return cls(rule_config.parameters)
+        evaluator_cls = self._registry[eval_type]
+        result: RuleEvaluator = evaluator_cls(rule_config.parameters)
+        return result
