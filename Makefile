@@ -1,4 +1,4 @@
-.PHONY: install lint typecheck test test-reasoning verify-data evaluate all
+.PHONY: install lint typecheck test test-reasoning seal-data verify-data evaluate all
 
 install:
 	pip install -e ".[dev]"
@@ -19,8 +19,12 @@ test-reasoning:
 generate-data:
 	python -m planproof.datagen.runner --seed 42
 
+seal-data:
+	python -m planproof.datagen.split
+	python -m planproof.datagen.integrity
+
 verify-data:
-	python -m planproof.datagen.output.verify_data
+	python scripts/verify_dataset.py
 
 evaluate:
 	python -m planproof.evaluation.run_ablation
