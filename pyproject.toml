@@ -16,6 +16,9 @@ dependencies = [
     "pyyaml",
     "requests",
     "groq",
+    "reportlab",
+    "Pillow",
+    "numpy",
 ]
 
 [project.optional-dependencies]

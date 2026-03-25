@@ -38,3 +38,6 @@ data/.llm_cache/
 # OS
 .DS_Store
 Thumbs.db
+
+# Generated synthetic data (large binary files)
+data/synthetic/
