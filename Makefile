@@ -16,8 +16,11 @@ test:
 test-reasoning:
 	pytest --cov=planproof.reasoning --cov-report=term-missing --cov-fail-under=90 tests/unit/reasoning/
 
+generate-data:
+	python -m planproof.datagen.runner --seed 42
+
 verify-data:
-	python -m planproof.evaluation.verify_data
+	python -m planproof.datagen.output.verify_data
 
 evaluate:
 	python -m planproof.evaluation.run_ablation

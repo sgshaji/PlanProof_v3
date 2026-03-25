@@ -1,8 +1,8 @@
 # PlanProof — Execution Status
 
 > **Last updated**: 2026-03-25
-> **Current phase**: Phase 0 (Project Foundation)
-> **Overall status**: Phase 0 scaffold complete. Ruff + mypy --strict passing. Ready for Phase 1 (Data).
+> **Current phase**: Phase 1 (Data Pipeline & Synthetic Generation)
+> **Overall status**: Phase 0 complete. Phase 1 synthetic data generator built and generating.
 
 ---
 
@@ -10,8 +10,8 @@
 
 | Phase | Name | Status | Date Started | Date Completed |
 |-------|------|--------|-------------|----------------|
-| **Phase 0** | Project Foundation | **In Progress** | 2026-03-25 | — |
-| Phase 1 | Data Pipeline & Synthetic Generation | Not Started | — | — |
+| **Phase 0** | Project Foundation | **Complete** | 2026-03-25 | 2026-03-25 |
+| **Phase 1** | Data Pipeline & Synthetic Generation | **In Progress** | 2026-03-25 | — |
 | Phase 2 | Ingestion Layer (M1, M2, M3) | Not Started | — | — |
 | Phase 3 | Representation Layer (M5) | Not Started | — | — |
 | Phase 4 | Reasoning Layer (M6–M9) | Not Started | — | — |
@@ -130,10 +130,37 @@ pip install -e ".[geo,pdf,dev]"
 
 ---
 
+## Phase 1: Synthetic Data Generator — Detailed Status
+
+### 1.2 Synthetic Dataset Generation
+- [x] Design spec written and reviewed (2026-03-25)
+- [x] Implementation plan (20 tasks) written and reviewed (2026-03-25)
+- [x] Scenario models — Value, Verdict, DocumentSpec, Scenario (frozen dataclasses) (2026-03-25)
+- [x] Config loader — Pydantic-validated YAML, 9 configs (rules, profiles, degradation) (2026-03-25)
+- [x] Scenario generator — generate_values, compute_verdicts, build_scenario (pure FP) (2026-03-25)
+- [x] 5 edge-case strategies (missing_evidence, conflicting_values, low_confidence_scan, partial_documents, ambiguous_units) (2026-03-25)
+- [x] Rendering models + coordinate utils (PDF-point ↔ pixel conversion) (2026-03-25)
+- [x] Document generator registry (Protocol-based plugin architecture) (2026-03-25)
+- [x] FormGenerator — 7-page PDF planning application with bbox tracking (2026-03-25)
+- [x] SitePlanGenerator — PDF with setback dimensions and site coverage (2026-03-25)
+- [x] FloorPlanGenerator — PDF with room layouts and dimensions (2026-03-25)
+- [x] ElevationGenerator — PNG raster with height dimension annotation (2026-03-25)
+- [x] 8 degradation transforms with TransformResult affine tracking (2026-03-25)
+- [x] compose() utility + YAML preset loader (2026-03-25)
+- [x] BBox affine adjustment + PDF rasterisation (2026-03-25)
+- [x] Output writers — sidecar (ground_truth.json), reference (parcel.geojson, zone.json), file (BCC naming) (2026-03-25)
+- [x] CLI runner with --seed/--category/--count flags (2026-03-25)
+- [x] Integration tests — 8 tests covering full pipeline, determinism, output structure (2026-03-25)
+- [x] Coverage tests + verify_data module (2026-03-25)
+- [x] Full evaluation dataset generated — 20 compliant + 20 noncompliant + 10 edgecase (2026-03-25)
+
+### Test Summary
+- 137+ unit tests + 8 integration tests, all passing
+- ruff clean, mypy --strict clean across all datagen modules
+
+---
+
 ## Next Steps
 
-1. ~~Verify Neo4j Aura connectivity from Python~~ — **Done** (2026-03-25)
-2. ~~Write initial pytest suite (schema round-trips, pipeline skeleton)~~ — **Done** (2026-03-25)
-3. ~~Set up GitHub Actions CI (lint + typecheck + test on Linux)~~ — **Done** (2026-03-25)
-4. Complete Phase 0 remaining items (cache integration test, Label Studio)
-5. Begin Phase 1: Data Pipeline & Synthetic Generation
+1. Complete Phase 1 remaining items (BCC real data anonymisation, test set sealing)
+2. Begin Phase 2: Ingestion Layer (Document Classifier, Text Extraction, VLM Pipeline)
