@@ -1,4 +1,9 @@
-version: "3.9"
+# Backing services for local development (Neo4j + Ollama)
+# Usage:
+#   docker compose -f docker/docker-compose.yml up -d
+#   docker compose -f docker/docker-compose.yml down
+#
+# Run your Python code locally — these services are reachable at localhost.
 
 services:
   neo4j:
@@ -19,26 +24,22 @@ services:
       timeout: 5s
       retries: 5
 
-  planproof-api:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.api
-    container_name: planproof-api
+  ollama:
+    image: ollama/ollama
+    container_name: planproof-ollama
     ports:
-      - "8000:8000"
-    env_file:
-      - ../.env
-    environment:
-      PLANPROOF_NEO4J_URI: bolt://neo4j:7687
-      PLANPROOF_NEO4J_USER: neo4j
-      PLANPROOF_NEO4J_PASSWORD: planproof-dev
-    depends_on:
-      neo4j:
-        condition: service_healthy
+      - "11434:11434"
     volumes:
-      - ../data:/app/data
-      - ../configs:/app/configs
+      - ollama_models:/root/.ollama
+    # Pull default models on first start:
+    #   docker exec planproof-ollama ollama pull llama3.1
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
 
 volumes:
   neo4j_data:
   neo4j_logs:
+  ollama_models:

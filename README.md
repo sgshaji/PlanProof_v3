@@ -56,33 +56,14 @@ make typecheck   # Run mypy strict
 make test        # Run pytest
 ```
 
-### Option B: Docker Compose (command line)
+### Step 2: Start Backing Services (Docker)
 
 ```bash
-# 1. Setup
-cp .env.example .env
-# Edit .env — defaults to Ollama (free, no API key needed)
-
-# 2. Build and start
-make docker-build   # Build the dev container
-make docker-up      # Start Neo4j + dev container
-
-# 3. Run commands inside the container
-make docker-lint       # Lint
-make docker-typecheck  # Type check
-make docker-test       # Test
-make docker-shell      # Drop into bash inside container
+make services-up       # Start Neo4j + Ollama
+make ollama-pull       # Download the llama3.1 model
 ```
 
-### Option C: Local Installation (if not using Docker)
-
-```bash
-# Requires Python 3.11+ and system libraries for shapely/pymupdf
-pip install -e ".[dev]"
-make all
-```
-
-> **Note**: Local installation may fail on ARM64 Windows due to native extension build issues. Docker is the recommended approach.
+> **Note**: Only Neo4j and Ollama run in Docker. Python runs locally on the host.
 
 ---
 
@@ -121,8 +102,7 @@ planproof/
 ├── data/                    # Datasets, cache, results (mostly gitignored)
 ├── tests/                   # Unit + integration tests
 ├── docs/                    # Architecture, ADRs, implementation plan
-├── docker/                  # Dockerfiles + compose
-└── .devcontainer/           # VS Code Dev Container config
+└── docker/                  # Docker Compose for backing services (Neo4j + Ollama)
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full component diagram and design rationale.
@@ -152,10 +132,10 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full component diagram 
 | `make test` | Run pytest with coverage |
 | `make test-reasoning` | Run reasoning tests with 90% coverage gate |
 | `make all` | lint + typecheck + test |
-| `make docker-build` | Build the dev container |
-| `make docker-up` | Start dev container + Neo4j |
-| `make docker-down` | Stop all containers |
-| `make docker-shell` | Bash shell inside dev container |
+| `make install` | Install project locally in editable mode |
+| `make services-up` | Start Neo4j + Ollama (Docker) |
+| `make services-down` | Stop backing services |
+| `make ollama-pull` | Download llama3.1 model into Ollama |
 
 ### Adding a New Compliance Rule
 

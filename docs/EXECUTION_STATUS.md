@@ -83,19 +83,15 @@
 
 ### Verification
 - [x] `ruff check` passes clean (2026-03-25)
-- [ ] `mypy --strict` passes — run inside Docker container
+- [ ] `mypy --strict` passes — run locally with `make typecheck`
 - [ ] `pytest` passes — initial tests not yet written
-- [ ] All Protocol interfaces importable without circular deps — run inside Docker container
+- [ ] All Protocol interfaces importable without circular deps — run locally
 
-### Docker Dev Environment
-- [x] `docker/Dockerfile.dev` — Python 3.11-slim with all deps (2026-03-25)
-- [x] `docker/docker-compose.dev.yml` — dev container + Neo4j (2026-03-25)
-- [x] `.devcontainer/devcontainer.json` — VS Code Dev Container config (2026-03-25)
-- [x] `.devcontainer/docker-compose.yml` — VS Code compose override (2026-03-25)
-- [x] Makefile docker targets — docker-build, docker-up, docker-shell, docker-lint, docker-test (2026-03-25)
-- [ ] `docker compose build` succeeds — needs Docker Desktop running
-- [ ] `docker compose up` starts Neo4j + dev container — needs Docker Desktop running
-- [ ] VS Code "Reopen in Container" works — needs Docker Desktop running
+### Docker Backing Services
+- [x] `docker/docker-compose.yml` — Neo4j + Ollama services (2026-03-25)
+- [x] Makefile targets — services-up, services-down, services-status, ollama-pull (2026-03-25)
+- [ ] `make services-up` starts Neo4j + Ollama — needs Docker Desktop running
+- [ ] `make ollama-pull` downloads llama3.1 model
 
 ---
 
@@ -103,15 +99,16 @@
 
 | Date | Item | Status |
 |------|------|--------|
-| 2026-03-25 | `shapely` and `pymupdf` fail to install on ARM64 Windows | **Resolved** — Docker dev environment created, all deps install inside Linux container |
+| 2026-03-25 | `shapely` and `pymupdf` fail to install on ARM64 Windows | **Resolved** — switched to local Python dev with Docker only for backing services (Neo4j + Ollama) |
 | 2026-03-25 | No git repo initialized yet | **Open** — initialize when ready |
 
 ---
 
 ## Next Steps
 
-1. Start Docker Desktop, run `make docker-build && make docker-up`
-2. Verify: `make docker-lint`, `make docker-typecheck`, `make docker-test`
-3. Or open project in VS Code and "Reopen in Container"
-4. Complete Phase 0 remaining items (CI, initial tests, Neo4j connectivity)
-5. Begin Phase 1: Data Pipeline & Synthetic Generation
+1. Install locally: `make install`
+2. Start backing services: `make services-up` (requires Docker Desktop)
+3. Pull Ollama model: `make ollama-pull`
+4. Verify: `make lint`, `make typecheck`, `make test`
+5. Complete Phase 0 remaining items (CI, initial tests, Neo4j connectivity)
+6. Begin Phase 1: Data Pipeline & Synthetic Generation

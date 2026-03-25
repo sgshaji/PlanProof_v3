@@ -1,5 +1,10 @@
-.PHONY: lint typecheck test test-reasoning verify-data evaluate all \
-       docker-build docker-up docker-down docker-shell docker-lint docker-typecheck docker-test
+.PHONY: install lint typecheck test test-reasoning verify-data evaluate all \
+       services-up services-down services-status ollama-pull
+
+# --- Local development (Python runs on host) ---
+
+install:
+	pip install -e ".[dev]"
 
 lint:
 	ruff check src/ tests/
@@ -22,31 +27,18 @@ evaluate:
 
 all: lint typecheck test
 
-# --- Docker targets (run everything inside the dev container) ---
+# --- Backing services (Neo4j + Ollama via Docker) ---
 
-COMPOSE_DEV = docker compose -f docker/docker-compose.dev.yml
-DEV_EXEC    = $(COMPOSE_DEV) exec planproof-dev
+COMPOSE = docker compose -f docker/docker-compose.yml
 
-docker-build:
-	$(COMPOSE_DEV) build
+services-up:
+	$(COMPOSE) up -d
 
-docker-up:
-	$(COMPOSE_DEV) up -d
+services-down:
+	$(COMPOSE) down
 
-docker-down:
-	$(COMPOSE_DEV) down
+services-status:
+	$(COMPOSE) ps
 
-docker-shell:
-	$(DEV_EXEC) bash
-
-docker-lint:
-	$(DEV_EXEC) make lint
-
-docker-typecheck:
-	$(DEV_EXEC) make typecheck
-
-docker-test:
-	$(DEV_EXEC) make test
-
-docker-all:
-	$(DEV_EXEC) make all
+ollama-pull:
+	docker exec planproof-ollama ollama pull llama3.1

@@ -300,26 +300,29 @@ output_schema:
 
 ## 8. Docker Configuration
 
-### Docker Compose Files
+### Docker Compose File
 
 | File | Usage |
 |------|-------|
-| `docker/docker-compose.yml` | Production-like: Neo4j + API only |
-| `docker/docker-compose.dev.yml` | Development: Neo4j + dev container (Python + all deps) |
-| `.devcontainer/docker-compose.yml` | VS Code Dev Container override |
+| `docker/docker-compose.yml` | Backing services: Neo4j + Ollama |
 
-### Container Environment Variables
+Docker is used **only** for backing services. Python runs locally on the host.
 
-When running inside Docker Compose, these are set automatically:
+### Setup
 
-| Variable | Value | Set In |
-|----------|-------|--------|
-| `PLANPROOF_NEO4J_URI` | `bolt://neo4j:7687` | docker-compose.dev.yml |
-| `PLANPROOF_NEO4J_USER` | `neo4j` | docker-compose.dev.yml |
-| `PLANPROOF_NEO4J_PASSWORD` | `planproof-dev` | docker-compose.dev.yml |
-| `PLANPROOF_OPENAI_API_KEY` | From `.env` file | docker-compose.dev.yml |
+```bash
+# Start backing services
+make services-up
 
-**You only need to set `PLANPROOF_OPENAI_API_KEY` in `.env`** — everything else has defaults.
+# Pull the default Ollama model
+make ollama-pull
+
+# Install Python deps locally
+make install
+```
+
+Services are reachable at `localhost:7687` (Neo4j) and `localhost:11434` (Ollama).
+Copy `.env.example` to `.env` — the defaults already point to these local ports.
 
 ---
 
