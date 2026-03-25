@@ -87,11 +87,11 @@
 - [ ] `pytest` passes — initial tests not yet written
 - [ ] All Protocol interfaces importable without circular deps — run locally
 
-### Docker Backing Services
-- [x] `docker/docker-compose.yml` — Neo4j + Ollama services (2026-03-25)
-- [x] Makefile targets — services-up, services-down, services-status, ollama-pull (2026-03-25)
-- [ ] `make services-up` starts Neo4j + Ollama — needs Docker Desktop running
-- [ ] `make ollama-pull` downloads llama3.1 model
+### Cloud Services
+- [x] Neo4j Aura (free cloud instance) configured as default (2026-03-25)
+- [x] Groq (free cloud LLM) configured as default (2026-03-25)
+- [ ] Neo4j Aura instance created and credentials added to `.env`
+- [ ] Groq API key created and added to `.env`
 
 ---
 
@@ -99,16 +99,16 @@
 
 | Date | Item | Status |
 |------|------|--------|
-| 2026-03-25 | `shapely` and `pymupdf` fail to install on ARM64 Windows | **Resolved** — switched to local Python dev with Docker only for backing services (Neo4j + Ollama) |
-| 2026-03-25 | No git repo initialized yet | **Open** — initialize when ready |
+| 2026-03-25 | `shapely` and `pymupdf` fail to install on ARM64 Windows | **Resolved** — installs fine with Python 3.13 on ARM64 Windows |
+| 2026-03-25 | No git repo initialized yet | **Resolved** — pushed to github.com/sgshaji/PlanProof_v3 |
 
 ---
 
 ## Next Steps
 
 1. Install locally: `make install`
-2. Start backing services: `make services-up` (requires Docker Desktop)
-3. Pull Ollama model: `make ollama-pull`
+2. Create Neo4j Aura free instance and add credentials to `.env`
+3. Get Groq API key and add to `.env`
 4. Verify: `make lint`, `make typecheck`, `make test`
 5. Complete Phase 0 remaining items (CI, initial tests, Neo4j connectivity)
 6. Begin Phase 1: Data Pipeline & Synthetic Generation

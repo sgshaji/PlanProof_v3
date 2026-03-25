@@ -38,32 +38,24 @@ Planning Application          Pipeline                          Output
 
 ```bash
 # 1. Clone the repo
-git clone <repo-url> planproof && cd planproof
+git clone https://github.com/sgshaji/PlanProof_v3.git planproof && cd planproof
 
-# 2. Copy environment config
+# 2. Install Python dependencies
+make install
+
+# 3. Copy environment config and add your credentials
 cp .env.example .env
-# Edit .env — defaults to Ollama (free, no API key needed)
-# Or set PLANPROOF_LLM_PROVIDER=groq and add a Groq API key
+# Edit .env:
+#   - Add your Groq API key (free: https://console.groq.com)
+#   - Add your Neo4j Aura credentials (free: https://aura.neo4j.io)
 
-# 3. Open in VS Code
-code .
-# VS Code will prompt "Reopen in Container" — click yes
-# First build takes ~2-3 minutes, then cached
-
-# 4. Inside the container terminal:
+# 4. Verify setup
 make lint        # Check code quality
 make typecheck   # Run mypy strict
 make test        # Run pytest
 ```
 
-### Step 2: Start Backing Services (Docker)
-
-```bash
-make services-up       # Start Neo4j + Ollama
-make ollama-pull       # Download the llama3.1 model
-```
-
-> **Note**: Only Neo4j and Ollama run in Docker. Python runs locally on the host.
+> **No Docker required.** LLM runs via Groq cloud, Neo4j runs via Aura cloud.
 
 ---
 
@@ -75,7 +67,7 @@ Quick reference:
 
 | What | File | Purpose |
 |------|------|---------|
-| Secrets & API keys | `.env` | OpenAI key, Neo4j credentials (never committed) |
+| Secrets & API keys | `.env` | Groq/OpenAI key, Neo4j Aura credentials (never committed) |
 | Pipeline defaults | `configs/default.yaml` | Confidence thresholds, ablation toggles, paths |
 | Compliance rules | `configs/rules/*.yaml` | One YAML per rule — add rules without code changes |
 | Ablation configs | `configs/ablation/*.yaml` | One YAML per experimental configuration |
@@ -101,8 +93,7 @@ planproof/
 ├── configs/                 # YAML configuration files
 ├── data/                    # Datasets, cache, results (mostly gitignored)
 ├── tests/                   # Unit + integration tests
-├── docs/                    # Architecture, ADRs, implementation plan
-└── docker/                  # Docker Compose for backing services (Neo4j + Ollama)
+└── docs/                    # Architecture, ADRs, implementation plan
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full component diagram and design rationale.
@@ -133,9 +124,6 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full component diagram 
 | `make test-reasoning` | Run reasoning tests with 90% coverage gate |
 | `make all` | lint + typecheck + test |
 | `make install` | Install project locally in editable mode |
-| `make services-up` | Start Neo4j + Ollama (Docker) |
-| `make services-down` | Stop backing services |
-| `make ollama-pull` | Download llama3.1 model into Ollama |
 
 ### Adding a New Compliance Rule
 

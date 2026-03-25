@@ -298,31 +298,32 @@ output_schema:
 
 ---
 
-## 8. Docker Configuration
+## 8. Cloud Services
 
-### Docker Compose File
+### Neo4j Aura (Graph Database)
 
-| File | Usage |
-|------|-------|
-| `docker/docker-compose.yml` | Backing services: Neo4j + Ollama |
+1. Sign up at [aura.neo4j.io](https://aura.neo4j.io) and create a **free instance**
+2. Copy the connection URI, username, and password into `.env`:
+   ```
+   PLANPROOF_NEO4J_URI=neo4j+s://xxxxxxxx.databases.neo4j.io
+   PLANPROOF_NEO4J_USER=neo4j
+   PLANPROOF_NEO4J_PASSWORD=your-aura-password
+   ```
 
-Docker is used **only** for backing services. Python runs locally on the host.
+**Local fallback**: Install Neo4j on Windows and use `bolt://localhost:7687`.
 
-### Setup
+### LLM Provider (Groq / OpenAI)
 
-```bash
-# Start backing services
-make services-up
+Default is **Groq** (free tier, 30 requests/minute):
+1. Get an API key at [console.groq.com](https://console.groq.com)
+2. Set in `.env`:
+   ```
+   PLANPROOF_LLM_PROVIDER=groq
+   PLANPROOF_LLM_MODEL=llama-3.1-70b-versatile
+   PLANPROOF_LLM_API_KEY=your-groq-key
+   ```
 
-# Pull the default Ollama model
-make ollama-pull
-
-# Install Python deps locally
-make install
-```
-
-Services are reachable at `localhost:7687` (Neo4j) and `localhost:11434` (Ollama).
-Copy `.env.example` to `.env` — the defaults already point to these local ports.
+**Local fallback**: Install [Ollama](https://ollama.ai) and set `PLANPROOF_LLM_PROVIDER=ollama`.
 
 ---
 

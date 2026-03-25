@@ -67,21 +67,21 @@ class PipelineConfig(BaseSettings):
     """
 
     # --- LLM Provider ---
-    # WHY: Default to Ollama (free, local, no API key needed) for development.
-    # Switch to "openai" or "groq" for final evaluation runs.
-    llm_provider: str = "ollama"
-    llm_model: str = "llama3.1"
+    # WHY: Default to Groq (free tier, cloud) for development.
+    # Ollama available as local fallback. OpenAI for production evaluation.
+    llm_provider: str = "groq"
+    llm_model: str = "llama-3.1-70b-versatile"
     llm_api_key: str = ""
     ollama_base_url: str = "http://localhost:11434"
 
     # --- VLM Provider (can differ from LLM for multimodal tasks) ---
-    vlm_provider: str = "ollama"
-    vlm_model: str = "llava"
+    vlm_provider: str = "openai"
+    vlm_model: str = "gpt-4o"
 
-    # --- Neo4j ---
-    neo4j_uri: str = "bolt://localhost:7687"
+    # --- Neo4j Aura (cloud) ---
+    neo4j_uri: str = ""
     neo4j_user: str = "neo4j"
-    neo4j_password: str = "planproof-dev"
+    neo4j_password: str = ""
 
     # --- Paths ---
     cache_dir: Path = Path("data/.llm_cache")
