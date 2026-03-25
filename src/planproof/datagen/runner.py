@@ -58,7 +58,7 @@ _DEFAULT_EDGECASE_COUNT: int = 10
 # WHY: Using Path(__file__) to anchor the config paths means the runner can be
 # invoked from any working directory without requiring the caller to set
 # PYTHONPATH or change directory first.
-_PROJECT_ROOT: Path = Path(__file__).parent.parent.parent.parent.parent
+_PROJECT_ROOT: Path = Path(__file__).parent.parent.parent.parent
 _RULES_DIR: Path = _PROJECT_ROOT / "configs" / "datagen" / "rules"
 _PROFILES_DIR: Path = _PROJECT_ROOT / "configs" / "datagen" / "profiles"
 _DEFAULT_OUTPUT_DIR: Path = _PROJECT_ROOT / "data" / "synthetic"
@@ -349,7 +349,7 @@ def generate_sets(
             )
 
             rel = set_output_dir.relative_to(output_dir)
-            print(f"  [{cat}] {scenario.set_id} → {rel}")
+            print(f"  [{cat}] {scenario.set_id} -> {rel}")
 
 
 # ---------------------------------------------------------------------------
