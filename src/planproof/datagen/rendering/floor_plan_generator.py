@@ -1,9 +1,9 @@
 """FloorPlanGenerator — generates a room-layout floor plan PDF using reportlab.
 
 The floor plan shows:
-  - External wall rectangle (the building outline)
-  - 2-3 internal room subdivisions (rectangles separated by wall lines)
-  - Room dimension annotations (width × depth)
+  - External wall polygon (the building outline — one of several layout families)
+  - Internal room subdivisions with varied arrangements
+  - Room dimension annotations (width x depth)
   - Door indicators (arcs in room corners)
   - Window indicators (double lines on external walls)
   - Title block: "Ground Floor Plan" or "First Floor Plan" (chosen by seed)
@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import io
 import random
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Final
 
@@ -46,10 +47,6 @@ from planproof.schemas.entities import BoundingBox, DocumentType, EntityType
 # ---------------------------------------------------------------------------
 
 MARGIN: Final[float] = 20 * mm
-
-# External wall extents (the full building footprint on the page)
-EXT_W: Final[float] = 160 * mm
-EXT_H: Final[float] = 120 * mm
 
 # Wall thickness (solid lines drawn as pairs)
 WALL_T: Final[float] = 2.0   # PDF points
@@ -79,6 +76,17 @@ _TRACKED_AREA_ATTRS: Final[frozenset[str]] = frozenset({
 _FLOOR_TITLES: Final[tuple[str, ...]] = (
     "Ground Floor Plan",
     "First Floor Plan",
+)
+
+# WHY: Layout family names used for seeded selection.  Each family produces a
+# distinct room arrangement and external wall shape, giving the corpus visual
+# diversity that prevents classifiers from overfitting to one floor plan layout.
+_LAYOUT_FAMILIES: Final[tuple[str, ...]] = (
+    "simple_rectangle",
+    "l_shaped",
+    "open_plan",
+    "two_storey",
+    "bay_window",
 )
 
 
@@ -140,35 +148,51 @@ class FloorPlanGenerator:
         title = _FLOOR_TITLES[seed % len(_FLOOR_TITLES)]
         self._draw_title_block(c, page_w, page_h, title)
 
+        # WHY: Vary external wall dimensions using seeded random so floor plans
+        # have different proportions across the corpus.
+        ext_w = rng.uniform(120, 200) * mm
+        ext_h = rng.uniform(80, 150) * mm
+
+        # Clamp to page
+        max_w = page_w - 2 * MARGIN - TITLE_BLOCK_W - 20 * mm
+        max_h = page_h - 2 * MARGIN - 20 * mm
+        ext_w = min(ext_w, max_w)
+        ext_h = min(ext_h, max_h)
+
         # External wall origin: top-left quadrant of page
         ext_x = MARGIN
-        ext_y = page_h - MARGIN - EXT_H
+        ext_y = page_h - MARGIN - ext_h
 
-        # Subdivide into 2-3 rooms using the RNG
-        rooms = self._make_rooms(rng, ext_x, ext_y, EXT_W, EXT_H)
+        # WHY: Select a layout family using the seeded RNG so different seeds
+        # produce different room arrangements and external wall shapes.
+        layout_family = rng.choice(_LAYOUT_FAMILIES)
 
-        self._draw_external_walls(c, ext_x, ext_y, EXT_W, EXT_H)
+        # Compute rooms and external wall polygon based on the layout family
+        rooms, ext_polygon, extra_draw = self._compute_layout(
+            rng, layout_family, ext_x, ext_y, ext_w, ext_h,
+        )
+
+        # Draw external walls as polygon
+        self._draw_external_polygon(c, ext_polygon)
+
         self._draw_internal_walls(c, rooms)
-        self._draw_windows(c, ext_x, ext_y, EXT_W, EXT_H)
+        self._draw_windows_on_polygon(c, ext_polygon, ext_x, ext_y, ext_w, ext_h)
         self._draw_doors(c, rooms)
         self._draw_room_labels(c, rooms)
 
-        # --- Conditional annotation rendering for tracked area values ---
-        # WHY: Area values are placed once per document as a summary annotation
-        # in the title block area rather than as a dimension on a specific room,
-        # because floor area is a property of the whole floor, not one room.
+        # Draw any extra elements (staircase symbol, bay window detail, etc.)
+        if extra_draw is not None:
+            extra_draw(c)
 
+        # --- Conditional annotation rendering for tracked area values ---
         for attr in doc_spec.values_to_place:
             if attr not in _TRACKED_AREA_ATTRS:
-                # WHY: Silently skip unrecognised attributes rather than raising,
-                # so this generator composes safely in multi-document scenarios
-                # where the same values_to_place list is shared across generators.
                 continue
             val = value_by_attr.get(attr)
             if val is None:
                 continue
             pv = self._draw_area_annotation(
-                c, page_h, ext_x, ext_y, EXT_W, EXT_H, val, len(placed)
+                c, page_h, ext_x, ext_y, ext_w, ext_h, val, len(placed)
             )
             if pv is not None:
                 placed.append(pv)
@@ -185,10 +209,212 @@ class FloorPlanGenerator:
         )
 
     # ------------------------------------------------------------------
-    # Private geometry helpers
+    # Layout family computation
     # ------------------------------------------------------------------
 
-    def _make_rooms(
+    def _compute_layout(
+        self,
+        rng: random.Random,
+        layout_family: str,
+        ext_x: float,
+        ext_y: float,
+        ext_w: float,
+        ext_h: float,
+    ) -> tuple[
+        list[_Room],
+        list[tuple[float, float]],
+        None | Callable[[rl_canvas.Canvas], None],
+    ]:
+        """Compute rooms, external wall polygon, and optional extra draw callback.
+
+        # WHY: Centralising layout computation keeps the generate() method clean
+        # and makes it easy to add new layout families.
+
+        Returns:
+            (rooms, ext_polygon, extra_draw_callback_or_None)
+        """
+        if layout_family == "l_shaped":
+            return self._layout_l_shaped(rng, ext_x, ext_y, ext_w, ext_h)
+        elif layout_family == "open_plan":
+            return self._layout_open_plan(rng, ext_x, ext_y, ext_w, ext_h)
+        elif layout_family == "two_storey":
+            return self._layout_two_storey(rng, ext_x, ext_y, ext_w, ext_h)
+        elif layout_family == "bay_window":
+            return self._layout_bay_window(rng, ext_x, ext_y, ext_w, ext_h)
+        else:
+            # WHY: Default to simple_rectangle — the original 2-3 room layout.
+            return self._layout_simple_rectangle(rng, ext_x, ext_y, ext_w, ext_h)
+
+    def _layout_simple_rectangle(
+        self,
+        rng: random.Random,
+        ext_x: float, ext_y: float, ext_w: float, ext_h: float,
+    ) -> tuple[list[_Room], list[tuple[float, float]], None]:
+        """Simple rectangular outline with 2-3 rooms in a row (original layout).
+
+        # WHY: This is the baseline layout, preserved for backward compatibility
+        # and as the simplest variant in the diversity mix.
+        """
+        polygon = [
+            (ext_x, ext_y),
+            (ext_x + ext_w, ext_y),
+            (ext_x + ext_w, ext_y + ext_h),
+            (ext_x, ext_y + ext_h),
+        ]
+        rooms = self._make_rooms_subdivide(rng, ext_x, ext_y, ext_w, ext_h)
+        return rooms, polygon, None
+
+    def _layout_l_shaped(
+        self,
+        rng: random.Random,
+        ext_x: float, ext_y: float, ext_w: float, ext_h: float,
+    ) -> tuple[list[_Room], list[tuple[float, float]], None]:
+        """L-shaped floor plan: main block + extension.
+
+        # WHY: L-shaped floor plans arise from single-storey extensions at the
+        # rear or side of a building — the most common UK domestic extension type.
+        """
+        # Extension dimensions as fraction of the main block
+        ext_frac_w = rng.uniform(0.35, 0.55)
+        ext_frac_h = rng.uniform(0.3, 0.45)
+        ext_part_w = ext_w * ext_frac_w
+        ext_part_h = ext_h * ext_frac_h
+
+        # L-shape: main rectangle + extension at bottom-right
+        polygon = [
+            (ext_x, ext_y),
+            (ext_x + ext_w, ext_y),
+            (ext_x + ext_w, ext_y + ext_h - ext_part_h),
+            (ext_x + ext_part_w, ext_y + ext_h - ext_part_h),
+            (ext_x + ext_part_w, ext_y + ext_h),
+            (ext_x, ext_y + ext_h),
+        ]
+
+        # Rooms: main block gets 2 rooms, extension gets 1
+        cut = ext_w * rng.uniform(0.4, 0.6)
+        main_h = ext_h - ext_part_h
+        rooms = [
+            _Room(ext_x, ext_y, cut, main_h, "Living Room"),
+            _Room(ext_x + cut, ext_y, ext_w - cut, main_h, "Kitchen"),
+            _Room(ext_x, ext_y + main_h, ext_part_w, ext_part_h, "Extension"),
+        ]
+        return rooms, polygon, None
+
+    def _layout_open_plan(
+        self,
+        rng: random.Random,
+        ext_x: float, ext_y: float, ext_w: float, ext_h: float,
+    ) -> tuple[list[_Room], list[tuple[float, float]], None]:
+        """Open plan: large living/kitchen with a small utility room.
+
+        # WHY: Open-plan layouts are increasingly common in modern residential
+        # designs and differ visually from traditional subdivided layouts.
+        """
+        polygon = [
+            (ext_x, ext_y),
+            (ext_x + ext_w, ext_y),
+            (ext_x + ext_w, ext_y + ext_h),
+            (ext_x, ext_y + ext_h),
+        ]
+        # Small utility room in one corner
+        util_w = ext_w * rng.uniform(0.2, 0.3)
+        util_h = ext_h * rng.uniform(0.25, 0.4)
+        rooms = [
+            _Room(ext_x, ext_y, ext_w, ext_h - util_h, "Living / Kitchen"),
+            _Room(ext_x, ext_y + ext_h - util_h, util_w, util_h, "Utility"),
+        ]
+        return rooms, polygon, None
+
+    def _layout_two_storey(
+        self,
+        rng: random.Random,
+        ext_x: float, ext_y: float, ext_w: float, ext_h: float,
+    ) -> tuple[
+        list[_Room],
+        list[tuple[float, float]],
+        Callable[[rl_canvas.Canvas], None] | None,
+    ]:
+        """Simple rectangle with a staircase symbol added.
+
+        # WHY: A staircase symbol signals to VLM/OCR classifiers that this is a
+        # multi-storey building, adding meaningful structural variety.
+        """
+        polygon = [
+            (ext_x, ext_y),
+            (ext_x + ext_w, ext_y),
+            (ext_x + ext_w, ext_y + ext_h),
+            (ext_x, ext_y + ext_h),
+        ]
+        rooms = self._make_rooms_subdivide(rng, ext_x, ext_y, ext_w, ext_h)
+
+        # Place staircase symbol in one of the rooms (last room)
+        stair_room = rooms[-1]
+
+        def _draw_staircase(c: rl_canvas.Canvas) -> None:
+            """Draw a staircase symbol (parallel lines) in the stair room.
+
+            # WHY: The standard architectural convention for stairs is a series
+            # of parallel lines with an arrow indicating the direction of ascent.
+            """
+            c.saveState()
+            c.setLineWidth(0.5)
+            sx = stair_room.x + stair_room.w * 0.2
+            sy = stair_room.y + stair_room.h * 0.2
+            sw = stair_room.w * 0.6
+            sh = stair_room.h * 0.6
+            n_treads = 8
+            for i in range(n_treads + 1):
+                y = sy + sh * i / n_treads
+                c.line(sx, y, sx + sw, y)
+            # Arrow pointing up
+            arrow_x = sx + sw / 2
+            arrow_y_top = sy + sh
+            c.line(arrow_x, sy, arrow_x, arrow_y_top)
+            c.line(arrow_x - 3 * mm, arrow_y_top - 3 * mm,
+                   arrow_x, arrow_y_top)
+            c.line(arrow_x + 3 * mm, arrow_y_top - 3 * mm,
+                   arrow_x, arrow_y_top)
+            # Label
+            c.setFont(ANNO_FONT, ANNO_FONT_SIZE - 1)
+            c.drawCentredString(sx + sw / 2, sy - ANNO_FONT_SIZE, "UP")
+            c.restoreState()
+
+        return rooms, polygon, _draw_staircase
+
+    def _layout_bay_window(
+        self,
+        rng: random.Random,
+        ext_x: float, ext_y: float, ext_w: float, ext_h: float,
+    ) -> tuple[list[_Room], list[tuple[float, float]], None]:
+        """One external wall has a triangular bay window projection.
+
+        # WHY: Bay windows are a distinctive architectural feature of Victorian
+        # and Edwardian UK housing stock, making this variant realistic for
+        # planning applications in conservation areas.
+        """
+        # Bay projection on the bottom wall (front of house)
+        bay_w = ext_w * rng.uniform(0.2, 0.35)
+        bay_d = ext_h * rng.uniform(0.08, 0.15)
+        bay_cx = ext_x + ext_w * rng.uniform(0.3, 0.7)
+
+        polygon = [
+            (ext_x, ext_y),
+            (bay_cx - bay_w / 2, ext_y),
+            (bay_cx, ext_y - bay_d),        # Bay projection apex
+            (bay_cx + bay_w / 2, ext_y),
+            (ext_x + ext_w, ext_y),
+            (ext_x + ext_w, ext_y + ext_h),
+            (ext_x, ext_y + ext_h),
+        ]
+
+        rooms = self._make_rooms_subdivide(rng, ext_x, ext_y, ext_w, ext_h)
+        return rooms, polygon, None
+
+    # ------------------------------------------------------------------
+    # Room subdivision helper
+    # ------------------------------------------------------------------
+
+    def _make_rooms_subdivide(
         self,
         rng: random.Random,
         ext_x: float,
@@ -202,16 +428,14 @@ class FloorPlanGenerator:
         followed by a second cut — producing 2 or 3 rooms respectively.
 
         # DESIGN: The cut positions are randomised within a sensible range so
-        # that no two seeds produce identical proportions.  The minimum room
-        # dimension guard (0.25 × ext dimension) prevents degenerate thin rooms
-        # that would make dimension annotations unreadable.
+        # that no two seeds produce identical proportions.
 
         Returns:
             List of _Room objects covering the full external footprint.
         """
         rooms: list[_Room] = []
 
-        # First cut: always vertical, splitting at 40%–60% of width
+        # First cut: always vertical, splitting at 40%-60% of width
         cut1 = ext_w * rng.uniform(0.40, 0.60)
         rooms.append(_Room(ext_x, ext_y, cut1, ext_h, "Living Room"))
         rooms.append(_Room(ext_x + cut1, ext_y, ext_w - cut1, ext_h, "Kitchen"))
@@ -219,24 +443,38 @@ class FloorPlanGenerator:
         # Optional second cut: horizontal, splitting the right room
         if rng.random() < 0.5:
             cut2 = ext_h * rng.uniform(0.40, 0.60)
-            # Replace the "Kitchen" room with two stacked rooms
             right_x = ext_x + cut1
             right_w = ext_w - cut1
-            rooms.pop()  # remove original right room
+            rooms.pop()
             rooms.append(_Room(right_x, ext_y + cut2, right_w, ext_h - cut2, "Kitchen"))
             rooms.append(_Room(right_x, ext_y, right_w, cut2, "Utility"))
 
         return rooms
 
-    def _draw_external_walls(
+    # ------------------------------------------------------------------
+    # Private drawing helpers
+    # ------------------------------------------------------------------
+
+    def _draw_external_polygon(
         self,
         c: rl_canvas.Canvas,
-        x: float, y: float, w: float, h: float,
+        polygon: list[tuple[float, float]],
     ) -> None:
-        """Draw the external building outline as a thick solid rectangle."""
+        """Draw the external building outline as a thick polygon.
+
+        # WHY: Using a polygon path instead of rect() supports non-rectangular
+        # shapes like L-plans and bay window projections.
+        """
+        if not polygon:
+            return
         c.saveState()
         c.setLineWidth(WALL_T)
-        c.rect(x, y, w, h)
+        p = c.beginPath()
+        p.moveTo(polygon[0][0], polygon[0][1])
+        for px, py in polygon[1:]:
+            p.lineTo(px, py)
+        p.close()
+        c.drawPath(p, fill=0, stroke=1)
         c.restoreState()
 
     def _draw_internal_walls(
@@ -251,19 +489,13 @@ class FloorPlanGenerator:
         c.saveState()
         c.setLineWidth(0.75)
 
-        # Collect unique vertical dividers (x-coordinate of room right edges
-        # that are interior to the external boundary).
         dividers: set[tuple[float, float, float, float]] = set()
         for room in rooms:
             right_x = room.x + room.w
             top_y = room.y + room.h
-            # Vertical right edge that is not the external boundary right edge
-            # WHY: We check whether this edge is shared by another room to avoid
-            # drawing external walls twice.
             for other in rooms:
-                if abs(other.x - right_x) < 0.5:   # matches another room's left
+                if abs(other.x - right_x) < 0.5:
                     dividers.add((right_x, room.y, right_x, top_y))
-            # Horizontal top edge that is not the external boundary top edge
             for other in rooms:
                 if abs(other.y - top_y) < 0.5:
                     dividers.add((room.x, top_y, room.x + room.w, top_y))
@@ -273,17 +505,18 @@ class FloorPlanGenerator:
 
         c.restoreState()
 
-    def _draw_windows(
+    def _draw_windows_on_polygon(
         self,
         c: rl_canvas.Canvas,
+        polygon: list[tuple[float, float]],
         ext_x: float, ext_y: float, ext_w: float, ext_h: float,
     ) -> None:
         """Draw double-line window indicators on the external walls.
 
         # WHY: Window indicators (two parallel lines interrupting the wall line)
-        # are a standard architectural drawing convention.  Including them makes
-        # the floor plan look like a real architectural drawing rather than a
-        # simple rectangle, which matters for visual realism of the synthetic data.
+        # are a standard architectural drawing convention.  We place them using
+        # the axis-aligned bounding box for simplicity, which works for all
+        # layout families.
         """
         c.saveState()
         c.setLineWidth(0.5)
@@ -305,17 +538,14 @@ class FloorPlanGenerator:
         """Draw a door arc in the bottom-left corner of each room.
 
         # WHY: Door arcs indicate the swing radius of a hinged door.  They give
-        # the floor plan visual complexity and confirm that the drawing is a
-        # habitable room layout rather than a structural diagram.
+        # the floor plan visual complexity.
         """
         c.saveState()
         c.setLineWidth(0.5)
         for room in rooms:
-            # Door gap line (where the door leaf sits in the wall)
             door_x = room.x + DOOR_R
             door_y = room.y
             c.line(door_x, door_y, door_x + DOOR_R, door_y)
-            # Swing arc: quarter circle from 180° to 90° (bottom-left)
             c.arc(
                 room.x,
                 room.y,
@@ -372,8 +602,7 @@ class FloorPlanGenerator:
 
         # WHY: Area values are totals for the whole floor, not individual rooms,
         # so they are placed beneath the external wall rectangle with a clear
-        # label prefix.  The index parameter staggers multiple annotations
-        # vertically so they never overlap.
+        # label prefix.
 
         Args:
             index:  Zero-based ordinal of this annotation (for vertical offset).
@@ -383,13 +612,10 @@ class FloorPlanGenerator:
         """
         label = f"{value.attribute.replace('_', ' ').title()}: {value.display_text}"
         text_x_pt = ext_x
-        # Place below the external wall boundary, staggered by index
         text_y_pt = ext_y - (10 + index * (ANNO_FONT_SIZE * 1.5)) * mm
 
         # Guard: annotation must not fall off the page bottom
         if text_y_pt < MARGIN:
-            # WHY: If the annotation would fall below the margin, move it inside
-            # the boundary area near the bottom to avoid off-page bounding boxes.
             text_y_pt = ext_y + 5 * mm + index * ANNO_FONT_SIZE * 1.5
 
         c.saveState()
@@ -410,6 +636,8 @@ class FloorPlanGenerator:
             bounding_box=bb,
             entity_type=EntityType.MEASUREMENT,
         )
+
+
 
 
 # ---------------------------------------------------------------------------
@@ -436,12 +664,8 @@ def _make_bounding_box(
         BoundingBox in pixels at CANONICAL_DPI=300, origin top-left, page=1.
 
     # WHY: Duplicating this helper rather than importing from site_plan_generator
-    # keeps the two modules independent — they are separate generators that
-    # happen to share the same coordinate math.  If either is removed the other
-    # remains fully functional.  A shared coord_utils import is still used for
-    # the actual math, so there is no duplication of logic.
+    # keeps the two modules independent.
     """
-    # Top-left corner: PDF "top" of text box is y_pt + h_pt (Y increases up in PDF)
     top_left = pdf_points_to_pixels(x_pt, y_pt + h_pt, page_height_pt)
     w_px = w_pt * SCALE_FACTOR
     h_px = h_pt * SCALE_FACTOR

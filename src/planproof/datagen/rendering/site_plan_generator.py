@@ -1,8 +1,8 @@
 """SitePlanGenerator — generates a top-down site plan PDF using reportlab.
 
 The site plan shows:
-  - Property boundary rectangle
-  - Building footprint rectangle (inset from boundary)
+  - Property boundary polygon (one of several shape families)
+  - Building footprint polygon (inset from boundary)
   - Front setback dimension line + annotation (when front_setback in values_to_place)
   - Rear garden depth dimension line (when rear_garden_depth in values_to_place)
   - Site coverage percentage label (when site_coverage in values_to_place)
@@ -29,6 +29,8 @@ recorded as a PlacedValue with its bounding box converted to pixels at 300 DPI
 from __future__ import annotations
 
 import io
+import math
+import random
 from typing import Final
 
 from reportlab.lib.pagesizes import A3, landscape
@@ -54,19 +56,6 @@ from planproof.schemas.entities import BoundingBox, DocumentType, EntityType
 # Margins around the drawing area
 MARGIN: Final[float] = 20 * mm
 
-# Property boundary extents inside the margin
-BOUNDARY_W: Final[float] = 160 * mm   # width of the property plot
-BOUNDARY_H: Final[float] = 200 * mm   # height (depth) of the property plot
-
-# Building footprint relative to the boundary origin
-# WHY: These offsets encode realistic setbacks for a semi-detached house.
-# The building is not centred — it is offset from the front to represent
-# the front setback, and narrower than the plot to leave side margins.
-BLDG_LEFT_OFFSET: Final[float] = 20 * mm    # side setback (left)
-BLDG_RIGHT_OFFSET: Final[float] = 20 * mm   # side setback (right)
-BLDG_FRONT_OFFSET: Final[float] = 15 * mm   # front setback (from front boundary)
-BLDG_REAR_OFFSET: Final[float] = 40 * mm    # rear garden depth (fixed layout)
-
 # Title block at bottom-right of page
 TITLE_BLOCK_W: Final[float] = 80 * mm
 TITLE_BLOCK_H: Final[float] = 30 * mm
@@ -77,6 +66,18 @@ ANNO_FONT: Final[str] = "Helvetica"
 
 # Dimension line tick half-length (perpendicular to dimension line)
 TICK_LEN: Final[float] = 3 * mm
+
+# WHY: Shape family names used for seeded selection.  Each family produces a
+# distinct property boundary and building footprint polygon, giving the corpus
+# visual diversity that prevents classifiers from overfitting to a single
+# rectangular layout.
+_SHAPE_FAMILIES: Final[tuple[str, ...]] = (
+    "rectangle",
+    "l_shaped_property",
+    "trapezoidal",
+    "l_shaped_building",
+    "angled",
+)
 
 
 class SitePlanGenerator:
@@ -101,13 +102,14 @@ class SitePlanGenerator:
         Args:
             scenario:  Parent scenario supplying Value objects for annotation.
             doc_spec:  Per-document instructions (which attributes to track).
-            seed:      Random seed — currently unused for site plans but required
-                       by the DocumentGenerator Protocol for future variability.
+            seed:      Random seed for deterministic shape diversity.
 
         Returns:
             GeneratedDocument with PDF bytes and one PlacedValue per tracked
             annotation, all bounding boxes in pixels at 300 DPI (top-left origin).
         """
+        rng = random.Random(seed)
+
         # WHY: Build a value lookup keyed by attribute name so we can resolve
         # any attribute in doc_spec.values_to_place in O(1) without scanning.
         value_by_attr: dict[str, Value] = {v.attribute: v for v in scenario.values}
@@ -125,30 +127,80 @@ class SitePlanGenerator:
         self._draw_north_arrow(c, page_w, page_h)
         self._draw_scale_bar(c, page_h)
 
-        # Compute absolute positions of boundary and building corners.
-        # In reportlab, Y=0 is the bottom of the page.
-        # WHY: Deriving all geometry from a single boundary origin means every
-        # element is consistent; changing MARGIN is the only edit needed to
-        # reflow the entire drawing.
+        # WHY: Select a shape family using the seeded RNG so that different seeds
+        # produce different property boundary and building footprint shapes, while
+        # the same seed always produces the same shape for reproducibility.
+        shape_family = rng.choice(_SHAPE_FAMILIES)
 
-        # Boundary: anchored at bottom-left of drawing area
+        # WHY: Vary plot dimensions within realistic UK residential ranges so
+        # that every seed produces a differently proportioned site plan.
+        plot_w_mm = rng.uniform(12.0, 25.0)   # metres (drawn as mm on page at ~1:200)
+        plot_d_mm = rng.uniform(20.0, 40.0)   # metres depth
+
+        # Convert to page units: 1 metre → ~5mm on page (approx 1:200 scale)
+        scale = 5.0   # mm-per-metre on the page
+        boundary_w = plot_w_mm * scale * mm
+        boundary_h = plot_d_mm * scale * mm
+
+        # Clamp so boundary fits within drawing area
+        max_w = page_w - 2 * MARGIN - TITLE_BLOCK_W - 20 * mm
+        max_h = page_h - 2 * MARGIN - 20 * mm
+        boundary_w = min(boundary_w, max_w)
+        boundary_h = min(boundary_h, max_h)
+
+        # Boundary origin: anchored at bottom-left of drawing area
         bnd_x = MARGIN
-        bnd_y = page_h - MARGIN - BOUNDARY_H   # Y measured from bottom of page
+        bnd_y = page_h - MARGIN - boundary_h
+
+        # WHY: Vary setbacks using seeded random within realistic ranges.
+        # The scenario still provides the *values* for annotations; we only
+        # vary the visual position of the building within the plot.
+        front_setback_frac = rng.uniform(0.05, 0.15)
+        rear_setback_frac = rng.uniform(0.15, 0.35)
+        side_setback_frac = rng.uniform(0.08, 0.20)
+
+        bldg_front_offset = boundary_h * front_setback_frac
+        bldg_rear_offset = boundary_h * rear_setback_frac
+        bldg_left_offset = boundary_w * side_setback_frac
+        bldg_right_offset = boundary_w * side_setback_frac
 
         # Building footprint inside the boundary
-        bldg_x = bnd_x + BLDG_LEFT_OFFSET
-        bldg_y = bnd_y + BLDG_REAR_OFFSET
-        bldg_w = BOUNDARY_W - BLDG_LEFT_OFFSET - BLDG_RIGHT_OFFSET
-        bldg_h = BOUNDARY_H - BLDG_FRONT_OFFSET - BLDG_REAR_OFFSET
+        bldg_x = bnd_x + bldg_left_offset
+        bldg_y = bnd_y + bldg_rear_offset
+        bldg_w = boundary_w - bldg_left_offset - bldg_right_offset
+        bldg_h = boundary_h - bldg_front_offset - bldg_rear_offset
 
-        self._draw_boundary(c, bnd_x, bnd_y, BOUNDARY_W, BOUNDARY_H)
-        self._draw_building(c, bldg_x, bldg_y, bldg_w, bldg_h)
+        # Draw boundary and building using the selected shape family
+        boundary_poly, building_poly = self._compute_polygons(
+            rng, shape_family,
+            bnd_x, bnd_y, boundary_w, boundary_h,
+            bldg_x, bldg_y, bldg_w, bldg_h,
+        )
+
+        self._draw_polygon(c, boundary_poly, dashed=True, line_width=1.5)
+        self._draw_polygon(c, building_poly, dashed=False, line_width=1.0, fill=True)
 
         # --- Conditional annotation rendering ---
+        # WHY: Dimension annotations reference the actual polygon edges, not the
+        # simple rectangle constants from before, so they remain correct regardless
+        # of the shape family selected.
+
+        # For dimension lines, use the axis-aligned bounding box of the polygons
+        bnd_min_x = min(p[0] for p in boundary_poly)
+        bnd_max_x = max(p[0] for p in boundary_poly)
+        bnd_min_y = min(p[1] for p in boundary_poly)
+        bnd_max_y = max(p[1] for p in boundary_poly)
+
+        bldg_min_x = min(p[0] for p in building_poly)
+        bldg_max_x = max(p[0] for p in building_poly)
+        bldg_min_y = min(p[1] for p in building_poly)
+        bldg_max_y = max(p[1] for p in building_poly)
 
         if "front_setback" in doc_spec.values_to_place:
             pv = self._draw_front_setback(
-                c, page_h, bnd_x, bnd_y, bldg_x, bldg_y, bldg_w,
+                c, page_h,
+                bnd_min_x, bnd_max_y,
+                bldg_min_x, bldg_max_x, bldg_max_y,
                 value_by_attr.get("front_setback"),
             )
             if pv is not None:
@@ -156,7 +208,9 @@ class SitePlanGenerator:
 
         if "rear_garden_depth" in doc_spec.values_to_place:
             pv = self._draw_rear_garden_depth(
-                c, page_h, bnd_x, bnd_y, bldg_x, bldg_y,
+                c, page_h,
+                bnd_min_x, bnd_min_y,
+                bldg_min_y,
                 value_by_attr.get("rear_garden_depth"),
             )
             if pv is not None:
@@ -164,7 +218,9 @@ class SitePlanGenerator:
 
         if "site_coverage" in doc_spec.values_to_place:
             pv = self._draw_site_coverage(
-                c, page_h, bnd_x, bnd_y, BOUNDARY_W, BOUNDARY_H,
+                c, page_h,
+                bnd_min_x, bnd_min_y,
+                bnd_max_x - bnd_min_x, bnd_max_y - bnd_min_y,
                 value_by_attr.get("site_coverage"),
             )
             if pv is not None:
@@ -182,39 +238,242 @@ class SitePlanGenerator:
         )
 
     # ------------------------------------------------------------------
+    # Shape family polygon computation
+    # ------------------------------------------------------------------
+
+    def _compute_polygons(
+        self,
+        rng: random.Random,
+        shape_family: str,
+        bnd_x: float, bnd_y: float, bnd_w: float, bnd_h: float,
+        bldg_x: float, bldg_y: float, bldg_w: float, bldg_h: float,
+    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+        """Compute property boundary and building footprint polygons.
+
+        # WHY: Centralising polygon computation in one dispatcher method keeps
+        # the generate() method clean and makes it easy to add new shape families
+        # without modifying the main rendering flow.
+
+        Returns:
+            (boundary_polygon, building_polygon) as lists of (x, y) tuples.
+        """
+        if shape_family == "l_shaped_property":
+            return self._shape_l_property(rng, bnd_x, bnd_y, bnd_w, bnd_h,
+                                          bldg_x, bldg_y, bldg_w, bldg_h)
+        elif shape_family == "trapezoidal":
+            return self._shape_trapezoidal(rng, bnd_x, bnd_y, bnd_w, bnd_h,
+                                           bldg_x, bldg_y, bldg_w, bldg_h)
+        elif shape_family == "l_shaped_building":
+            return self._shape_l_building(rng, bnd_x, bnd_y, bnd_w, bnd_h,
+                                          bldg_x, bldg_y, bldg_w, bldg_h)
+        elif shape_family == "angled":
+            return self._shape_angled(rng, bnd_x, bnd_y, bnd_w, bnd_h,
+                                      bldg_x, bldg_y, bldg_w, bldg_h)
+        else:
+            # WHY: Default to simple rectangle — the original layout.
+            return self._shape_rectangle(bnd_x, bnd_y, bnd_w, bnd_h,
+                                         bldg_x, bldg_y, bldg_w, bldg_h)
+
+    def _shape_rectangle(
+        self,
+        bnd_x: float, bnd_y: float, bnd_w: float, bnd_h: float,
+        bldg_x: float, bldg_y: float, bldg_w: float, bldg_h: float,
+    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+        """Simple rectangular property and building — the original layout."""
+        boundary = [
+            (bnd_x, bnd_y),
+            (bnd_x + bnd_w, bnd_y),
+            (bnd_x + bnd_w, bnd_y + bnd_h),
+            (bnd_x, bnd_y + bnd_h),
+        ]
+        building = [
+            (bldg_x, bldg_y),
+            (bldg_x + bldg_w, bldg_y),
+            (bldg_x + bldg_w, bldg_y + bldg_h),
+            (bldg_x, bldg_y + bldg_h),
+        ]
+        return boundary, building
+
+    def _shape_l_property(
+        self,
+        rng: random.Random,
+        bnd_x: float, bnd_y: float, bnd_w: float, bnd_h: float,
+        bldg_x: float, bldg_y: float, bldg_w: float, bldg_h: float,
+    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+        """L-shaped property: main rectangle with an extension on one side.
+
+        # WHY: L-shaped plots are common in UK suburban areas where properties
+        # have been subdivided or have a side garden that wraps around a neighbour.
+        """
+        ext_w = bnd_w * rng.uniform(0.3, 0.5)
+        ext_h = bnd_h * rng.uniform(0.3, 0.5)
+
+        boundary = [
+            (bnd_x, bnd_y),
+            (bnd_x + bnd_w, bnd_y),
+            (bnd_x + bnd_w, bnd_y + bnd_h - ext_h),
+            (bnd_x + bnd_w - ext_w, bnd_y + bnd_h - ext_h),
+            (bnd_x + bnd_w - ext_w, bnd_y + bnd_h),
+            (bnd_x, bnd_y + bnd_h),
+        ]
+        building = [
+            (bldg_x, bldg_y),
+            (bldg_x + bldg_w, bldg_y),
+            (bldg_x + bldg_w, bldg_y + bldg_h),
+            (bldg_x, bldg_y + bldg_h),
+        ]
+        return boundary, building
+
+    def _shape_trapezoidal(
+        self,
+        rng: random.Random,
+        bnd_x: float, bnd_y: float, bnd_w: float, bnd_h: float,
+        bldg_x: float, bldg_y: float, bldg_w: float, bldg_h: float,
+    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+        """Trapezoidal property: front wider or narrower than rear.
+
+        # WHY: Tapered plots arise from cul-de-sac layouts and irregular land
+        # parcels.  The front (top in PDF coords) and rear boundaries differ in
+        # width, creating a trapezoid.
+        """
+        taper = bnd_w * rng.uniform(0.05, 0.15)
+        if rng.random() < 0.5:
+            # Front wider than rear
+            boundary = [
+                (bnd_x + taper, bnd_y),
+                (bnd_x + bnd_w - taper, bnd_y),
+                (bnd_x + bnd_w, bnd_y + bnd_h),
+                (bnd_x, bnd_y + bnd_h),
+            ]
+        else:
+            # Rear wider than front
+            boundary = [
+                (bnd_x, bnd_y),
+                (bnd_x + bnd_w, bnd_y),
+                (bnd_x + bnd_w - taper, bnd_y + bnd_h),
+                (bnd_x + taper, bnd_y + bnd_h),
+            ]
+        building = [
+            (bldg_x, bldg_y),
+            (bldg_x + bldg_w, bldg_y),
+            (bldg_x + bldg_w, bldg_y + bldg_h),
+            (bldg_x, bldg_y + bldg_h),
+        ]
+        return boundary, building
+
+    def _shape_l_building(
+        self,
+        rng: random.Random,
+        bnd_x: float, bnd_y: float, bnd_w: float, bnd_h: float,
+        bldg_x: float, bldg_y: float, bldg_w: float, bldg_h: float,
+    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+        """Rectangular plot with an L-shaped building (rear extension).
+
+        # WHY: Single-storey rear extensions are the most common permitted
+        # development in the UK, making this footprint shape realistic for
+        # planning applications.
+        """
+        boundary = [
+            (bnd_x, bnd_y),
+            (bnd_x + bnd_w, bnd_y),
+            (bnd_x + bnd_w, bnd_y + bnd_h),
+            (bnd_x, bnd_y + bnd_h),
+        ]
+        # L-shaped building: main block + extension at the rear
+        ext_w = bldg_w * rng.uniform(0.3, 0.5)
+        ext_h = bldg_h * rng.uniform(0.2, 0.35)
+        building = [
+            (bldg_x, bldg_y),
+            (bldg_x + ext_w, bldg_y),
+            (bldg_x + ext_w, bldg_y + ext_h),
+            (bldg_x + bldg_w, bldg_y + ext_h),
+            (bldg_x + bldg_w, bldg_y + bldg_h),
+            (bldg_x, bldg_y + bldg_h),
+        ]
+        return boundary, building
+
+    def _shape_angled(
+        self,
+        rng: random.Random,
+        bnd_x: float, bnd_y: float, bnd_w: float, bnd_h: float,
+        bldg_x: float, bldg_y: float, bldg_w: float, bldg_h: float,
+    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+        """Rectangular property rotated 5-15 degrees from axis.
+
+        # WHY: Many real plots are not axis-aligned — they follow road curves
+        # or historic field boundaries.  Rotating the rectangle tests that
+        # downstream processors handle non-orthogonal geometry.
+        """
+        angle_deg = rng.uniform(5.0, 15.0)
+        if rng.random() < 0.5:
+            angle_deg = -angle_deg
+        angle_rad = math.radians(angle_deg)
+
+        # Rotate boundary rectangle around its centre
+        cx_bnd = bnd_x + bnd_w / 2
+        cy_bnd = bnd_y + bnd_h / 2
+
+        def _rotate(
+            px: float, py: float, cx: float, cy: float, angle: float,
+        ) -> tuple[float, float]:
+            dx, dy = px - cx, py - cy
+            cos_a, sin_a = math.cos(angle), math.sin(angle)
+            return (cx + dx * cos_a - dy * sin_a,
+                    cy + dx * sin_a + dy * cos_a)
+
+        boundary_corners = [
+            (bnd_x, bnd_y),
+            (bnd_x + bnd_w, bnd_y),
+            (bnd_x + bnd_w, bnd_y + bnd_h),
+            (bnd_x, bnd_y + bnd_h),
+        ]
+        boundary = [_rotate(px, py, cx_bnd, cy_bnd, angle_rad)
+                    for px, py in boundary_corners]
+
+        # Rotate building around the same centre so it stays inside the plot
+        building_corners = [
+            (bldg_x, bldg_y),
+            (bldg_x + bldg_w, bldg_y),
+            (bldg_x + bldg_w, bldg_y + bldg_h),
+            (bldg_x, bldg_y + bldg_h),
+        ]
+        building = [_rotate(px, py, cx_bnd, cy_bnd, angle_rad)
+                    for px, py in building_corners]
+
+        return boundary, building
+
+    # ------------------------------------------------------------------
     # Private drawing helpers
     # ------------------------------------------------------------------
 
-    def _draw_boundary(
+    def _draw_polygon(
         self,
         c: rl_canvas.Canvas,
-        x: float, y: float, w: float, h: float,
+        points: list[tuple[float, float]],
+        *,
+        dashed: bool = False,
+        line_width: float = 1.0,
+        fill: bool = False,
     ) -> None:
-        """Draw the property boundary as a thick dashed rectangle.
+        """Draw a closed polygon from a list of (x, y) vertices.
 
-        # WHY: A dashed boundary is the UK planning convention to distinguish
-        # the red-line site boundary from solid building outlines.
+        # WHY: A general polygon drawing method replaces the old _draw_boundary
+        # and _draw_building methods, supporting all shape families uniformly.
         """
+        if not points:
+            return
         c.saveState()
-        c.setLineWidth(1.5)
-        c.setDash(6, 3)
-        c.rect(x, y, w, h)
-        c.restoreState()
-
-    def _draw_building(
-        self,
-        c: rl_canvas.Canvas,
-        x: float, y: float, w: float, h: float,
-    ) -> None:
-        """Draw the building footprint as a solid filled rectangle.
-
-        # WHY: A solid grey fill distinguishes the building from the open land
-        # area, matching standard architectural drawing convention for plans.
-        """
-        c.saveState()
-        c.setFillGray(0.80)
-        c.setLineWidth(1.0)
-        c.rect(x, y, w, h, fill=1)
+        c.setLineWidth(line_width)
+        if dashed:
+            c.setDash(6, 3)
+        if fill:
+            c.setFillGray(0.80)
+        p = c.beginPath()
+        p.moveTo(points[0][0], points[0][1])
+        for px, py in points[1:]:
+            p.lineTo(px, py)
+        p.close()
+        c.drawPath(p, fill=1 if fill else 0, stroke=1)
         c.restoreState()
 
     def _draw_title_block(
@@ -295,10 +554,10 @@ class SitePlanGenerator:
         c: rl_canvas.Canvas,
         page_h: float,
         bnd_x: float,
-        bnd_y: float,
-        bldg_x: float,
-        bldg_y: float,
-        bldg_w: float,
+        bnd_front_y: float,
+        bldg_min_x: float,
+        bldg_max_x: float,
+        bldg_front_y: float,
         value: Value | None,
     ) -> PlacedValue | None:
         """Draw front setback dimension line and return its PlacedValue.
@@ -308,14 +567,6 @@ class SitePlanGenerator:
 
         # WHY: The front setback is drawn as a classic architectural dimension:
         # two extension lines + a dimension line with ticks + a text annotation.
-        # This mirrors how a human draftsperson would annotate the drawing,
-        # making the generated document look authentic to trained classifiers.
-
-        # DESIGN: In PDF coordinates Y increases upward.  The "front" of the
-        # site (street side) is the *top* edge of the boundary rectangle —
-        # the highest Y value — because the boundary is drawn from bnd_y
-        # (bottom-left in PDF space) upward to bnd_y + BOUNDARY_H.  The
-        # building front face is the building's top edge: bldg_y + bldg_h.
 
         Returns:
             PlacedValue with a pixel bounding box, or None if value is missing.
@@ -323,32 +574,20 @@ class SitePlanGenerator:
         if value is None:
             return None
 
-        # Y of the front (street-facing) boundary edge — highest Y in the rect
-        y_bnd_front = bnd_y + BOUNDARY_H
-
-        # Y of the building's front face (top edge of the footprint rectangle).
-        # bldg_h is derived from the same constants used in generate():
-        bldg_h = BOUNDARY_H - BLDG_FRONT_OFFSET - BLDG_REAR_OFFSET
-        y_bldg_front = bldg_y + bldg_h
-
         # Guard: the building front must be below the boundary front in PDF y.
-        # WHY: If the constants are ever misconfigured so the building protrudes
-        # beyond the boundary, we skip the annotation rather than drawing a
-        # nonsensical negative-length dimension line.
-        if y_bnd_front <= y_bldg_front:
+        if bnd_front_y <= bldg_front_y:
             return None
 
         # Horizontal position: centre on the building width
-        dim_x = bldg_x + bldg_w / 2
+        dim_x = (bldg_min_x + bldg_max_x) / 2
 
         self._draw_dimension_line_vertical(
-            c, dim_x, y_bldg_front, y_bnd_front, value.display_text
+            c, dim_x, bldg_front_y, bnd_front_y, value.display_text
         )
 
-        # Annotation bounding box: text sits to the right of the dim line,
-        # vertically centred between the two measured edges.
+        # Annotation bounding box
         text_x_pt = dim_x + 2 * mm
-        text_y_pt = (y_bldg_front + y_bnd_front) / 2
+        text_y_pt = (bldg_front_y + bnd_front_y) / 2
         text_w_pt = len(value.display_text) * ANNO_FONT_SIZE * 0.6
         text_h_pt = ANNO_FONT_SIZE * 1.2
 
@@ -368,19 +607,14 @@ class SitePlanGenerator:
         c: rl_canvas.Canvas,
         page_h: float,
         bnd_x: float,
-        bnd_y: float,
-        bldg_x: float,
-        bldg_y: float,
+        bnd_rear_y: float,
+        bldg_rear_y: float,
         value: Value | None,
     ) -> PlacedValue | None:
         """Draw rear garden depth dimension line and return its PlacedValue.
 
-        The dimension line runs vertically between the rear face of the building
-        and the rear boundary edge, placed along the left extension.
-
         # WHY: Rear garden depth is a critical planning metric (usually must be
-        # ≥ 10 m for residential extensions).  Drawing it as a labelled dimension
-        # line makes the value visible to both human reviewers and VLMs.
+        # >= 10 m for residential extensions).
 
         Returns:
             PlacedValue with pixel bounding box, or None if value is missing.
@@ -388,21 +622,21 @@ class SitePlanGenerator:
         if value is None:
             return None
 
-        # Rear boundary (bottom edge of boundary rect) and rear face of building
-        y_rear_boundary = bnd_y               # bottom edge of boundary
-        y_rear_building = bldg_y              # bottom face of building footprint
+        dim_x = bnd_x - 8 * mm
 
-        dim_x = bnd_x - 8 * mm               # to the left of boundary
-
-        if y_rear_building <= y_rear_boundary:
+        if bldg_rear_y <= bnd_rear_y:
             return None
 
         self._draw_dimension_line_vertical(
-            c, dim_x, y_rear_boundary, y_rear_building, value.display_text
+            c, dim_x, bnd_rear_y, bldg_rear_y, value.display_text
         )
 
-        text_x_pt = dim_x - len(value.display_text) * ANNO_FONT_SIZE * 0.6 - 2 * mm
-        text_y_pt = (y_rear_boundary + y_rear_building) / 2
+        # WHY: Clamp text_x_pt to a small positive offset so the bounding box
+        # never falls off the left edge of the page, which would produce a
+        # negative x coordinate in the ground-truth bounding box.
+        text_w_candidate = len(value.display_text) * ANNO_FONT_SIZE * 0.6
+        text_x_pt = max(2.0, dim_x - text_w_candidate - 2 * mm)
+        text_y_pt = (bnd_rear_y + bldg_rear_y) / 2
         text_w_pt = len(value.display_text) * ANNO_FONT_SIZE * 0.6
         text_h_pt = ANNO_FONT_SIZE * 1.2
 
@@ -430,9 +664,7 @@ class SitePlanGenerator:
         """Draw site coverage percentage as a label inside the boundary.
 
         # WHY: Site coverage is a ratio (not a dimension), so it is rendered as
-        # a plain annotation label rather than a dimension line.  Placing it
-        # inside the boundary at a predictable position makes it easy for VLMs
-        # to associate the label with the site plan context.
+        # a plain annotation label rather than a dimension line.
 
         Returns:
             PlacedValue with pixel bounding box, or None if value is missing.
@@ -477,8 +709,7 @@ class SitePlanGenerator:
         Includes arrow ticks at each end and a centred text annotation.
 
         # WHY: A helper method for dimension lines avoids repeating the same
-        # four-line pattern for every annotated value.  Centralising the tick
-        # and label logic also ensures visual consistency across dimensions.
+        # four-line pattern for every annotated value.
         """
         c.saveState()
         c.setLineWidth(0.5)
@@ -534,14 +765,10 @@ def _make_bounding_box(
         BoundingBox in pixels at CANONICAL_DPI=300, origin top-left, page=1.
 
     # WHY: Converting at the point of recording (rather than later) keeps the
-    # coordinate system concerns inside this module.  Callers in the evaluation
-    # layer only ever see the canonical pixel system.
+    # coordinate system concerns inside this module.
     """
-    # Top-left corner in pixel space: the PDF "top" of the box is y_pt + h_pt
-    # (PDF Y increases upward, so the top of the text is at y_pt + h_pt).
     top_left = pdf_points_to_pixels(x_pt, y_pt + h_pt, page_height_pt)
 
-    # Width and height scale uniformly (no Y flip needed for dimensions).
     w_px = w_pt * SCALE_FACTOR
     h_px = h_pt * SCALE_FACTOR
 

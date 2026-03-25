@@ -1,6 +1,6 @@
 """ElevationGenerator — raster building elevation with height annotation.
 
-Produces a PNG image (A4 at 300 DPI, 2480 × 3508 px) showing a schematic
+Produces a PNG image (A4 at 300 DPI, 2480 x 3508 px) showing a schematic
 building front or side elevation with a labelled vertical height dimension line.
 Every rendered measurement value is tracked with a pixel-precise bounding box so
 the evaluation harness can locate it without re-parsing the image.
@@ -40,7 +40,7 @@ from planproof.schemas.entities import BoundingBox, DocumentType, EntityType
 CANVAS_DPI: Final[int] = 300
 
 # A4 dimensions in millimetres, converted to pixels at 300 DPI.
-# 210 mm × 297 mm → 2480 × 3508 px (rounding as per ISO 216 standard).
+# 210 mm x 297 mm -> 2480 x 3508 px (rounding as per ISO 216 standard).
 CANVAS_W: Final[int] = 2480
 CANVAS_H: Final[int] = 3508
 
@@ -67,8 +67,7 @@ def _load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
 
     # WHY: System font availability varies across operating systems and Docker
     # images.  Falling back gracefully ensures the generator never raises an
-    # uncaught exception in CI environments that lack TrueType fonts.  The
-    # bitmap default is ugly but functional — tests pass regardless.
+    # uncaught exception in CI environments that lack TrueType fonts.
 
     # DESIGN: We try a short ordered list of common font paths rather than
     # querying the OS font registry to keep this module dependency-free and
@@ -155,11 +154,8 @@ def _text_bounding_box(
 
     # WHY: Pillow's textbbox() returns (left, top, right, bottom) in absolute
     # pixel coordinates anchored at (x, y).  We convert this to (x, y, w, h)
-    # because BoundingBox uses width/height rather than x2/y2, which is
-    # consistent with the rest of the PlanProof coordinate model.
+    # because BoundingBox uses width/height rather than x2/y2.
     """
-    # textbbox returns (left, top, right, bottom) relative to the draw surface.
-    # The anchor parameter "lt" means (x, y) is the left-top corner of the text.
     bbox = draw.textbbox((x, y), text, font=font, anchor="lt")
     left, top, right, bottom = bbox
     return BoundingBox(
@@ -179,13 +175,13 @@ class ElevationGenerator:
 
     # DESIGN: All layout geometry is derived from the seed-controlled RNG so
     # that different seeds produce visually distinct drawings (varying roof type,
-    # building proportions, etc.) while remaining byte-identical for the same
-    # seed.  This gives the corpus controlled visual diversity.
+    # building proportions, window layout, chimney, etc.) while remaining
+    # byte-identical for the same seed.  This gives the corpus controlled
+    # visual diversity.
 
     # WHY: Keeping all state in local variables within generate() (rather than
     # instance attributes) ensures the generator is stateless and therefore
-    # safe to call from multiple threads simultaneously, which matters when
-    # corpus generation is parallelised with concurrent.futures.
+    # safe to call from multiple threads simultaneously.
     """
 
     def generate(
@@ -204,10 +200,6 @@ class ElevationGenerator:
 
         Returns:
             GeneratedDocument with PNG bytes and PlacedValue records.
-
-        # WHY: Accepting seed as an explicit parameter (not reading scenario.seed)
-        # matches the DocumentGenerator Protocol contract and allows the registry
-        # to override the seed for targeted reproduction of individual documents.
         """
         rng = random.Random(seed)
 
@@ -215,16 +207,10 @@ class ElevationGenerator:
         # Resolve building_height from the scenario values tuple.
         # ------------------------------------------------------------------
 
-        # WHY: We look up by attribute name rather than position so this
-        # generator is robust to scenarios that include additional values
-        # (e.g. site_area, setback_front) alongside building_height.
         building_height_value = next(
             (v for v in scenario.values if v.attribute == "building_height"),
             None,
         )
-        # Provide a sensible fallback so the generator never crashes when
-        # building_height is absent from the scenario (e.g. unit tests that
-        # exercise other aspects of the pipeline).
         if building_height_value is not None:
             height_display = building_height_value.display_text
             height_numeric = building_height_value.value
@@ -239,7 +225,6 @@ class ElevationGenerator:
         image = Image.new("RGB", (CANVAS_W, CANVAS_H), color=BG_COLOUR)
         draw = ImageDraw.Draw(image)
 
-        # Load fonts at the sizes we need.
         font_large = _load_font(FONT_LARGE)
         font_medium = _load_font(FONT_MEDIUM)
         font_small = _load_font(FONT_SMALL)
@@ -248,39 +233,34 @@ class ElevationGenerator:
         # Layout geometry — all in pixel coordinates.
         # ------------------------------------------------------------------
 
-        # Reserve margins and title block at the bottom.
         margin_left: int = 200
         margin_right: int = 200
         margin_top: int = 200
-        title_block_h: int = 280   # height of the bottom title band
+        title_block_h: int = 280
 
-        # Drawing area (excluding title block and top margin).
         draw_top: int = margin_top
-        draw_bottom: int = CANVAS_H - title_block_h - 100  # 100 px gap above title
+        draw_bottom: int = CANVAS_H - title_block_h - 100
         draw_left: int = margin_left
         draw_right: int = CANVAS_W - margin_right
 
-        # Ground datum sits near the bottom of the drawing area.
-        ground_y: int = draw_bottom - 80
+        # WHY: Vary ground level position with seeded random so elevations
+        # appear to sit at different positions on the page, adding visual
+        # variety across the corpus.
+        ground_y_offset: int = rng.randint(40, 120)
+        ground_y: int = draw_bottom - ground_y_offset
 
-        # Building footprint — horizontally centred, random-width variations.
+        # WHY: Building width is seeded-random (was already, range preserved)
+        # to produce differently proportioned facades.
         bldg_width: int = rng.randint(900, 1400)
         bldg_cx: int = CANVAS_W // 2
         bldg_left: int = bldg_cx - bldg_width // 2
         bldg_right: int = bldg_cx + bldg_width // 2
 
-        # Building height in pixels — scale so that height_numeric metres maps
-        # to roughly 60 % of the available vertical drawing space.
-        available_h: int = ground_y - draw_top - 200  # leave headroom for dim labels
-        # WHY: We use a fixed reference scale (1 m = ~80 px at these canvas dims)
-        # rather than fitting exactly to available_h so that different building
-        # heights produce proportionally taller/shorter buildings, making the
-        # visual diversity meaningful rather than always filling the frame.
+        # Building height in pixels
+        available_h: int = ground_y - draw_top - 200
         px_per_metre: float = min(80.0, available_h / max(height_numeric, 1.0) * 0.7)
         bldg_height_px: int = int(height_numeric * px_per_metre)
         bldg_top: int = ground_y - bldg_height_px
-
-        # Ensure the building top does not exceed the drawing area top.
         bldg_top = max(bldg_top, draw_top + 200)
 
         # ------------------------------------------------------------------
@@ -289,7 +269,12 @@ class ElevationGenerator:
 
         roof_style: str = rng.choice(["pitched", "flat"])
         ridge_x: int = bldg_cx
-        overhang: int = rng.randint(30, 80)  # eave overhang in px
+        overhang: int = rng.randint(30, 80)
+
+        # WHY: Optionally add a chimney to some elevations for variety.
+        # Chimneys are a common architectural feature and their presence/absence
+        # diversifies the visual training data.
+        has_chimney: bool = rng.random() < 0.4
 
         # ------------------------------------------------------------------
         # Draw ground hatch (diagonal lines below datum for soil indication).
@@ -314,7 +299,7 @@ class ElevationGenerator:
             width=DATUM_LINE_W,
         )
 
-        # Ground level label "G.L." — placed left of the building.
+        # Ground level label "G.L."
         gl_label = "G.L."
         gl_x: int = draw_left + 20
         gl_y: int = ground_y - FONT_SMALL - 10
@@ -334,13 +319,75 @@ class ElevationGenerator:
         )
 
         # ------------------------------------------------------------------
+        # Draw windows with varied positions and sizes.
+        # ------------------------------------------------------------------
+
+        # WHY: Varying window count, size, and position using seeded random
+        # prevents all elevations from having identical fenestration patterns,
+        # making the training data more representative of real buildings.
+        n_windows: int = rng.randint(2, 5)
+        win_row_y: int = bldg_top + (ground_y - bldg_top) // 3
+        win_h: int = rng.randint(80, 160)
+        win_w: int = rng.randint(60, 120)
+
+        usable_width: int = bldg_right - bldg_left - 80
+        if n_windows > 0 and usable_width > 0:
+            spacing: int = usable_width // (n_windows + 1)
+            for i in range(n_windows):
+                wx: int = bldg_left + 40 + spacing * (i + 1) - win_w // 2
+                wy: int = win_row_y
+                draw.rectangle(
+                    [(wx, wy), (wx + win_w, wy + win_h)],
+                    outline=LINE_COLOUR,
+                    width=max(BUILDING_LINE_W // 2, 2),
+                )
+                # Window cross
+                draw.line(
+                    [(wx + win_w // 2, wy), (wx + win_w // 2, wy + win_h)],
+                    fill=LINE_COLOUR,
+                    width=2,
+                )
+
+        # Optional second row of windows (for taller buildings)
+        if height_numeric > 6.0 and rng.random() < 0.6:
+            n_win2: int = rng.randint(1, 3)
+            win2_row_y: int = bldg_top + (ground_y - bldg_top) * 2 // 3
+            win2_h: int = rng.randint(60, 120)
+            win2_w: int = rng.randint(50, 100)
+            if n_win2 > 0 and usable_width > 0:
+                spacing2: int = usable_width // (n_win2 + 1)
+                for i in range(n_win2):
+                    wx2: int = bldg_left + 40 + spacing2 * (i + 1) - win2_w // 2
+                    draw.rectangle(
+                        [(wx2, win2_row_y), (wx2 + win2_w, win2_row_y + win2_h)],
+                        outline=LINE_COLOUR,
+                        width=max(BUILDING_LINE_W // 2, 2),
+                    )
+
+        # ------------------------------------------------------------------
+        # Draw door (centred at ground level)
+        # ------------------------------------------------------------------
+
+        door_w: int = rng.randint(70, 110)
+        door_h: int = rng.randint(140, 200)
+        door_x: int = bldg_cx - door_w // 2
+        door_y: int = ground_y - door_h
+        draw.rectangle(
+            [(door_x, door_y), (door_x + door_w, ground_y)],
+            outline=LINE_COLOUR,
+            width=max(BUILDING_LINE_W // 2, 2),
+        )
+
+        # ------------------------------------------------------------------
         # Draw roof.
         # ------------------------------------------------------------------
 
+        roof_top_y: int = bldg_top  # default for flat roof
+
         if roof_style == "pitched":
-            # Triangular pitched roof rising above the building rectangle.
             roof_apex_y: int = bldg_top - rng.randint(150, 350)
             roof_apex_y = max(roof_apex_y, draw_top + 50)
+            roof_top_y = roof_apex_y
             draw.polygon(
                 [
                     (bldg_left - overhang, bldg_top),
@@ -351,9 +398,9 @@ class ElevationGenerator:
                 width=BUILDING_LINE_W,
             )
         else:
-            # Flat roof with a small parapet overhang.
             parapet_y: int = bldg_top - rng.randint(30, 80)
             parapet_y = max(parapet_y, draw_top + 50)
+            roof_top_y = parapet_y
             draw.rectangle(
                 [
                     (bldg_left - overhang, parapet_y),
@@ -362,25 +409,41 @@ class ElevationGenerator:
                 outline=LINE_COLOUR,
                 width=BUILDING_LINE_W,
             )
-            _ = parapet_y  # roof_top_y used for future detail
+
+        # ------------------------------------------------------------------
+        # Draw chimney (optional, seeded).
+        # ------------------------------------------------------------------
+
+        if has_chimney:
+            # WHY: Chimney placement is seeded-random on the left or right side
+            # of the roof line, matching common UK residential chimney positions.
+            chimney_side: str = rng.choice(["left", "right"])
+            chimney_w: int = rng.randint(40, 80)
+            chimney_h: int = rng.randint(80, 160)
+            if chimney_side == "left":
+                chimney_x: int = bldg_left + bldg_width // 4 - chimney_w // 2
+            else:
+                chimney_x = bldg_right - bldg_width // 4 - chimney_w // 2
+            chimney_top: int = roof_top_y - chimney_h
+            chimney_top = max(chimney_top, draw_top + 20)
+            draw.rectangle(
+                [(chimney_x, chimney_top), (chimney_x + chimney_w, roof_top_y)],
+                outline=LINE_COLOUR,
+                fill=(200, 200, 200),
+                width=max(BUILDING_LINE_W // 2, 2),
+            )
 
         # ------------------------------------------------------------------
         # Height dimension line (vertical, with arrows and label).
         # ------------------------------------------------------------------
 
-        # DESIGN: The dimension line is drawn to the right of the building
-        # outline with a fixed offset so it does not overlap the facade.
-        # Extension lines (horizontal ticks) project from the building at
-        # ground level and building-top level to meet the dimension line.
-
-        dim_offset_x: int = 160   # pixels to the right of the building right edge
+        dim_offset_x: int = 160
         dim_x: int = bldg_right + dim_offset_x
 
-        # Clamp dimension endpoints to the actual building face height.
         dim_top_y: int = bldg_top
         dim_bot_y: int = ground_y
 
-        # Extension lines (horizontal) connecting building to dimension line.
+        # Extension lines
         ext_y_values = [dim_top_y, dim_bot_y]
         for ey in ext_y_values:
             draw.line(
@@ -396,7 +459,7 @@ class ElevationGenerator:
             width=DIM_LINE_W,
         )
 
-        # Arrowheads at top and bottom of the dimension line.
+        # Arrowheads
         _draw_arrow(draw, dim_x, dim_top_y, "up", DIM_COLOUR, ARROW_SIZE)
         _draw_arrow(draw, dim_x, dim_bot_y, "down", DIM_COLOUR, ARROW_SIZE)
 
@@ -404,18 +467,9 @@ class ElevationGenerator:
         # Dimension label — the building_height value.
         # ------------------------------------------------------------------
 
-        # WHY: The label is placed to the right of the dimension line,
-        # vertically centred between the two arrowheads.  We record the
-        # precise pixel bounding box of this text as a PlacedValue so the
-        # evaluation harness can crop exactly this region for targeted
-        # re-extraction.
-
         label_text: str = height_display
         label_x: int = dim_x + 30
         label_y_centre: int = (dim_top_y + dim_bot_y) // 2
-        # Anchor "lm" = left-middle — horizontal left edge, vertical centre.
-        # We compute the bbox using anchor "lt" after adjusting y for the font
-        # half-height to keep the maths simple and compatible with all font types.
         label_y_top: int = label_y_centre - FONT_MEDIUM // 2
 
         draw.text(
@@ -426,10 +480,6 @@ class ElevationGenerator:
             anchor="lt",
         )
 
-        # Record the bounding box using Pillow's textbbox measurement.
-        # WHY: We compute the bbox *after* drawing so that if textbbox returns
-        # a slightly different region due to font metrics, we record what Pillow
-        # actually rendered rather than a hand-calculated approximation.
         height_bbox = _text_bounding_box(
             draw, label_x, label_y_top, label_text, font_medium,
         )
@@ -455,7 +505,6 @@ class ElevationGenerator:
 
         elevation_name: str = rng.choice(["Front Elevation", "Side Elevation"])
 
-        # Title block background band at the bottom.
         title_top: int = CANVAS_H - title_block_h
         draw.rectangle(
             [(0, title_top), (CANVAS_W, CANVAS_H)],
@@ -463,13 +512,12 @@ class ElevationGenerator:
             outline=LINE_COLOUR,
             width=4,
         )
-        # Title text centred in the block.
         draw.text(
             (CANVAS_W // 2, title_top + title_block_h // 2),
             elevation_name,
             fill=LINE_COLOUR,
             font=font_large,
-            anchor="mm",   # middle-middle (centre-centre)
+            anchor="mm",
         )
 
         # Drawing border (outer frame).
@@ -484,8 +532,6 @@ class ElevationGenerator:
         # ------------------------------------------------------------------
 
         buf = io.BytesIO()
-        # WHY: optimize=False keeps encoding fast during corpus generation;
-        # the file size is not a concern at the generation stage.
         image.save(buf, format="PNG", optimize=False)
         png_bytes: bytes = buf.getvalue()
 
