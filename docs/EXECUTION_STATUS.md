@@ -37,15 +37,15 @@
 - [x] `Makefile` with install, lint, typecheck, test targets (2026-03-25)
 - [x] `.env.example` with all required env vars (2026-03-25)
 - [x] `.gitignore` for Python, data, caches (2026-03-25)
-- [ ] GitHub Actions CI pipeline — not yet created
-- [ ] pytest passing with initial tests — not yet written
+- [x] GitHub Actions CI pipeline — `.github/workflows/ci.yml` (lint + typecheck + test on Linux) (2026-03-25)
+- [x] pytest passing — 41 unit tests + 2 integration tests, all green (2026-03-25)
 
 ### 0.3 Infrastructure
 - [x] Neo4j Aura (free cloud instance) configured as default (2026-03-25)
 - [x] Groq (free cloud LLM) configured as default (2026-03-25)
 - [x] Neo4j Aura instance created and credentials added to `.env` (2026-03-25)
 - [x] Groq API key created and added to `.env` (2026-03-25)
-- [ ] Neo4j connectivity verified — not yet tested
+- [x] Neo4j Aura connectivity verified — connect, query, write/read/cleanup all pass (2026-03-25)
 - [ ] Label Studio instance — not yet started
 
 ### 0.4 Core Schemas (M4)
@@ -55,7 +55,7 @@
 - [x] `schemas/rules.py` — RuleConfig, RuleOutcome, RuleVerdict (2026-03-25)
 - [x] `schemas/pipeline.py` — StepResult, ComplianceReport, EvidenceRequest (2026-03-25)
 - [x] `schemas/config.py` — PipelineConfig (pydantic-settings), AblationConfig, ConfidenceThresholds (2026-03-25)
-- [ ] Schema round-trip tests — not yet written
+- [x] Schema round-trip tests — all schemas have JSON round-trip tests (2026-03-25)
 
 ### 0.5 LLM Response Cache
 - [x] `infrastructure/llm_cache.py` — SQLiteLLMCache with composite key (2026-03-25)
@@ -68,7 +68,7 @@
 - [x] 11 step stubs in `pipeline/steps/` — all accept Protocol-typed dependencies (2026-03-25)
 - [x] `bootstrap.py` — composition root with conditional step registration (2026-03-25)
 - [x] All stub classes match Protocol signatures — mypy strict passes (2026-03-25)
-- [ ] Pipeline skeleton test (empty pipeline → empty report) — not yet written
+- [x] Pipeline skeleton tests — empty pipeline, step registration, execution order, error handling (2026-03-25)
 
 ### 0.7 Error Handling Strategy
 - [x] StepResult with SUCCESS/PARTIAL/FAILED in schemas (2026-03-25)
@@ -132,8 +132,8 @@ pip install -e ".[geo,pdf,dev]"
 
 ## Next Steps
 
-1. Verify Neo4j Aura connectivity from Python
-2. Write initial pytest suite (schema round-trips, pipeline skeleton)
-3. Set up GitHub Actions CI (lint + typecheck + test on Linux)
-4. Complete Phase 0 remaining items
+1. ~~Verify Neo4j Aura connectivity from Python~~ — **Done** (2026-03-25)
+2. ~~Write initial pytest suite (schema round-trips, pipeline skeleton)~~ — **Done** (2026-03-25)
+3. ~~Set up GitHub Actions CI (lint + typecheck + test on Linux)~~ — **Done** (2026-03-25)
+4. Complete Phase 0 remaining items (cache integration test, Label Studio)
 5. Begin Phase 1: Data Pipeline & Synthetic Generation
