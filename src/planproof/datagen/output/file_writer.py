@@ -173,12 +173,18 @@ def write_application_set(
     # WHY degraded_docs for content_bytes: these are the files that will be
     # presented to the extraction pipeline.  The degradation has already been
     # applied by the caller.
-    for orig_doc, deg_doc in zip(generated_docs, degraded_docs):
-        doc_type_str = str(deg_doc.doc_type)
+    for idx, (orig_doc, deg_doc, doc_spec) in enumerate(
+        zip(generated_docs, degraded_docs, scenario.documents)
+    ):
+        # WHY: Use subtype (e.g. "site_plan") for distinct filenames.
+        # Without this, multiple DRAWING docs would overwrite each other.
+        label = doc_spec.subtype or str(deg_doc.doc_type)
+        # Add index suffix if multiple docs share the same label.
+        doc_label = f"{label}_{idx}" if idx > 0 else label
         filename = _bcc_filename(
             set_id=scenario.set_id,
             category=scenario.category,
-            doc_type=doc_type_str,
+            doc_type=doc_label.upper(),
             ext=deg_doc.file_format,
         )
         file_path = output_dir / filename

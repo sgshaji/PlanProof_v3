@@ -250,22 +250,26 @@ def build_scenario(
         for loc in rule.evidence_locations:
             doc_type_to_attributes.setdefault(loc.doc_type, []).append(rule.attribute)
 
-    # Construct one DocumentSpec per composition entry × count.
-    # WHY: We expand count > 1 into multiple DocumentSpec objects so the
-    # renderer can treat each spec as exactly one output file.
+    # Construct one DocumentSpec per composition entry, expanding subtypes.
+    # WHY: Each subtype gets its own DocumentSpec so the runner can dispatch
+    # to the correct generator (SitePlan vs FloorPlan vs Elevation).
     documents: list[DocumentSpec] = []
     for comp in profile.document_composition:
-        # Attributes relevant to this document type.
-        attrs_for_type = tuple(doc_type_to_attributes.get(comp.type, []))
-
-        for _ in range(comp.count):
+        attrs_for_type = tuple(
+            doc_type_to_attributes.get(comp.type, [])
+        )
+        # If subtypes are defined, create one doc per subtype.
+        # Otherwise create `count` docs with no subtype (e.g. FORM).
+        subtypes = comp.subtypes or [None] * comp.count
+        for subtype in subtypes:
+            # WHY: Elevations are raster (PNG) for realistic VLM testing.
+            # All other document types default to PDF.
+            fmt = "png" if subtype == "elevation" else "pdf"
             documents.append(
                 DocumentSpec(
                     doc_type=comp.type,
-                    # WHY: PDF is the safe default file format.  The renderer
-                    # may override this based on subtype later; this field just
-                    # seeds the spec with a valid value.
-                    file_format="pdf",
+                    subtype=subtype,
+                    file_format=fmt,
                     values_to_place=attrs_for_type,
                 )
             )

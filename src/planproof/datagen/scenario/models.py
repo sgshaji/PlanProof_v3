@@ -82,6 +82,11 @@ class DocumentSpec:
     # Ordered list of `Value.attribute` keys to embed in this document.
     # Using tuple (not list) preserves immutability of the frozen dataclass.
     values_to_place: tuple[str, ...]
+    # Drawing subtype for DRAWING docs (e.g. "site_plan", "floor_plan",
+    # "elevation"). None for FORM documents.
+    # WHY: The runner uses this to dispatch to the correct generator plugin.
+    # Without it, all drawings would go to the same generator.
+    subtype: str | None = None
 
 
 @dataclass(frozen=True)

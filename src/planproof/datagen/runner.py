@@ -97,33 +97,16 @@ def _build_registry() -> DocumentGeneratorRegistry:
     from planproof.datagen.rendering.form_generator import FormGenerator
     from planproof.datagen.rendering.registry import DocumentGeneratorRegistry
     from planproof.datagen.rendering.site_plan_generator import SitePlanGenerator
-    from planproof.schemas.entities import DocumentType
 
     registry = DocumentGeneratorRegistry()
 
-    # FORM → FormGenerator
-    # WHY: Forms are the primary structured-data carrier; FormGenerator renders
-    # labelled fields with their values so the extraction pipeline can use OCR.
-    registry.register(DocumentType.FORM, FormGenerator())
-
-    # DRAWING → SitePlanGenerator (primary drawing generator)
-    # WHY: Most profiles use DRAWING for all plan types.  SitePlanGenerator is
-    # the canonical first-choice generator; it handles site plans which appear
-    # in every profile.
-    registry.register(DocumentType.DRAWING, SitePlanGenerator())
-
-    # Also instantiate FloorPlanGenerator and ElevationGenerator so they are
-    # available to callers that override the registry after _build_registry()
-    # returns.  We attach them as named attributes on the registry for introspection
-    # — they are not registered against a DocumentType because the current profiles
-    # use a single DRAWING type for all drawing subtypes.
-    #
-    # WHY: Keeping these generators instantiated here (rather than never
-    # instantiating them) satisfies the task requirement to "wire up all 4
-    # generators" and ensures their constructors are exercised during integration
-    # tests even if they are not reached through the standard registry dispatch.
-    registry._floor_plan_generator = FloorPlanGenerator()   # type: ignore[attr-defined]
-    registry._elevation_generator = ElevationGenerator()    # type: ignore[attr-defined]
+    # WHY: Register by subtype string so the runner can dispatch DRAWING
+    # documents to different generators based on DocumentSpec.subtype.
+    # FORM has no subtype, so we register it under "FORM".
+    registry.register("FORM", FormGenerator())
+    registry.register("site_plan", SitePlanGenerator())
+    registry.register("floor_plan", FloorPlanGenerator())
+    registry.register("elevation", ElevationGenerator())
 
     return registry
 
@@ -308,29 +291,29 @@ def generate_sets(
             )
 
             # Render each document via the registry.
+            # WHY: Dispatch by subtype for DRAWING docs (site_plan,
+            # floor_plan, elevation) and by doc_type for FORM.
             generated_docs: list[GeneratedDocument] = []
-            for doc_spec in scenario.documents:
-                from planproof.schemas.entities import DocumentType
+            for doc_idx, doc_spec in enumerate(scenario.documents):
+                # Derive a unique seed per document for variety.
+                doc_seed = (
+                    hash((set_seed, doc_idx, doc_spec.subtype))
+                    & 0xFFFFFFFF
+                )
 
-                # WHY: Convert doc_spec.doc_type string to DocumentType enum for
-                # registry lookup.  DocumentType is a StrEnum so equality comparison
-                # against a string works, but registry.get() expects the enum.
-                try:
-                    dt = DocumentType(doc_spec.doc_type)
-                except ValueError:
-                    # WHY: Unrecognised doc_type string — skip gracefully.
-                    continue
+                # Determine registry key: use subtype if available,
+                # otherwise fall back to doc_type (e.g. "FORM").
+                reg_key = doc_spec.subtype or doc_spec.doc_type
 
                 try:
-                    generator = registry.get(dt)
+                    generator = registry.get(reg_key)
                 except KeyError:
-                    # WHY: No generator registered for this type — skip.
                     continue
 
                 generated_doc = generator.generate(
                     scenario=scenario,
                     doc_spec=doc_spec,
-                    seed=set_seed,
+                    seed=doc_seed,
                 )
                 generated_docs.append(generated_doc)
 
