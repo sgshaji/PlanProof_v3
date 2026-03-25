@@ -1,0 +1,25 @@
+# Degradation Preset: moderate_scan
+#
+# WHY: A light Gaussian noise pass followed by a small rotation and moderate
+# JPEG compression models a competent office scanner operating on a clean
+# original.  Sigma=0.02 introduces barely-perceptible grain; 1.5° rotation
+# is common from hand-feeding; quality=85 keeps text legible while adding
+# block artefacts at fine detail.
+#
+# DESIGN: Transforms are applied in list order so the noise is embedded
+# before compression — this matches the physical process (scanner captures
+# noisy image, then JPEG encodes it) and avoids compressing already-clean
+# synthetic geometry before adding the sensor noise layer.
+
+preset_id: moderate_scan
+
+transforms:
+  - name: gaussian_noise
+    params:
+      sigma: 0.02
+  - name: rotation
+    params:
+      degrees: 1.5
+  - name: jpeg_compression
+    params:
+      quality: 85

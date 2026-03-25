@@ -1,0 +1,10 @@
+# Degradation Preset: clean
+#
+# WHY: A zero-degradation baseline is essential for isolating rule-engine
+# errors from OCR/extraction errors.  When the pipeline fails on a clean
+# document the bug must be in the reasoning layer, not in image processing.
+# This preset is intentionally empty so the document renderer applies no
+# transforms at all.
+
+preset_id: clean
+transforms: []

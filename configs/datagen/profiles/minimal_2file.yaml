@@ -1,0 +1,23 @@
+# Profile: minimal_2file
+#
+# WHY: The simplest possible document set — one form plus one site plan — is
+# used for fast iteration during rule-engine development.  With only two
+# documents there are fewer extraction pathways, so failures are easier to
+# diagnose.  The "clean" degradation preset means OCR quality is not a
+# confounding variable at this difficulty level.
+#
+# DESIGN: `difficulty: low` drives the scenario generator to choose compliant
+# or mildly non-compliant values rather than extreme violations, keeping this
+# profile suitable as a smoke-test dataset.
+
+profile_id: minimal_2file
+
+document_composition:
+  - type: FORM
+    count: 1
+  - type: DRAWING
+    subtypes: [site_plan]
+    count: 1
+
+difficulty: low
+degradation_preset: clean

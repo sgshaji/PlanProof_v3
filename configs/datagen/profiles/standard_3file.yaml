@@ -1,0 +1,25 @@
+# Profile: standard_3file
+#
+# WHY: Three documents — form, site plan, floor plan — represent the most
+# common real-world submission for a householder application.  This profile
+# is the default for the main evaluation dataset because it balances realism
+# with tractability: enough documents to test multi-source extraction but
+# not so many that debugging becomes unwieldy.
+#
+# DESIGN: `difficulty: medium` causes the scenario generator to include a
+# mix of clearly compliant, marginally compliant, and clearly non-compliant
+# values, giving a balanced confusion matrix for classifier evaluation.
+# `moderate_scan` degradation introduces realistic scanner artefacts without
+# making OCR effectively impossible.
+
+profile_id: standard_3file
+
+document_composition:
+  - type: FORM
+    count: 1
+  - type: DRAWING
+    subtypes: [site_plan, floor_plan]
+    count: 2
+
+difficulty: medium
+degradation_preset: moderate_scan

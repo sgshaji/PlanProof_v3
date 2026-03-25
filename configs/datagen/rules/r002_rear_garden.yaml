@@ -1,0 +1,36 @@
+# Rule R002: Rear Garden Depth
+#
+# WHY: BCC householder SPD Section 4.1 requires a minimum 10.0m rear garden
+# depth to preserve usable private amenity space.  Values above 30.0m are
+# uncommon for urban plots and would skew the synthetic distribution, so we
+# cap the compliant range at 30.0m for realism.
+#
+# DESIGN: Three violation bands (below_min, marginal_below, extreme_below)
+# mirror R001's three bands so the scenario generator can apply the same
+# "difficulty level → band name" mapping uniformly across all rules.
+
+rule_id: R002
+attribute: rear_garden_depth
+unit: metres
+
+compliant_range:
+  min: 10.0
+  max: 30.0
+
+violation_types:
+  - name: below_min
+    range: { min: 5.0, max: 9.9 }
+  - name: marginal_below
+    range: { min: 9.0, max: 9.99 }
+  - name: extreme_below
+    range: { min: 1.0, max: 5.0 }
+
+# WHY: The site_plan drawing is the primary source for spatial measurements
+# like garden depth.  Including FORM as well lets us generate conflicting-value
+# edge cases where the form and drawing disagree.
+evidence_locations:
+  - doc_type: FORM
+    field: rear_garden_depth
+  - doc_type: DRAWING
+    drawing_type: site_plan
+    annotation: dimension_line

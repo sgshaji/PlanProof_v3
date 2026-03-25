@@ -1,0 +1,36 @@
+# Rule R003: Site Coverage
+#
+# WHY: BCC householder SPD Section 3.1 restricts total built footprint to 50%
+# of the curtilage to maintain garden land and prevent overdevelopment.
+# The practical minimum of 10% prevents implausibly tiny structures in
+# generated scenarios.
+#
+# DESIGN: Coverage is expressed as a percentage (0–100), not a ratio (0–1),
+# because that is how BCC policy documents state the threshold and how
+# planning officers read application forms.
+
+rule_id: R003
+attribute: site_coverage
+unit: percent
+
+compliant_range:
+  min: 10.0
+  max: 50.0
+
+violation_types:
+  - name: exceeds_max
+    range: { min: 50.1, max: 80.0 }
+  - name: marginal_exceed
+    range: { min: 50.01, max: 55.0 }
+  - name: extreme_exceed
+    range: { min: 70.0, max: 95.0 }
+
+# WHY: Site coverage is calculated from the site plan drawing (annotated
+# areas) and declared on the form.  Both locations are needed to support
+# multi-source extraction and cross-document consistency checks.
+evidence_locations:
+  - doc_type: FORM
+    field: site_coverage
+  - doc_type: DRAWING
+    drawing_type: site_plan
+    annotation: area_annotation

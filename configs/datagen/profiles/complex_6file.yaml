@@ -1,0 +1,27 @@
+# Profile: complex_6file
+#
+# WHY: Six documents — form, four drawings covering all view types, plus an
+# extra floor plan — model the largest realistic householder submission.
+# This profile stress-tests the pipeline's ability to reconcile values spread
+# across many documents and to handle the heavier scan degradation that
+# typically accompanies large paper submissions.
+#
+# DESIGN: Two elevation drawings are included intentionally: real applications
+# often submit front and rear elevations as separate files, creating a natural
+# test for duplicate-source reconciliation.  `difficulty: high` combined with
+# `heavy_scan` degradation maximises the challenge for the extraction layer.
+
+profile_id: complex_6file
+
+document_composition:
+  - type: FORM
+    count: 1
+  - type: DRAWING
+    subtypes: [site_plan, floor_plan, elevation, elevation]
+    count: 4
+  - type: DRAWING
+    subtypes: [floor_plan]
+    count: 1
+
+difficulty: high
+degradation_preset: heavy_scan

@@ -1,0 +1,37 @@
+# Rule R001: Building Height
+#
+# WHY: BCC householder SPD Section 3.2 sets a maximum ridge height of 8.0m for
+# extensions and new dwellings in residential zones.  Heights below 3.0m are
+# effectively unrealistic for habitable space, so we use 3.0m as the practical
+# minimum to keep generated values plausible.
+#
+# DESIGN: violation_types gives the scenario generator named bands rather than
+# raw ranges so it can request "a marginal violation" without knowing the exact
+# numeric limits — the generator samples uniformly from the named band.
+
+rule_id: R001
+attribute: building_height
+unit: metres
+
+compliant_range:
+  min: 3.0
+  max: 8.0
+
+violation_types:
+  - name: exceeds_max
+    range: { min: 8.1, max: 15.0 }
+  - name: marginal_exceed
+    range: { min: 8.01, max: 8.5 }
+  - name: extreme_exceed
+    range: { min: 12.0, max: 20.0 }
+
+# WHY: Evidence locations tell the document renderer where to embed the value
+# and tell the extraction layer where to look for it.  Each rule may appear in
+# multiple document types — discrepancies between sources are themselves a
+# test signal.
+evidence_locations:
+  - doc_type: FORM
+    field: proposed_height
+  - doc_type: DRAWING
+    drawing_type: elevation
+    annotation: dimension_line

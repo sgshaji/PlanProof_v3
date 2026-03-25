@@ -1,0 +1,32 @@
+# Degradation Preset: heavy_scan
+#
+# WHY: This preset simulates a worn photocopier or flatbed scanner used on
+# aged paper — the typical condition of older planning submissions retrieved
+# from archive storage.  Sigma=0.05 Gaussian noise + speckle at density=0.01
+# together mimic film grain and toner clumping; a 3° rotation reflects
+# careless feeding; quality=60 JPEG causes visible blocking on thin annotation
+# lines; 150 DPI downsampling matches the resolution floor below which OCR
+# accuracy degrades sharply.
+#
+# DESIGN: vary_resolution is placed last so it downsamples the already-
+# degraded image.  Downsampling before noise would spread each noise pixel
+# across interpolated neighbours and underestimate the true artefact density.
+
+preset_id: heavy_scan
+
+transforms:
+  - name: gaussian_noise
+    params:
+      sigma: 0.05
+  - name: speckle_noise
+    params:
+      density: 0.01
+  - name: rotation
+    params:
+      degrees: 3.0
+  - name: jpeg_compression
+    params:
+      quality: 60
+  - name: vary_resolution
+    params:
+      target_dpi: 150
