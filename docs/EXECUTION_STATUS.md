@@ -2,7 +2,7 @@
 
 > **Last updated**: 2026-03-25
 > **Current phase**: Phase 1 (Data Pipeline & Synthetic Generation)
-> **Overall status**: Phase 0 complete. Phase 1 Section 1.2 (synthetic data generator) complete. 50-set evaluation dataset generated.
+> **Overall status**: Phase 0 complete. **Phase 1 complete.** Synthetic data generator, PII anonymisation, test set sealing all done. Ready for Phase 2.
 
 ---
 
@@ -11,7 +11,7 @@
 | Phase | Name | Status | Date Started | Date Completed |
 |-------|------|--------|-------------|----------------|
 | **Phase 0** | Project Foundation | **Complete** | 2026-03-25 | 2026-03-25 |
-| **Phase 1** | Data Pipeline & Synthetic Generation | **In Progress** | 2026-03-25 | — |
+| **Phase 1** | Data Pipeline & Synthetic Generation | **Complete** | 2026-03-25 | 2026-03-26 |
 | Phase 2 | Ingestion Layer (M1, M2, M3) | Not Started | — | — |
 | Phase 3 | Representation Layer (M5) | Not Started | — | — |
 | Phase 4 | Reasoning Layer (M6–M9) | Not Started | — | — |
@@ -156,20 +156,22 @@ pip install -e ".[geo,pdf,dev]"
 - [x] Coverage tests + verify_data module (2026-03-25)
 - [x] Full evaluation dataset generated — 20 compliant + 20 noncompliant + 10 edgecase (50 sets, 350+ files) (2026-03-25)
 
-### 1.1 BCC Real Data
+### 1.1 BCC Real Data — Complete
 - [x] 10 real BCC application sets placed in `data/raw/` (2026-03-25)
-- [ ] PII anonymisation script — not yet implemented
-- [ ] Provenance documentation
+- [x] PII anonymisation script — classifies 39 files, flags 11 forms for PII, copies 28 safe drawings (2026-03-26)
+- [x] pii_manifest.json generated with per-file PII classification (2026-03-26)
+- [x] Provenance documentation — `data/raw/PROVENANCE.md` with source, composition, PII notice (2026-03-26)
 
-### 1.3 Test Set Sealing
-- [ ] Seeded train/val/test split
-- [ ] MD5 integrity manifest
-- [ ] Verification script
+### 1.3 Test Set Sealing — Complete
+- [x] Seeded train/val/test split — `split.py` with 60/20/20 deterministic assignment (2026-03-26)
+- [x] MD5 integrity manifest — `integrity.py` hashes every file in synthetic dataset (2026-03-26)
+- [x] Verification script — `scripts/verify_dataset.py` validates structure, split, and hashes (2026-03-26)
+- [x] Makefile targets: `make seal-data`, `make verify-data` (2026-03-26)
 
 ### Test Summary
-- 129 unit tests + 8 integration tests, all passing (1 skipped — pymupdf page count)
-- ruff clean, mypy --strict clean across all datagen modules
-- Full pipeline smoke-tested: seed 42 → 50 sets with ground truth + reference files
+- 149 unit tests + 8 integration tests, all passing (1 skipped — pymupdf page count)
+- ruff clean, mypy --strict clean across all modules
+- Full pipeline smoke-tested: seed 42 -> 50 sets with ground truth + reference files
 
 ### Architecture Highlights
 - **Hybrid FP/OOP**: pure functions for scenario generation + degradation, Protocol-based plugins for rendering
@@ -182,5 +184,5 @@ pip install -e ".[geo,pdf,dev]"
 
 ## Next Steps
 
-1. Complete Phase 1 remaining items (BCC real data anonymisation, test set sealing)
-2. Begin Phase 2: Ingestion Layer (Document Classifier, Text Extraction, VLM Pipeline)
+1. Begin Phase 2: Ingestion Layer (Document Classifier, Text Extraction, VLM Pipeline)
+2. Set up Label Studio for VLM ground truth annotation (Phase 2.3)
