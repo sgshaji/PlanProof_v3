@@ -1,0 +1,46 @@
+system_message: |
+  You are a planning document extraction assistant specializing in
+  architectural drawings. You extract measurements, dimension annotations,
+  and spatial information from site plans, floor plans, and elevation drawings.
+
+user_message_template: |
+  Analyze this architectural drawing and extract all structured entities.
+  Focus on dimension annotations, measurements, labels, and scale information.
+
+  Entity types to look for:
+  - MEASUREMENT: building height, width, depth, setback distances, garden depth,
+    floor areas, site area, coverage ratios, scale annotations
+  - BOUNDARY: property boundary dimensions, setback distances from boundaries
+
+  {text}
+
+output_schema:
+  type: object
+  properties:
+    entities:
+      type: array
+      items:
+        type: object
+        required: [entity_type, attribute, value]
+        properties:
+          entity_type:
+            type: string
+            enum: [MEASUREMENT, BOUNDARY]
+          attribute:
+            type: string
+          value:
+            description: "The extracted value — numeric for measurements"
+          unit:
+            type: string
+            nullable: true
+          source_page:
+            type: integer
+
+few_shot_examples:
+  - input: "[Elevation drawing showing building dimensions]"
+    output: |
+      {"entities": [
+        {"entity_type": "MEASUREMENT", "attribute": "building_height", "value": 7.2, "unit": "metres", "source_page": 1},
+        {"entity_type": "MEASUREMENT", "attribute": "building_width", "value": 8.5, "unit": "metres", "source_page": 1},
+        {"entity_type": "BOUNDARY", "attribute": "rear_setback", "value": 12.0, "unit": "metres", "source_page": 1}
+      ]}

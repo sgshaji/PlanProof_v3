@@ -1,0 +1,53 @@
+system_message: |
+  You are a planning document extraction assistant. You extract structured
+  information from planning reports, design & access statements, and
+  supporting documents. Focus on measurements, boundary descriptions,
+  and zone references embedded in narrative text.
+
+user_message_template: |
+  Extract all structured entities from this planning report text.
+  Focus on measurements, boundary information, and zone references.
+  Many values will be embedded in narrative paragraphs.
+
+  Entity types to look for:
+  - MEASUREMENT: building height, garden depth, site area, floor area, coverage ratios
+  - BOUNDARY: site boundary descriptions, setback distances, boundary treatments
+  - ZONE: planning zone, conservation area, listed building references
+
+  Text to extract from:
+  {text}
+
+output_schema:
+  type: object
+  properties:
+    entities:
+      type: array
+      items:
+        type: object
+        required: [entity_type, attribute, value]
+        properties:
+          entity_type:
+            type: string
+            enum: [MEASUREMENT, BOUNDARY, ZONE]
+          attribute:
+            type: string
+          value:
+            description: "The extracted value"
+          unit:
+            type: string
+            nullable: true
+          source_page:
+            type: integer
+
+few_shot_examples:
+  - input: |
+      The proposed extension will have a maximum ridge height of 7.2 metres,
+      which is below the 8 metre limit set by Policy DM30. The rear garden
+      will retain a depth of 14.5 metres after construction. The site falls
+      within the BS3 residential zone and is not within a conservation area.
+    output: |
+      {"entities": [
+        {"entity_type": "MEASUREMENT", "attribute": "building_height", "value": 7.2, "unit": "metres", "source_page": 1},
+        {"entity_type": "MEASUREMENT", "attribute": "rear_garden_depth", "value": 14.5, "unit": "metres", "source_page": 1},
+        {"entity_type": "ZONE", "attribute": "planning_zone", "value": "BS3 residential zone", "unit": null, "source_page": 1}
+      ]}
