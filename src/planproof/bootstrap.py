@@ -37,11 +37,11 @@ from planproof.reasoning.evaluators.numeric_tolerance import NumericToleranceEva
 from planproof.reasoning.evaluators.ratio_threshold import RatioThresholdEvaluator
 from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.config import PipelineConfig
-from planproof.schemas.entities import (
-    ClassifiedDocument,
-    ExtractedEntity,
-    RawTextResult,
-)
+from planproof.schemas.entities import ExtractedEntity
+from planproof.ingestion.classifier import RuleBasedClassifier
+from planproof.ingestion.entity_extractor import LLMEntityExtractor
+from planproof.ingestion.text_extractor import PdfPlumberExtractor
+from planproof.ingestion.vision_extractor import VisionExtractor
 from planproof.schemas.pipeline import EvidenceRequest
 from planproof.schemas.reconciliation import ReconciledEvidence
 
@@ -132,14 +132,17 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
     pipeline = Pipeline(config=config)
 
     # Layer 1: Ingestion — always active
-    # WHY: Concrete extractors are placeholder stubs until their respective
-    # phases are implemented. The pipeline skeleton runs with NotImplementedError
-    # steps during early development — this is intentional.
-    pipeline.register(ClassificationStep(classifier=_stub_classifier()))
+    classifier = _create_classifier(config)
+    ocr = _create_ocr()
+    entity_extractor = _create_entity_extractor(config, _cached_llm)
+    vision_extractor = _create_vision_extractor(config)
+
+    pipeline.register(ClassificationStep(classifier=classifier))
     pipeline.register(
         TextExtractionStep(
-            ocr=_stub_ocr(),
-            entity_extractor=_stub_entity_extractor(),
+            ocr=ocr,
+            entity_extractor=entity_extractor,
+            vision_extractor=vision_extractor,
         )
     )
 
@@ -198,27 +201,6 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
 # ---------------------------------------------------------------------------
 
 
-class _StubClassifier:
-    """Placeholder until Phase 2."""
-
-    def classify(self, file_path: Path) -> ClassifiedDocument:
-        raise NotImplementedError("Concrete classifier implemented in Phase 2")
-
-
-class _StubOCR:
-    """Placeholder until Phase 2."""
-
-    def extract_text(self, document: Path) -> RawTextResult:
-        raise NotImplementedError("Concrete OCR implemented in Phase 2")
-
-
-class _StubEntityExtractor:
-    """Placeholder until Phase 2."""
-
-    def extract_entities(self, text: RawTextResult) -> list[ExtractedEntity]:
-        raise NotImplementedError("Concrete entity extractor implemented in Phase 2")
-
-
 class _StubVLM:
     """Placeholder until Phase 2."""
 
@@ -262,16 +244,23 @@ class _StubAssessability:
         raise NotImplementedError(msg)
 
 
-def _stub_classifier() -> _StubClassifier:
-    return _StubClassifier()
+def _create_classifier(config: PipelineConfig) -> RuleBasedClassifier:
+    return RuleBasedClassifier(patterns_path=config.configs_dir / "classifier_patterns.yaml")
 
+def _create_ocr() -> PdfPlumberExtractor:
+    return PdfPlumberExtractor()
 
-def _stub_ocr() -> _StubOCR:
-    return _StubOCR()
+def _create_entity_extractor(config: PipelineConfig, cached_llm: CachedLLMClient) -> LLMEntityExtractor:
+    return LLMEntityExtractor(llm=cached_llm, prompts_dir=config.configs_dir / "prompts", model=config.llm_model)
 
-
-def _stub_entity_extractor() -> _StubEntityExtractor:
-    return _StubEntityExtractor()
+def _create_vision_extractor(config: PipelineConfig) -> VisionExtractor | None:
+    api_key = config.llm_api_key
+    if not api_key:
+        logger.warning("no_openai_key_vision_disabled")
+        return None
+    import openai
+    client = openai.OpenAI(api_key=api_key)
+    return VisionExtractor(openai_client=client, prompts_dir=config.configs_dir / "prompts", model=config.vlm_model)
 
 
 def _stub_vlm() -> _StubVLM:
