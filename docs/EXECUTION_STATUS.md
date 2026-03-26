@@ -1,8 +1,8 @@
 # PlanProof — Execution Status
 
-> **Last updated**: 2026-03-25
-> **Current phase**: Phase 1 (Data Pipeline & Synthetic Generation)
-> **Overall status**: Phase 0 complete. **Phase 1 complete.** Synthetic data generator, PII anonymisation, test set sealing all done. Ready for Phase 2.
+> **Last updated**: 2026-03-27
+> **Current phase**: Phase 2 (Ingestion Layer)
+> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2a complete** (M1 classifier + M2 text extraction). Phase 2b (M3 VLM) pending.
 
 ---
 
@@ -12,7 +12,8 @@
 |-------|------|--------|-------------|----------------|
 | **Phase 0** | Project Foundation | **Complete** | 2026-03-25 | 2026-03-25 |
 | **Phase 1** | Data Pipeline & Synthetic Generation | **Complete** | 2026-03-25 | 2026-03-26 |
-| Phase 2 | Ingestion Layer (M1, M2, M3) | Not Started | — | — |
+| **Phase 2a** | Ingestion Layer (M1, M2) | **Complete** | 2026-03-27 | 2026-03-27 |
+| Phase 2b | Ingestion Layer (M3 VLM) | Not Started | — | — |
 | Phase 3 | Representation Layer (M5) | Not Started | — | — |
 | Phase 4 | Reasoning Layer (M6–M9) | Not Started | — | — |
 | Phase 5 | Output Layer (M10–M12) | Not Started | — | — |
@@ -182,7 +183,38 @@ pip install -e ".[geo,pdf,dev]"
 
 ---
 
+## Phase 2a: Ingestion Layer (M1 + M2) — Detailed Status
+
+### 2.1 Document Classifier (M1) — Complete
+- [x] RuleBasedClassifier with three-signal cascade (filename, text density, image heuristics) (2026-03-27)
+- [x] Configurable regex patterns in `configs/classifier_patterns.yaml` (2026-03-27)
+- [x] `has_text_layer` routing signal added to `ClassifiedDocument` (2026-03-27)
+- [x] Unit tests — 17 tests covering all classification signals (2026-03-27)
+- [x] Integration tests against synthetic data (2026-03-27)
+
+### 2.2 Text Extraction Pipeline (M2) — Complete
+- [x] PdfPlumberExtractor — text-layer PDF extraction via pdfplumber (2026-03-27)
+- [x] LLMEntityExtractor — LLM structured extraction with prompt templates (2026-03-27)
+- [x] VisionExtractor — GPT-4o image-based extraction (2026-03-27)
+- [x] Rasteriser utility for image handling (2026-03-27)
+- [x] PromptLoader with YAML template system (2026-03-27)
+- [x] Four prompt templates — form, report, certificate, drawing (2026-03-27)
+- [x] Two-path routing in TextExtractionStep (text vs vision) (2026-03-27)
+- [x] Bootstrap wired with concrete implementations (2026-03-27)
+- [x] Unit tests — 49 tests for all components (2026-03-27)
+- [x] Integration tests with mocked LLM (2026-03-27)
+- [x] Determinism test (2026-03-27)
+
+### Architecture Highlights
+- **Two-path router**: ClassifiedDocument.has_text_layer routes to pdfplumber+Groq (text) or GPT-4o (vision)
+- **Plugin extensibility**: new doc types = YAML pattern + prompt template, no code changes
+- **Provider swappable**: pdfplumber → pymupdf, Groq → OpenAI — all config-level behind Protocol interfaces
+- **M3-ready**: vision path infrastructure reusable for VLM spatial extraction
+
+---
+
 ## Next Steps
 
-1. Begin Phase 2: Ingestion Layer (Document Classifier, Text Extraction, VLM Pipeline)
-2. Set up Label Studio for VLM ground truth annotation (Phase 2.3)
+1. Design and implement Phase 2b: M3 VLM spatial extraction pipeline
+2. Set up Label Studio for VLM ground truth annotation
+3. Begin Phase 3: Representation Layer (M5 knowledge graph)
