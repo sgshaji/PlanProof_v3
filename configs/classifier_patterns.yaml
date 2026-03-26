@@ -1,0 +1,31 @@
+# Document classification patterns — regex-based filename matching.
+# Each pattern maps to a DocumentType. Patterns are evaluated in order;
+# first match wins. Add new patterns here to classify new document types.
+patterns:
+  - pattern: "(?i)(form|application)"
+    doc_type: FORM
+    confidence: 0.90
+  - pattern: "(?i)(elevation|section)"
+    doc_type: DRAWING
+    confidence: 0.90
+  - pattern: "(?i)(site.?plan|block.?plan)"
+    doc_type: DRAWING
+    confidence: 0.90
+  - pattern: "(?i)(floor.?plan)"
+    doc_type: DRAWING
+    confidence: 0.90
+  - pattern: "(?i)(certificate|lawful)"
+    doc_type: CERTIFICATE
+    confidence: 0.90
+  - pattern: "(?i)(report|statement|assessment)"
+    doc_type: REPORT
+    confidence: 0.85
+
+# Text density thresholds (characters per page)
+text_density:
+  high_threshold: 200    # Above → FORM or REPORT
+  low_threshold: 50      # Below → likely DRAWING
+
+# Image heuristic thresholds
+image_heuristics:
+  landscape_ratio: 1.2   # width/height > this → landscape → DRAWING
