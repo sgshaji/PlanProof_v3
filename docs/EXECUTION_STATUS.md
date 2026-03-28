@@ -1,8 +1,8 @@
 # PlanProof — Execution Status
 
 > **Last updated**: 2026-03-28
-> **Current phase**: Phase 4 (Reasoning Layer)
-> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). Phase 4 (Reasoning) next.
+> **Current phase**: Phase 5 (Output Layer)
+> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). **Phase 4 complete** (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation — all wired into bootstrap). Phase 5 (Output Layer) next.
 
 ---
 
@@ -15,7 +15,7 @@
 | **Phase 2a** | Ingestion Layer (M1, M2) | **Complete** | 2026-03-27 | 2026-03-27 |
 | **Phase 2b** | Ingestion Layer (M3 VLM) | **Complete** | 2026-03-27 | 2026-03-27 |
 | **Phase 3** | Representation Layer (M5) | **Complete** | 2026-03-28 | 2026-03-28 |
-| Phase 4 | Reasoning Layer (M6–M9) | Not Started | — | — |
+| **Phase 4** | Reasoning Layer (M6–M9) | **Complete** | 2026-03-28 | 2026-03-28 |
 | Phase 5 | Output Layer (M10–M12) | Not Started | — | — |
 | Phase 6 | Final Integration & Ablation Prep | Not Started | — | — |
 | Phase 7 | Ablation Study & Evaluation | Not Started | — | — |
@@ -261,9 +261,49 @@ pip install -e ".[geo,pdf,dev]"
 
 ---
 
+---
+
+## Phase 4: Reasoning Layer (M6–M9) — Detailed Status
+
+### 4.1 Pairwise Reconciler (M6) — Complete
+- [x] `PairwiseReconciler` — numeric tolerance + exact string pairwise comparison (2026-03-28)
+- [x] AGREED / CONFLICTING / SINGLE_SOURCE / MISSING status outcomes (2026-03-28)
+- [x] Per-attribute configurable tolerances, default 0.5 (2026-03-28)
+- [x] `ReconciliationStep` wired with concrete `PairwiseReconciler()` in bootstrap (2026-03-28)
+- [x] `_StubReconciler` removed (2026-03-28)
+
+### 4.2 Confidence Gating (M7) — Complete
+- [x] `ThresholdConfidenceGate` — per-method, per-entity-type thresholds with fail-open default (2026-03-28)
+- [x] `ThresholdConfidenceGate.from_yaml()` factory loads from `configs/confidence_thresholds.yaml` (2026-03-28)
+- [x] `ConfidenceGatingStep` wired with concrete gate in bootstrap (2026-03-28)
+- [x] `_StubGate` removed (2026-03-28)
+
+### 4.3 Assessability Evaluator (M8) — Complete
+- [x] `DefaultAssessabilityEvaluator` — tri-state logic (ASSESSABLE / NOT_ASSESSABLE) (2026-03-28)
+- [x] Source matching, confidence gating, reconciliation conflict detection pipeline (2026-03-28)
+- [x] Priority ordering: MISSING > CONFLICTING > LOW_CONFIDENCE > NONE (2026-03-28)
+- [x] `AssessabilityStep` wired with concrete evaluator + SNKG evidence_provider in bootstrap (2026-03-28)
+- [x] `_StubAssessability` removed (2026-03-28)
+
+### 4.4 Rule Evaluation (M9) — Complete
+- [x] 6 evaluator types registered: numeric_threshold, ratio_threshold, enum_check, fuzzy_string_match, numeric_tolerance, attribute_diff (2026-03-28)
+- [x] `RuleEvaluationStep` wired with `RuleFactory` + rules_dir in bootstrap (2026-03-28)
+- [x] `rapidfuzz` optional — `FuzzyMatchEvaluator` falls back to `difflib.SequenceMatcher` gracefully (2026-03-28)
+
+### 4.5 Bootstrap Wiring (Task 6) — Complete
+- [x] `_create_reconciler()` factory replacing `_stub_reconciler()` (2026-03-28)
+- [x] `_create_confidence_gate(config)` loading from `configs/confidence_thresholds.yaml` (2026-03-28)
+- [x] `_create_assessability_evaluator(...)` wiring SNKG or stub as evidence_provider (2026-03-28)
+- [x] Rules loaded once (`RuleFactory.load_rules()`) and shared between assessability + rule evaluation (2026-03-28)
+- [x] Evidence provider selection: Neo4jSNKG if `use_snkg=True` and URI configured, else `_StubEvidenceProvider` (Phase 5) (2026-03-28)
+- [x] 522 tests passing, 7 skipped — ruff clean, mypy --strict clean (2026-03-28)
+
+---
+
 ## Next Steps
 
-1. Begin Phase 4: Reasoning Layer (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation)
-2. Wire `FlatEvidenceProvider` into `ReconciliationStep` when `use_snkg=False`
-3. Set up Label Studio for VLM ground truth annotation
-4. Consider VLM fine-tuning if zero-shot accuracy insufficient
+1. Begin Phase 5: Output Layer (M10 scoring, M11 evidence requests, M12 report generation)
+2. Wire `FlatEvidenceProvider` into reasoning steps when `use_snkg=False` (replacing `_StubEvidenceProvider`)
+3. Wire `_StubEvidenceRequestGenerator` with concrete implementation
+4. Set up Label Studio for VLM ground truth annotation
+5. Consider VLM fine-tuning if zero-shot accuracy insufficient

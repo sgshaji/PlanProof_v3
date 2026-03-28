@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from planproof.infrastructure.cached_llm import CachedLLMClient
 from planproof.infrastructure.llm_cache import SQLiteLLMCache
 from planproof.infrastructure.logging import configure_logging, get_logger
@@ -31,6 +33,8 @@ from planproof.pipeline.steps.rule_evaluation import RuleEvaluationStep
 from planproof.pipeline.steps.scoring import ScoringStep
 from planproof.pipeline.steps.text_extraction import TextExtractionStep
 from planproof.pipeline.steps.vlm_extraction import VLMExtractionStep
+from planproof.reasoning.assessability import DefaultAssessabilityEvaluator
+from planproof.reasoning.confidence import ThresholdConfidenceGate
 from planproof.reasoning.evaluators.attribute_diff import AttributeDiffEvaluator
 from planproof.reasoning.evaluators.enum_check import EnumCheckEvaluator
 from planproof.reasoning.evaluators.factory import RuleFactory
@@ -38,6 +42,7 @@ from planproof.reasoning.evaluators.fuzzy_match import FuzzyMatchEvaluator
 from planproof.reasoning.evaluators.numeric_threshold import NumericThresholdEvaluator
 from planproof.reasoning.evaluators.numeric_tolerance import NumericToleranceEvaluator
 from planproof.reasoning.evaluators.ratio_threshold import RatioThresholdEvaluator
+from planproof.reasoning.reconciliation import PairwiseReconciler
 from planproof.representation.flat_evidence import FlatEvidenceProvider  # noqa: F401
 from planproof.representation.normalisation import Normaliser
 from planproof.representation.snkg import Neo4jSNKG
@@ -45,7 +50,6 @@ from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.config import PipelineConfig
 from planproof.schemas.entities import ExtractedEntity
 from planproof.schemas.pipeline import EvidenceRequest
-from planproof.schemas.reconciliation import ReconciledEvidence
 
 logger = get_logger(__name__)
 
@@ -119,9 +123,6 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
     cache = SQLiteLLMCache(cache_dir=config.cache_dir)
     _cached_llm = CachedLLMClient(client=llm_client, cache=cache)
 
-    # --- Rule factory ---
-    rule_factory = _register_evaluators()
-
     logger.info(
         "llm_provider_configured",
         provider=config.llm_provider,
@@ -153,29 +154,58 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
         if vlm_spatial is not None:
             pipeline.register(VLMExtractionStep(vlm=vlm_spatial))
 
+    # --- Reasoning layer components (constructed before pipeline registration) ---
+    reconciler = _create_reconciler()
+    confidence_gate = _create_confidence_gate(config)
+
+    # Load rules once — used by both AssessabilityStep and RuleEvaluationStep
+    rules_dir = config.configs_dir / "rules"
+    rule_factory = _register_evaluators()
+    loaded_rule_pairs = rule_factory.load_rules(rules_dir)
+    rules_dict = {cfg.rule_id: cfg for cfg, _ in loaded_rule_pairs}
+
     # Layer 2: Representation
     pipeline.register(NormalisationStep(normaliser=Normaliser()))
 
+    # Determine evidence_provider — SNKG if available, stub otherwise
+    snkg_instance: Neo4jSNKG | None = None
     if config.ablation.use_snkg:
         snkg_instance = _create_snkg(config)
         if snkg_instance is not None:
             pipeline.register(GraphPopulationStep(populator=snkg_instance))
 
+    # Select evidence provider: SNKG (graph) or stub (flat wired in Phase 5).
+    # Typed as object because Neo4jSNKG and _StubEvidenceProvider satisfy the
+    # EvidenceProvider Protocol structurally — mypy cannot verify this without
+    # explicit Protocol subclassing, so we use object and suppress below.
+    evidence_provider: object
+    if snkg_instance is not None:
+        evidence_provider = snkg_instance
+    else:
+        evidence_provider = _stub_evidence_provider()
+
     # Layer 3: Reasoning
     if config.ablation.use_evidence_reconciliation:
         pipeline.register(
             ReconciliationStep(
-                reconciler=_stub_reconciler(),
-                evidence_provider=_stub_evidence_provider(),
+                reconciler=reconciler,
+                evidence_provider=evidence_provider,
             )
         )
 
     if config.ablation.use_confidence_gating:
-        pipeline.register(ConfidenceGatingStep(gate=_stub_gate()))
+        pipeline.register(ConfidenceGatingStep(gate=confidence_gate))
 
     if config.ablation.use_assessability_engine:
         pipeline.register(
-            AssessabilityStep(evaluator=_stub_assessability())
+            AssessabilityStep(
+                evaluator=_create_assessability_evaluator(
+                    evidence_provider=evidence_provider,
+                    confidence_gate=confidence_gate,
+                    reconciler=reconciler,
+                    rules=rules_dict,
+                )
+            )
         )
 
     if config.ablation.use_rule_engine:
@@ -203,35 +233,6 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
 # Stub factories — return placeholder objects until concrete implementations
 # are built in later phases. These satisfy Protocol interfaces structurally.
 # ---------------------------------------------------------------------------
-
-
-class _StubReconciler:
-    """Placeholder until Phase 4."""
-
-    def reconcile(
-        self, entities: list[ExtractedEntity], attribute: str
-    ) -> ReconciledEvidence:
-        raise NotImplementedError("Concrete reconciler implemented in Phase 4")
-
-
-class _StubGate:
-    """Placeholder until Phase 4."""
-
-    def is_trustworthy(self, entity: ExtractedEntity) -> bool:
-        raise NotImplementedError("Concrete confidence gate implemented in Phase 4")
-
-    def filter_trusted(
-        self, entities: list[ExtractedEntity]
-    ) -> list[ExtractedEntity]:
-        raise NotImplementedError("Concrete confidence gate implemented in Phase 4")
-
-
-class _StubAssessability:
-    """Placeholder until Phase 4."""
-
-    def evaluate(self, rule_id: str) -> AssessabilityResult:
-        msg = "Concrete assessability evaluator: Phase 4"
-        raise NotImplementedError(msg)
 
 
 def _create_classifier(config: PipelineConfig) -> RuleBasedClassifier:
@@ -298,16 +299,37 @@ def _create_snkg(config: PipelineConfig) -> Neo4jSNKG | None:
     return Neo4jSNKG(driver=driver)
 
 
-def _stub_reconciler() -> _StubReconciler:
-    return _StubReconciler()
+def _create_reconciler() -> PairwiseReconciler:
+    """Return a PairwiseReconciler with default tolerances."""
+    return PairwiseReconciler()
 
 
-def _stub_gate() -> _StubGate:
-    return _StubGate()
+def _create_confidence_gate(config: PipelineConfig) -> ThresholdConfidenceGate:
+    """Load ThresholdConfidenceGate from configs/confidence_thresholds.yaml."""
+    yaml_path = config.configs_dir / "confidence_thresholds.yaml"
+    return ThresholdConfidenceGate.from_yaml(yaml_path)
 
 
-def _stub_assessability() -> _StubAssessability:
-    return _StubAssessability()
+def _create_assessability_evaluator(
+    *,
+    evidence_provider: object,
+    confidence_gate: ThresholdConfidenceGate,
+    reconciler: PairwiseReconciler,
+    rules: Mapping[str, object],
+) -> DefaultAssessabilityEvaluator:
+    """Wire a DefaultAssessabilityEvaluator with all reasoning dependencies.
+
+    ``evidence_provider`` and ``rules`` are typed as ``object`` because the
+    concrete values (Neo4jSNKG or _StubEvidenceProvider, RuleConfig dicts)
+    satisfy the Protocols structurally — mypy cannot verify structural
+    compatibility without explicit Protocol annotations on those classes.
+    """
+    return DefaultAssessabilityEvaluator(
+        evidence_provider=evidence_provider,  # type: ignore[arg-type]
+        confidence_gate=confidence_gate,
+        reconciler=reconciler,
+        rules=rules,  # type: ignore[arg-type]
+    )
 
 
 class _StubEvidenceProvider:
