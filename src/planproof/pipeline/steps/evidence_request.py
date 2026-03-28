@@ -21,4 +21,38 @@ class EvidenceRequestStep:
         return "evidence_request"
 
     def execute(self, context: PipelineContext) -> StepResult:
-        raise NotImplementedError("Implemented in Phase 5")
+        """Generate evidence requests for NOT_ASSESSABLE rules.
+
+        Retrieves assessability results from the context, filters to
+        status=="NOT_ASSESSABLE", calls the generator to produce requests,
+        and stores them in context["metadata"]["evidence_requests"].
+
+        Args:
+            context: Pipeline context containing assessability_results.
+
+        Returns:
+            StepResult with success=True and request count in artifacts.
+        """
+        # Extract assessability results from context
+        assessability_results = context.get("assessability_results", [])
+
+        # Filter to NOT_ASSESSABLE results only
+        not_assessable = [
+            result for result in assessability_results
+            if result.status == "NOT_ASSESSABLE"
+        ]
+
+        # Generate evidence requests
+        requests = self._generator.generate_requests(not_assessable)
+
+        # Store requests in context
+        context["metadata"]["evidence_requests"] = requests
+
+        # Return success with request count as artifacts
+        return {
+            "success": True,
+            "message": f"Generated {len(requests)} evidence requests",
+            "artifacts": {
+                "request_count": len(requests),
+            },
+        }

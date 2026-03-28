@@ -21,6 +21,8 @@ from planproof.ingestion.text_extractor import PdfPlumberExtractor
 from planproof.ingestion.vision_extractor import VisionExtractor
 from planproof.ingestion.vlm_spatial_extractor import VLMSpatialExtractor
 from planproof.interfaces.llm import LLMClient
+from planproof.output.evidence_request import MinEvidenceRequestGenerator
+from planproof.output.scoring import ComplianceScorer  # noqa: F401
 from planproof.pipeline.pipeline import Pipeline
 from planproof.pipeline.steps.assessability import AssessabilityStep
 from planproof.pipeline.steps.classification import ClassificationStep
@@ -46,10 +48,8 @@ from planproof.reasoning.reconciliation import PairwiseReconciler
 from planproof.representation.flat_evidence import FlatEvidenceProvider  # noqa: F401
 from planproof.representation.normalisation import Normaliser
 from planproof.representation.snkg import Neo4jSNKG
-from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.config import PipelineConfig
 from planproof.schemas.entities import ExtractedEntity
-from planproof.schemas.pipeline import EvidenceRequest
 
 logger = get_logger(__name__)
 
@@ -218,7 +218,7 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
 
     # Layer 4: Output — always active
     pipeline.register(ScoringStep())
-    pipeline.register(EvidenceRequestStep(generator=_stub_evidence_request_generator()))
+    pipeline.register(EvidenceRequestStep(generator=_create_evidence_request_generator(config)))
 
     logger.info(
         "pipeline_built",
@@ -344,19 +344,13 @@ class _StubEvidenceProvider:
         raise NotImplementedError("Concrete evidence provider implemented in Phase 3")
 
 
-class _StubEvidenceRequestGenerator:
-    """Placeholder until Phase 5."""
-
-    def generate_requests(
-        self, not_assessable: list[AssessabilityResult]
-    ) -> list[EvidenceRequest]:
-        msg = "Concrete evidence request generator: Phase 5"
-        raise NotImplementedError(msg)
+def _create_evidence_request_generator(
+    config: PipelineConfig,
+) -> MinEvidenceRequestGenerator:
+    """Load evidence guidance from YAML and return a MinEvidenceRequestGenerator."""
+    yaml_path = config.configs_dir / "evidence_guidance.yaml"
+    return MinEvidenceRequestGenerator.from_yaml(yaml_path)
 
 
 def _stub_evidence_provider() -> _StubEvidenceProvider:
     return _StubEvidenceProvider()
-
-
-def _stub_evidence_request_generator() -> _StubEvidenceRequestGenerator:
-    return _StubEvidenceRequestGenerator()
