@@ -1,8 +1,11 @@
 """Pipeline step: determine whether rules can be evaluated."""
 from __future__ import annotations
 
+from planproof.infrastructure.logging import get_logger
 from planproof.interfaces.pipeline import PipelineContext, StepResult
 from planproof.interfaces.reasoning import AssessabilityEvaluator
+
+logger = get_logger(__name__)
 
 
 class AssessabilityStep:
@@ -21,4 +24,35 @@ class AssessabilityStep:
         return "assessability"
 
     def execute(self, context: PipelineContext) -> StepResult:
-        raise NotImplementedError("Implemented in Phase 4")
+        rule_ids: list[str] = context.get("metadata", {}).get("rule_ids", [])
+
+        results = []
+        for rule_id in rule_ids:
+            result = self._evaluator.evaluate(rule_id)
+            results.append(result)
+
+        context["assessability_results"] = results
+
+        assessable_count = sum(1 for r in results if r.status == "ASSESSABLE")
+        not_assessable_count = len(results) - assessable_count
+
+        logger.info(
+            "assessability_complete",
+            total_rules=len(results),
+            assessable=assessable_count,
+            not_assessable=not_assessable_count,
+        )
+
+        return {
+            "success": True,
+            "message": (
+                f"Evaluated {len(results)} rules: "
+                f"{assessable_count} assessable, "
+                f"{not_assessable_count} not assessable"
+            ),
+            "artifacts": {
+                "total_rules": len(results),
+                "assessable_count": assessable_count,
+                "not_assessable_count": not_assessable_count,
+            },
+        }
