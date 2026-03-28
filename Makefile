@@ -1,4 +1,4 @@
-.PHONY: install lint typecheck test test-reasoning seal-data verify-data evaluate all
+.PHONY: install lint typecheck test test-reasoning seal-data verify-data evaluate notebook all
 
 install:
 	pip install -e ".[dev]"
@@ -27,6 +27,9 @@ verify-data:
 	python scripts/verify_dataset.py
 
 evaluate:
-	python -m planproof.evaluation.run_ablation
+	python scripts/run_ablation.py --data-dir data/synthetic_diverse --output-dir data/results --resume
+
+notebook:
+	jupyter notebook notebooks/ablation_analysis.ipynb
 
 all: lint typecheck test

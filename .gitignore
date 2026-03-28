@@ -45,3 +45,6 @@ Thumbs.db
 
 # Generated synthetic data (large binary files)
 data/synthetic/
+
+# Experiment results (regeneratable)
+data/results/

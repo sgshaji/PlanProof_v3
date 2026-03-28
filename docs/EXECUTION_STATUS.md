@@ -1,8 +1,8 @@
 # PlanProof — Execution Status
 
 > **Last updated**: 2026-03-28
-> **Current phase**: Phase 6 (Final Integration & Ablation Prep)
-> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). **Phase 4 complete** (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation — all wired into bootstrap). **Phase 5 complete** (M10 scoring, M11 evidence requests, M12 report generation — all wired into bootstrap). Phase 6 (Final Integration & Ablation Prep) next.
+> **Current phase**: Phase 7 (Ablation Study & Evaluation)
+> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). **Phase 4 complete** (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation — all wired into bootstrap). **Phase 5 complete** (M10 scoring, M11 evidence requests, M12 report generation — all wired into bootstrap). **Phase 6 complete** (Final Integration & Ablation Prep). Phase 7 (Ablation Study & Evaluation) in progress.
 
 ---
 
@@ -17,8 +17,8 @@
 | **Phase 3** | Representation Layer (M5) | **Complete** | 2026-03-28 | 2026-03-28 |
 | **Phase 4** | Reasoning Layer (M6–M9) | **Complete** | 2026-03-28 | 2026-03-28 |
 | **Phase 5** | Output Layer (M10–M12) | **Complete** | 2026-03-28 | 2026-03-28 |
-| Phase 6 | Final Integration & Ablation Prep | Not Started | — | — |
-| Phase 7 | Ablation Study & Evaluation | Not Started | — | — |
+| **Phase 6** | Final Integration & Ablation Prep | **Complete** | 2026-03-28 | 2026-03-28 |
+| Phase 7 | Ablation Study & Evaluation | **In Progress** | 2026-03-28 | — |
 | Write-up | Dissertation | Not Started | — | — |
 
 ---
@@ -324,9 +324,24 @@ pip install -e ".[geo,pdf,dev]"
 
 ---
 
+## Phase 7: Ablation Study & Evaluation — Detailed Status
+
+### 7.1 Evaluation Infrastructure — Complete
+- [x] Experiment result data models and JSON I/O
+- [x] Evaluation metrics (recall, precision, F2, bootstrap CI, McNemar, Cohen's h)
+- [x] Ablation runner script
+- [x] Analysis notebook with dissertation-quality visualizations
+
+### 7.2 Experiment Execution — In Progress
+- [ ] Run experiments on synthetic test set
+- [ ] Generate dissertation figures
+- [ ] Qualitative error analysis
+
+---
+
 ## Next Steps
 
-1. Begin Phase 6: Final Integration & Ablation Prep
-2. Wire `FlatEvidenceProvider` into reasoning steps when `use_snkg=False` (replacing `_StubEvidenceProvider`)
-3. Set up Label Studio for VLM ground truth annotation
-4. Consider VLM fine-tuning if zero-shot accuracy insufficient
+1. Run ablation experiments: `make evaluate`
+2. Review results and generate dissertation figures: `make notebook`
+3. Perform qualitative error analysis on failure cases
+4. Write up evaluation chapter

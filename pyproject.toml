@@ -37,6 +37,14 @@ dev = [
     "types-PyYAML",
     "types-requests",
 ]
+eval = [
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "seaborn>=0.12",
+    "scipy>=1.10",
+    "jupyter>=1.0",
+    "notebook>=7.0",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/planproof"]
