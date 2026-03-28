@@ -2,14 +2,24 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
 from PIL import Image
 
 from planproof.ingestion.vlm_spatial_extractor import VLMSpatialExtractor
-from planproof.schemas.entities import DrawingSubtype, EntityType, ExtractionMethod
+from planproof.pipeline.steps.vlm_extraction import VLMExtractionStep
+from planproof.schemas.entities import (
+    ClassifiedDocument,
+    DocumentType,
+    DrawingSubtype,
+    EntityType,
+    ExtractedEntity,
+    ExtractionMethod,
+)
 
 
 def _mock_zeroshot_response() -> str:
@@ -312,3 +322,99 @@ class TestStructuredExtraction:
         )
         entities = extractor.extract_spatial_attributes(test_elevation)
         assert entities == []
+
+
+# ---------------------------------------------------------------------------
+# TestVLMExtractionStep
+# ---------------------------------------------------------------------------
+
+
+class TestVLMExtractionStep:
+    def test_execute_extracts_from_drawings(
+        self, extractor: VLMSpatialExtractor, test_elevation: Path
+    ) -> None:
+        step = VLMExtractionStep(vlm=extractor)
+        context: dict[str, Any] = {
+            "classified_documents": [
+                ClassifiedDocument(
+                    file_path=str(test_elevation),
+                    doc_type=DocumentType.DRAWING,
+                    confidence=0.9,
+                    has_text_layer=False,
+                )
+            ],
+            "entities": [],
+        }
+        result = step.execute(context)
+        assert result["success"] is True
+        assert len(context["entities"]) == 1
+
+    def test_skips_non_drawing_documents(
+        self, extractor: VLMSpatialExtractor, test_elevation: Path
+    ) -> None:
+        step = VLMExtractionStep(vlm=extractor)
+        context: dict[str, Any] = {
+            "classified_documents": [
+                ClassifiedDocument(
+                    file_path=str(test_elevation),
+                    doc_type=DocumentType.FORM,
+                    confidence=0.9,
+                    has_text_layer=True,
+                )
+            ],
+            "entities": [],
+        }
+        result = step.execute(context)
+        assert result["success"] is True
+        assert len(context["entities"]) == 0
+
+    def test_skips_drawings_with_text_layer(
+        self, extractor: VLMSpatialExtractor, test_elevation: Path
+    ) -> None:
+        step = VLMExtractionStep(vlm=extractor)
+        context: dict[str, Any] = {
+            "classified_documents": [
+                ClassifiedDocument(
+                    file_path=str(test_elevation),
+                    doc_type=DocumentType.DRAWING,
+                    confidence=0.9,
+                    has_text_layer=True,
+                )
+            ],
+            "entities": [],
+        }
+        result = step.execute(context)
+        assert result["success"] is True
+        assert len(context["entities"]) == 0
+
+    def test_appends_to_existing_entities(
+        self, extractor: VLMSpatialExtractor, test_elevation: Path
+    ) -> None:
+        step = VLMExtractionStep(vlm=extractor)
+        existing = ExtractedEntity(
+            entity_type=EntityType.ADDRESS,
+            value="123 Test St",
+            confidence=0.9,
+            source_document="form.pdf",
+            extraction_method=ExtractionMethod.OCR_LLM,
+            timestamp=datetime.now(UTC),
+        )
+        context: dict[str, Any] = {
+            "classified_documents": [
+                ClassifiedDocument(
+                    file_path=str(test_elevation),
+                    doc_type=DocumentType.DRAWING,
+                    confidence=0.9,
+                    has_text_layer=False,
+                )
+            ],
+            "entities": [existing],
+        }
+        step.execute(context)
+        assert len(context["entities"]) == 2
+
+    def test_empty_classified_docs(self, extractor: VLMSpatialExtractor) -> None:
+        step = VLMExtractionStep(vlm=extractor)
+        context: dict[str, Any] = {"classified_documents": [], "entities": []}
+        result = step.execute(context)
+        assert result["success"] is True
