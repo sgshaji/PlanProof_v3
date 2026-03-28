@@ -16,10 +16,10 @@ user_message_template: |
   - attribute: the specific measurement name (e.g. building_height)
   - value: numeric value
   - unit: metres, percent, or square_metres
-  - bounding_box: pixel coordinates {x, y, width, height} of the annotation in the image
+  - bounding_box: pixel coordinates {{x, y, width, height}} of the annotation in the image
   - source_page: 1
 
-  Respond with valid JSON: {"entities": [...]}
+  Respond with valid JSON: {{"entities": [...]}}
 
 output_schema:
   type: object
