@@ -332,16 +332,50 @@ pip install -e ".[geo,pdf,dev]"
 - [x] Ablation runner script
 - [x] Analysis notebook with dissertation-quality visualizations
 
-### 7.2 Experiment Execution — In Progress
-- [ ] Run experiments on synthetic test set
-- [ ] Generate dissertation figures
-- [ ] Qualitative error analysis
+### 7.2 Experiment Execution — Partial
+- [x] Ablation experiments run on 15 synthetic sets (5 compliant + 5 non-compliant + 5 edge-case) (2026-03-28)
+- [x] Naive baseline run with Groq LLM (llama-3.3-70b-versatile) (2026-03-28)
+- [x] Strong baseline (CoT) run — partial (3/5 non-compliant hit Groq rate limit) (2026-03-28)
+- [x] Pipeline configs (ablation_a–d + full_system) all produce results (2026-03-28)
+- [x] Analysis notebook executed with all figures generated at 300 DPI (2026-03-28)
+- [ ] Re-run strong baseline for rate-limited sets (wait for Groq daily reset)
+- [ ] Qualitative error analysis (per-misclassification narrative)
+
+### 7.3 End-to-End Pipeline Validation — Partial
+- [x] E2E on synthetic PDFs: GPT-4o extracted building_height=3.5m, rear_garden_depth=10.0m from drawings (2026-03-28)
+- [x] R001 PASS (3.5m ≤ 8.0m), R002 PASS (10.0m ≥ 10.0m) — real extraction, correct verdicts (2026-03-28)
+- [x] E2E on real BCC data (2025-00841): pipeline runs, correctly reports insufficient evidence (2026-03-28)
+- [x] `attribute` field added to ExtractedEntity — LLM/VLM attribute names flow through to rule matching (2026-03-28)
+- [x] GeminiVisionAdapter created for free-tier VLM (OpenAI GPT-4o used for actual runs) (2026-03-28)
+- [ ] Fix assessability step not firing in E2E mode
+- [ ] Fix rule_id "unknown" in verdict reports
+- [ ] Run E2E on more BCC application sets
+
+### Key Findings (2026-03-28)
+- Full system produces 0 false FAILs on compliant data (baselines produce 3-6)
+- Ablation D (no assessability) produces 5 false FAILs — demonstrates assessability engine value
+- Strong baseline (CoT) performs WORSE than naive — LLM confuses missing evidence with violations
+- Real BCC data runs through full pipeline — correctly identifies insufficient evidence
+
+### Project Statistics
+| Metric | Count |
+|--------|-------|
+| Commits | 101 |
+| Source files | 106 |
+| Test files | 76 |
+| Tests passing | 728 |
+| Pipeline steps | 11 |
+| Ablation configs | 7 |
+| Synthetic datasets | 15 |
+| Real BCC datasets | 10 |
 
 ---
 
 ## Next Steps
 
-1. Run ablation experiments: `make evaluate`
-2. Review results and generate dissertation figures: `make notebook`
-3. Perform qualitative error analysis on failure cases
-4. Write up evaluation chapter
+1. Fix assessability step wiring in E2E pipeline (critical gap)
+2. Fix rule_id "unknown" in verdict reports
+3. Re-run strong baseline after Groq rate limit resets
+4. Run E2E on additional BCC sets with application forms
+5. Qualitative error analysis for dissertation
+6. See `docs/GAPS_AND_IDEAS.md` for full gap tracking and future work

@@ -16,7 +16,7 @@ class TestPipelineConfig:
             neo4j_password="test",
         )
         assert config.llm_provider == "groq"
-        assert config.llm_model == "llama-3.1-70b-versatile"
+        assert config.llm_model == "llama-3.3-70b-versatile"
         assert config.neo4j_user == "neo4j"
         assert config.max_concurrent_llm_calls == 5
 
