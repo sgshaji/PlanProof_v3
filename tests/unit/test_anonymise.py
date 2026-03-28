@@ -30,9 +30,16 @@ import pytest
 #      keeps the test suite isolated.
 _SCRIPT_PATH = Path(__file__).resolve().parent.parent.parent / "scripts" / "anonymise_bcc_data.py"
 
+import sys
+
 spec = importlib.util.spec_from_file_location("anonymise_bcc_data", _SCRIPT_PATH)
 assert spec is not None and spec.loader is not None, f"Cannot load script from {_SCRIPT_PATH}"
 _mod = importlib.util.module_from_spec(spec)
+# WHY: Register the module in sys.modules before exec_module so that @dataclass
+#      can resolve the module's namespace via sys.modules[cls.__module__].
+#      Without this, Python 3.13's dataclass machinery finds None and raises
+#      AttributeError: 'NoneType' object has no attribute '__dict__'.
+sys.modules["anonymise_bcc_data"] = _mod
 spec.loader.exec_module(_mod)  # type: ignore[attr-defined]
 
 classify_file = _mod.classify_file
