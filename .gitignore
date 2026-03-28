@@ -35,6 +35,10 @@ coverage.xml
 data/raw/
 data/.llm_cache/
 
+# Claude Code worktrees
+.claude/
+.claire/
+
 # OS
 .DS_Store
 Thumbs.db
