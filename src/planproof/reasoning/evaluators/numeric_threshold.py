@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from planproof.schemas.reconciliation import ReconciledEvidence
-from planproof.schemas.rules import RuleVerdict
+from planproof.schemas.rules import RuleOutcome, RuleVerdict
 
 
 class NumericThresholdEvaluator:
@@ -32,4 +32,37 @@ class NumericThresholdEvaluator:
     def evaluate(
         self, evidence: ReconciledEvidence, params: dict[str, Any]
     ) -> RuleVerdict:
-        raise NotImplementedError("Implemented in Phase 4")
+        rule_id: str = self._params.get("rule_id", params.get("rule_id", "unknown"))
+        threshold: float = float(self._params["threshold"])
+        operator: str = self._params["operator"]
+        value: float = float(evidence.best_value)  # type: ignore[arg-type]
+
+        if operator == "<=":
+            passed = value <= threshold
+        elif operator == ">=":
+            passed = value >= threshold
+        else:
+            raise ValueError(f"Unsupported operator: {operator!r}")
+
+        unit = self._params.get("unit", "")
+        unit_str = f" {unit}" if unit else ""
+        outcome = RuleOutcome.PASS if passed else RuleOutcome.FAIL
+
+        if passed:
+            explanation = (
+                f"Value {value}{unit_str} satisfies {operator} {threshold}{unit_str}."
+            )
+        else:
+            explanation = (
+                f"Value {value}{unit_str} does not satisfy {operator} "
+                f"{threshold}{unit_str}."
+            )
+
+        return RuleVerdict(
+            rule_id=rule_id,
+            outcome=outcome,
+            evidence_used=evidence.sources,
+            explanation=explanation,
+            evaluated_value=value,
+            threshold=threshold,
+        )

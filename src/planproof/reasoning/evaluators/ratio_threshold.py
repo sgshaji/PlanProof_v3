@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from planproof.schemas.reconciliation import ReconciledEvidence
-from planproof.schemas.rules import RuleVerdict
+from planproof.schemas.rules import RuleOutcome, RuleVerdict
 
 
 class RatioThresholdEvaluator:
@@ -32,4 +32,37 @@ class RatioThresholdEvaluator:
     def evaluate(
         self, evidence: ReconciledEvidence, params: dict[str, Any]
     ) -> RuleVerdict:
-        raise NotImplementedError("Implemented in Phase 4")
+        rule_id: str = self._params.get("rule_id", params.get("rule_id", "unknown"))
+        threshold: float = float(self._params["threshold"])
+        operator: str = self._params["operator"]
+        # best_value is expected to be a pre-computed ratio (float in [0, 1])
+        value: float = float(evidence.best_value)  # type: ignore[arg-type]
+
+        if operator == "<=":
+            passed = value <= threshold
+        elif operator == ">=":
+            passed = value >= threshold
+        else:
+            raise ValueError(f"Unsupported operator: {operator!r}")
+
+        outcome = RuleOutcome.PASS if passed else RuleOutcome.FAIL
+        pct_value = round(value * 100, 2)
+        pct_threshold = round(threshold * 100, 2)
+
+        if passed:
+            explanation = (
+                f"Ratio {pct_value}% satisfies {operator} {pct_threshold}%."
+            )
+        else:
+            explanation = (
+                f"Ratio {pct_value}% does not satisfy {operator} {pct_threshold}%."
+            )
+
+        return RuleVerdict(
+            rule_id=rule_id,
+            outcome=outcome,
+            evidence_used=evidence.sources,
+            explanation=explanation,
+            evaluated_value=value,
+            threshold=threshold,
+        )

@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from planproof.schemas.reconciliation import ReconciledEvidence
-from planproof.schemas.rules import RuleVerdict
+from planproof.schemas.rules import RuleOutcome, RuleVerdict
 
 
 class EnumCheckEvaluator:
@@ -19,7 +19,9 @@ class EnumCheckEvaluator:
     attribute : str
         The entity attribute to check.
     valid_values : list[str]
-        The set of permitted values.
+        The set of permitted values (preferred key).
+    allowed_values : list[str]
+        Alias for valid_values (accepted for compatibility).
     """
 
     def __init__(self, parameters: dict[str, Any]) -> None:
@@ -28,4 +30,25 @@ class EnumCheckEvaluator:
     def evaluate(
         self, evidence: ReconciledEvidence, params: dict[str, Any]
     ) -> RuleVerdict:
-        raise NotImplementedError("Implemented in Phase 4")
+        rule_id: str = self._params.get("rule_id", params.get("rule_id", "unknown"))
+        # Support both "valid_values" (YAML) and "allowed_values" (task spec)
+        allowed: list[str] = self._params.get(
+            "valid_values", self._params.get("allowed_values", [])
+        )
+        value: str = str(evidence.best_value)
+        passed = value in allowed
+        outcome = RuleOutcome.PASS if passed else RuleOutcome.FAIL
+
+        if passed:
+            explanation = f"Value {value!r} is in allowed set {allowed}."
+        else:
+            explanation = f"Value {value!r} is not in allowed set {allowed}."
+
+        return RuleVerdict(
+            rule_id=rule_id,
+            outcome=outcome,
+            evidence_used=evidence.sources,
+            explanation=explanation,
+            evaluated_value=value,
+            threshold=allowed,
+        )
