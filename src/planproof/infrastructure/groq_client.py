@@ -47,7 +47,7 @@ class GroqClient:
     def complete(
         self,
         prompt: str,
-        model: str = "llama-3.1-70b-versatile",
+        model: str = "llama-3.3-70b-versatile",
         **kwargs: Any,
     ) -> str:
         """Send a completion request to the Groq API.
@@ -58,7 +58,7 @@ class GroqClient:
             The prompt text to send.
         model:
             Groq model name. Free tier options:
-            - "llama-3.1-70b-versatile" (best quality)
+            - "llama-3.3-70b-versatile" (best quality)
             - "llama-3.1-8b-instant" (faster, smaller)
             - "mixtral-8x7b-32768" (Mistral, good for structured extraction)
         """

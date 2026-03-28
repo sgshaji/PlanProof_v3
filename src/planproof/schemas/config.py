@@ -70,7 +70,7 @@ class PipelineConfig(BaseSettings):
     # WHY: Default to Groq (free tier, cloud) for development.
     # Ollama available as local fallback. OpenAI for production evaluation.
     llm_provider: str = "groq"
-    llm_model: str = "llama-3.1-70b-versatile"
+    llm_model: str = "llama-3.3-70b-versatile"
     llm_api_key: str = ""
     ollama_base_url: str = "http://localhost:11434"
 
