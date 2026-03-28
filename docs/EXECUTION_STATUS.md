@@ -2,7 +2,7 @@
 
 > **Last updated**: 2026-03-27
 > **Current phase**: Phase 2 (Ingestion Layer)
-> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2a complete** (M1 classifier + M2 text extraction). Phase 2b (M3 VLM) pending.
+> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). Phase 3 (Representation) pending.
 
 ---
 
@@ -13,7 +13,7 @@
 | **Phase 0** | Project Foundation | **Complete** | 2026-03-25 | 2026-03-25 |
 | **Phase 1** | Data Pipeline & Synthetic Generation | **Complete** | 2026-03-25 | 2026-03-26 |
 | **Phase 2a** | Ingestion Layer (M1, M2) | **Complete** | 2026-03-27 | 2026-03-27 |
-| Phase 2b | Ingestion Layer (M3 VLM) | Not Started | — | — |
+| **Phase 2b** | Ingestion Layer (M3 VLM) | **Complete** | 2026-03-27 | 2026-03-27 |
 | Phase 3 | Representation Layer (M5) | Not Started | — | — |
 | Phase 4 | Reasoning Layer (M6–M9) | Not Started | — | — |
 | Phase 5 | Output Layer (M10–M12) | Not Started | — | — |
@@ -213,8 +213,29 @@ pip install -e ".[geo,pdf,dev]"
 
 ---
 
+## Phase 2b: Ingestion Layer (M3 VLM) — Detailed Status
+
+### 2.3 VLM Spatial Extraction (M3) — Complete
+- [x] VLMSpatialExtractor with zero-shot GPT-4o path (2026-03-27)
+- [x] VLMSpatialExtractor with structured two-stage path (2026-03-27)
+- [x] Drawing subtype inference from filename patterns (2026-03-27)
+- [x] Bounding box extraction and spatial grounding (2026-03-27)
+- [x] Subtype-aware prompt templates — spatial_zeroshot, spatial_structured_stage1, spatial_structured_stage2 (2026-03-27)
+- [x] VLMExtractionStep pipeline step with DRAWING filtering (2026-03-27)
+- [x] Bootstrap wired with concrete VLMSpatialExtractor (2026-03-27)
+- [x] Unit tests — 22 tests for all extraction paths and step logic (2026-03-27)
+- [x] Integration tests with mocked VLM (2026-03-27)
+
+### Architecture Highlights
+- **Two extraction methods (ablation dimension)**: VLM_ZEROSHOT (single call) vs VLM_STRUCTURED (coarse-then-refine)
+- **Subtype-aware prompting**: SITE_PLAN, FLOOR_PLAN, ELEVATION each get targeted attribute lists
+- **Spatial grounding**: all entities include BoundingBox in source_region (logged for audit, not primary eval metric)
+- **VLM_FINETUNED**: deferred for potential future phase
+
+---
+
 ## Next Steps
 
-1. Design and implement Phase 2b: M3 VLM spatial extraction pipeline
+1. Begin Phase 3: Representation Layer (M5 knowledge graph population)
 2. Set up Label Studio for VLM ground truth annotation
-3. Begin Phase 3: Representation Layer (M5 knowledge graph)
+3. Consider VLM fine-tuning if zero-shot accuracy insufficient

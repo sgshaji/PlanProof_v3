@@ -10,11 +10,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from planproof.infrastructure.cached_llm import CachedLLMClient
 from planproof.infrastructure.llm_cache import SQLiteLLMCache
 from planproof.infrastructure.logging import configure_logging, get_logger
+from planproof.ingestion.classifier import RuleBasedClassifier
+from planproof.ingestion.entity_extractor import LLMEntityExtractor
+from planproof.ingestion.text_extractor import PdfPlumberExtractor
+from planproof.ingestion.vision_extractor import VisionExtractor
+from planproof.ingestion.vlm_spatial_extractor import VLMSpatialExtractor
 from planproof.interfaces.llm import LLMClient
 from planproof.pipeline.pipeline import Pipeline
 from planproof.pipeline.steps.assessability import AssessabilityStep
@@ -38,10 +41,6 @@ from planproof.reasoning.evaluators.ratio_threshold import RatioThresholdEvaluat
 from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.config import PipelineConfig
 from planproof.schemas.entities import ExtractedEntity
-from planproof.ingestion.classifier import RuleBasedClassifier
-from planproof.ingestion.entity_extractor import LLMEntityExtractor
-from planproof.ingestion.text_extractor import PdfPlumberExtractor
-from planproof.ingestion.vision_extractor import VisionExtractor
 from planproof.schemas.pipeline import EvidenceRequest
 from planproof.schemas.reconciliation import ReconciledEvidence
 
@@ -147,7 +146,9 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
     )
 
     if config.ablation.use_vlm:
-        pipeline.register(VLMExtractionStep(vlm=_stub_vlm()))
+        vlm_spatial = _create_vlm_spatial_extractor(config)
+        if vlm_spatial is not None:
+            pipeline.register(VLMExtractionStep(vlm=vlm_spatial))
 
     # Layer 2: Representation
     pipeline.register(NormalisationStep())
@@ -199,13 +200,6 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
 # Stub factories — return placeholder objects until concrete implementations
 # are built in later phases. These satisfy Protocol interfaces structurally.
 # ---------------------------------------------------------------------------
-
-
-class _StubVLM:
-    """Placeholder until Phase 2."""
-
-    def extract_spatial_attributes(self, image: Path) -> list[ExtractedEntity]:
-        raise NotImplementedError("Concrete VLM extractor implemented in Phase 2")
 
 
 class _StubPopulator:
@@ -263,8 +257,19 @@ def _create_vision_extractor(config: PipelineConfig) -> VisionExtractor | None:
     return VisionExtractor(openai_client=client, prompts_dir=config.configs_dir / "prompts", model=config.vlm_model)
 
 
-def _stub_vlm() -> _StubVLM:
-    return _StubVLM()
+def _create_vlm_spatial_extractor(config: PipelineConfig) -> VLMSpatialExtractor | None:
+    api_key = config.llm_api_key
+    if not api_key:
+        logger.warning("no_openai_key_vlm_spatial_disabled")
+        return None
+    import openai
+    client = openai.OpenAI(api_key=api_key)
+    return VLMSpatialExtractor(
+        openai_client=client,
+        prompts_dir=config.configs_dir / "prompts",
+        model=config.vlm_model,
+        method=config.vlm_extraction_method,
+    )
 
 
 def _stub_populator() -> _StubPopulator:
