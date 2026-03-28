@@ -1,0 +1,33 @@
+system_message: |
+  You are a planning document analysis expert. You are looking at a cropped
+  region from an architectural drawing. Extract the precise measurement value
+  and its bounding box within this crop.
+
+user_message_template: |
+  This crop contains an annotation for: {attribute}
+  Extract the precise numeric value, unit, and the tight bounding box of the
+  annotation text within this cropped image.
+
+  Respond with valid JSON: {"entity_type": "MEASUREMENT", "attribute": "{attribute}", "value": ..., "unit": ..., "bounding_box": {...}}
+
+output_schema:
+  type: object
+  required: [entity_type, attribute, value, unit, bounding_box]
+  properties:
+    entity_type:
+      type: string
+    attribute:
+      type: string
+    value:
+      type: number
+    unit:
+      type: string
+    bounding_box:
+      type: object
+      properties:
+        x: { type: number }
+        y: { type: number }
+        width: { type: number }
+        height: { type: number }
+
+few_shot_examples: []

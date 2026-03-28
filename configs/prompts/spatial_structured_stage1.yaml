@@ -1,0 +1,38 @@
+system_message: |
+  You are a planning document analysis expert. Identify all regions in this
+  architectural drawing that contain measurement annotations, dimension lines,
+  or spatial labels. Return the approximate pixel region for each.
+
+user_message_template: |
+  Scan this {subtype} drawing and locate all measurement annotations.
+  For each, provide the attribute name and a bounding region large enough
+  to fully contain the annotation text and its dimension line.
+
+  Respond with valid JSON: {"regions": [...]}
+
+output_schema:
+  type: object
+  properties:
+    regions:
+      type: array
+      items:
+        type: object
+        required: [attribute, region]
+        properties:
+          attribute:
+            type: string
+          region:
+            type: object
+            properties:
+              x: { type: number }
+              y: { type: number }
+              width: { type: number }
+              height: { type: number }
+
+few_shot_examples:
+  - input: "[Site plan with boundary dimensions]"
+    output: |
+      {"regions": [
+        {"attribute": "rear_garden_depth", "region": {"x": 100, "y": 400, "width": 200, "height": 100}},
+        {"attribute": "site_coverage", "region": {"x": 500, "y": 600, "width": 250, "height": 80}}
+      ]}

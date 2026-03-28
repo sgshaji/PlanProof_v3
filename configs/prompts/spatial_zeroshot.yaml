@@ -1,0 +1,60 @@
+system_message: |
+  You are a planning document analysis expert. Extract all measurements,
+  dimensions, and spatial annotations from architectural drawings.
+  Return structured JSON with bounding box pixel coordinates for each entity.
+
+user_message_template: |
+  Analyze this {subtype} drawing. Extract all measurements and spatial data.
+
+  Target attributes for {subtype}:
+  - SITE_PLAN: rear_garden_depth, site_coverage, setback distances, site_area, boundary_lengths
+  - FLOOR_PLAN: room_dimensions, floor_area, wall_lengths, corridor_width
+  - ELEVATION: building_height, ridge_height, eave_height, storey_height, wall_height
+
+  For each entity provide:
+  - entity_type: MEASUREMENT or BOUNDARY
+  - attribute: the specific measurement name (e.g. building_height)
+  - value: numeric value
+  - unit: metres, percent, or square_metres
+  - bounding_box: pixel coordinates {x, y, width, height} of the annotation in the image
+  - source_page: 1
+
+  Respond with valid JSON: {"entities": [...]}
+
+output_schema:
+  type: object
+  properties:
+    entities:
+      type: array
+      items:
+        type: object
+        required: [entity_type, attribute, value, unit, bounding_box]
+        properties:
+          entity_type:
+            type: string
+            enum: [MEASUREMENT, BOUNDARY]
+          attribute:
+            type: string
+          value:
+            type: number
+          unit:
+            type: string
+          bounding_box:
+            type: object
+            properties:
+              x: { type: number }
+              y: { type: number }
+              width: { type: number }
+              height: { type: number }
+          source_page:
+            type: integer
+
+few_shot_examples:
+  - input: "[Elevation drawing with dimension lines]"
+    output: |
+      {"entities": [
+        {"entity_type": "MEASUREMENT", "attribute": "building_height", "value": 7.2, "unit": "metres",
+         "bounding_box": {"x": 450, "y": 200, "width": 80, "height": 25}, "source_page": 1},
+        {"entity_type": "MEASUREMENT", "attribute": "ridge_height", "value": 8.5, "unit": "metres",
+         "bounding_box": {"x": 460, "y": 50, "width": 75, "height": 25}, "source_page": 1}
+      ]}
