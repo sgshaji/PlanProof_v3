@@ -351,3 +351,59 @@ class TestNormaliser:
 
         assert result.unit == "square_metres"
         assert abs(result.value - 9.29) < 0.01
+
+
+# ---------------------------------------------------------------------------
+# NormalisationStep tests
+# ---------------------------------------------------------------------------
+
+
+class TestNormalisationStep:
+    """Tests for the NormalisationStep pipeline step."""
+
+    def test_normalises_entities_in_context(self) -> None:
+        """Feet entity in context becomes metres."""
+        from planproof.pipeline.steps.normalisation import NormalisationStep
+
+        step = NormalisationStep()
+        entity = _make_entity(EntityType.MEASUREMENT, 10.0, "feet")
+        context: dict = {"entities": [entity]}
+
+        result = step.execute(context)
+
+        assert result["success"] is True
+        assert result["artifacts"]["count"] == 1
+        normalised = context["entities"][0]
+        assert normalised.unit == "metres"
+        assert abs(normalised.value - 3.05) < 0.001
+
+    def test_empty_entities(self) -> None:
+        """Empty entities list succeeds with count=0."""
+        from planproof.pipeline.steps.normalisation import NormalisationStep
+
+        step = NormalisationStep()
+        context: dict = {"entities": []}
+
+        result = step.execute(context)
+
+        assert result["success"] is True
+        assert result["artifacts"]["count"] == 0
+        assert context["entities"] == []
+
+    def test_preserves_entity_count(self) -> None:
+        """Entity count is the same before and after normalisation."""
+        from planproof.pipeline.steps.normalisation import NormalisationStep
+
+        step = NormalisationStep()
+        entities = [
+            _make_entity(EntityType.MEASUREMENT, 10.0, "feet"),
+            _make_entity(EntityType.MEASUREMENT, 100.0, "sqft"),
+            _make_entity(EntityType.ADDRESS, "5 oak st", None),
+        ]
+        context: dict = {"entities": entities}
+
+        result = step.execute(context)
+
+        assert result["success"] is True
+        assert result["artifacts"]["count"] == 3
+        assert len(context["entities"]) == 3
