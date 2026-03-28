@@ -38,6 +38,9 @@ from planproof.reasoning.evaluators.fuzzy_match import FuzzyMatchEvaluator
 from planproof.reasoning.evaluators.numeric_threshold import NumericThresholdEvaluator
 from planproof.reasoning.evaluators.numeric_tolerance import NumericToleranceEvaluator
 from planproof.reasoning.evaluators.ratio_threshold import RatioThresholdEvaluator
+from planproof.representation.flat_evidence import FlatEvidenceProvider  # noqa: F401
+from planproof.representation.normalisation import Normaliser
+from planproof.representation.snkg import Neo4jSNKG
 from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.config import PipelineConfig
 from planproof.schemas.entities import ExtractedEntity
@@ -151,12 +154,12 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
             pipeline.register(VLMExtractionStep(vlm=vlm_spatial))
 
     # Layer 2: Representation
-    pipeline.register(NormalisationStep())
+    pipeline.register(NormalisationStep(normaliser=Normaliser()))
 
     if config.ablation.use_snkg:
-        pipeline.register(
-            GraphPopulationStep(populator=_stub_populator())
-        )
+        snkg_instance = _create_snkg(config)
+        if snkg_instance is not None:
+            pipeline.register(GraphPopulationStep(populator=snkg_instance))
 
     # Layer 3: Reasoning
     if config.ablation.use_evidence_reconciliation:
@@ -200,13 +203,6 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
 # Stub factories — return placeholder objects until concrete implementations
 # are built in later phases. These satisfy Protocol interfaces structurally.
 # ---------------------------------------------------------------------------
-
-
-class _StubPopulator:
-    """Placeholder until Phase 3."""
-
-    def populate_from_entities(self, entities: list[ExtractedEntity]) -> None:
-        raise NotImplementedError("Concrete graph populator implemented in Phase 3")
 
 
 class _StubReconciler:
@@ -284,8 +280,22 @@ def _create_vlm_spatial_extractor(config: PipelineConfig) -> VLMSpatialExtractor
     )
 
 
-def _stub_populator() -> _StubPopulator:
-    return _StubPopulator()
+def _create_snkg(config: PipelineConfig) -> Neo4jSNKG | None:
+    """Instantiate a Neo4jSNKG from config, or return None if unconfigured.
+
+    # DESIGN: Follows the same lazy-import pattern as VLMSpatialExtractor so
+    # that neo4j driver creation is deferred and the module stays importable
+    # even when Neo4j is not available in the test environment.
+    """
+    if not config.neo4j_uri:
+        logger.warning("neo4j_uri_not_set_snkg_disabled")
+        return None
+    import neo4j
+    driver = neo4j.GraphDatabase.driver(
+        config.neo4j_uri,
+        auth=(config.neo4j_user, config.neo4j_password),
+    )
+    return Neo4jSNKG(driver=driver)
 
 
 def _stub_reconciler() -> _StubReconciler:

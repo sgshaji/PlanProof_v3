@@ -1,8 +1,8 @@
 # PlanProof — Execution Status
 
-> **Last updated**: 2026-03-27
-> **Current phase**: Phase 2 (Ingestion Layer)
-> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). Phase 3 (Representation) pending.
+> **Last updated**: 2026-03-28
+> **Current phase**: Phase 4 (Reasoning Layer)
+> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). Phase 4 (Reasoning) next.
 
 ---
 
@@ -14,7 +14,7 @@
 | **Phase 1** | Data Pipeline & Synthetic Generation | **Complete** | 2026-03-25 | 2026-03-26 |
 | **Phase 2a** | Ingestion Layer (M1, M2) | **Complete** | 2026-03-27 | 2026-03-27 |
 | **Phase 2b** | Ingestion Layer (M3 VLM) | **Complete** | 2026-03-27 | 2026-03-27 |
-| Phase 3 | Representation Layer (M5) | Not Started | — | — |
+| **Phase 3** | Representation Layer (M5) | **Complete** | 2026-03-28 | 2026-03-28 |
 | Phase 4 | Reasoning Layer (M6–M9) | Not Started | — | — |
 | Phase 5 | Output Layer (M10–M12) | Not Started | — | — |
 | Phase 6 | Final Integration & Ablation Prep | Not Started | — | — |
@@ -234,8 +234,36 @@ pip install -e ".[geo,pdf,dev]"
 
 ---
 
+---
+
+## Phase 3: Representation Layer (M5) — Detailed Status
+
+### 3.1 Entity Normalisation — Complete
+- [x] `Normaliser` with `UnitConversionRegistry` — imperial/metric + address casing (2026-03-28)
+- [x] Canonical unit table (`feet`→`metres`, `inches`→`mm`, `sq_ft`→`square_metres`) (2026-03-28)
+- [x] Address abbreviation expansion (St, Rd, Ave, Dr, Ln, etc.) (2026-03-28)
+- [x] `NormalisationStep` wired with concrete `Normaliser()` in bootstrap (2026-03-28)
+
+### 3.2 Neo4j SNKG — Complete
+- [x] `Neo4jSNKG` implementing all four graph Protocols (EntityPopulator, ReferenceDataLoader, EvidenceProvider, RuleProvider) (2026-03-28)
+- [x] `_create_snkg()` factory in bootstrap — lazy neo4j import, warns and returns None if `neo4j_uri` unset (2026-03-28)
+- [x] `GraphPopulationStep` wired with `Neo4jSNKG` when `config.ablation.use_snkg=True` and URI configured (2026-03-28)
+- [x] `_StubPopulator` removed — replaced by concrete `Neo4jSNKG` (2026-03-28)
+
+### 3.3 Flat Evidence Provider — Complete
+- [x] `FlatEvidenceProvider` — in-memory flat list EvidenceProvider for Ablation B (`use_snkg=False`) (2026-03-28)
+- [x] Pairwise conflict detection without graph traversal (2026-03-28)
+- [x] Imported in bootstrap composition root (wired into ReconciliationStep in Phase 4) (2026-03-28)
+
+### 3.4 Reference Data — Complete
+- [x] `load_reference_set` utility for parcel GeoJSON + zone JSON (2026-03-28)
+- [x] `Neo4jSNKG.load_reference_data()` merges Parcel/Zone/Rule nodes with relationships (2026-03-28)
+
+---
+
 ## Next Steps
 
-1. Begin Phase 3: Representation Layer (M5 knowledge graph population)
-2. Set up Label Studio for VLM ground truth annotation
-3. Consider VLM fine-tuning if zero-shot accuracy insufficient
+1. Begin Phase 4: Reasoning Layer (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation)
+2. Wire `FlatEvidenceProvider` into `ReconciliationStep` when `use_snkg=False`
+3. Set up Label Studio for VLM ground truth annotation
+4. Consider VLM fine-tuning if zero-shot accuracy insufficient

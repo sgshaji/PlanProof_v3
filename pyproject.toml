@@ -24,7 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 geo = [
-    "shapely",
+    "shapely>=2.0",
 ]
 pdf = [
     "pymupdf",
