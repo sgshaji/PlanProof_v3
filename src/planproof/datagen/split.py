@@ -194,11 +194,12 @@ def write_split_manifest(
     for bucket in splits:
         splits[bucket].sort()
 
+    counts: dict[str, int] = {k: len(v) for k, v in splits.items()}
     manifest = {
         "seed": seed,
         "ratios": {"train": train_ratio, "val": val_ratio, "test": test_ratio},
         "splits": splits,
-        "counts": {k: len(v) for k, v in splits.items()},
+        "counts": counts,
     }
 
     # WHY: Create parent directories automatically so the caller does not need
@@ -206,13 +207,13 @@ def write_split_manifest(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
-    total = sum(manifest["counts"].values())
+    total = sum(counts.values())
     print(
         f"Split manifest written -> {output_path}\n"
         f"  total sets : {total}\n"
-        f"  train      : {manifest['counts']['train']}\n"
-        f"  val        : {manifest['counts']['val']}\n"
-        f"  test       : {manifest['counts']['test']}"
+        f"  train      : {counts['train']}\n"
+        f"  val        : {counts['val']}\n"
+        f"  test       : {counts['test']}"
     )
 
 

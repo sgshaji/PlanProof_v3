@@ -55,7 +55,7 @@ def _rasterise_with_pymupdf(pdf_bytes: bytes, dpi: int) -> list[ImageArray]:
     Returns:
         One uint8 RGB ImageArray per page.
     """
-    import fitz  # type: ignore[import-untyped]  # pymupdf
+    import fitz  # type: ignore[import-not-found]  # pymupdf
 
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     zoom = dpi / 72.0  # PDF native unit is 1/72 inch
@@ -87,7 +87,7 @@ def _rasterise_with_pdf2image(pdf_bytes: bytes, dpi: int) -> list[ImageArray]:
     Returns:
         One uint8 RGB ImageArray per page.
     """
-    from pdf2image import convert_from_bytes  # type: ignore[import-untyped]
+    from pdf2image import convert_from_bytes  # type: ignore[import-not-found]
 
     pil_images = convert_from_bytes(pdf_bytes, dpi=dpi, fmt="RGB")
     return [np.array(img, dtype=np.uint8) for img in pil_images]

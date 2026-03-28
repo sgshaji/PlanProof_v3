@@ -119,7 +119,7 @@ def _pdf_to_scan_png(pdf_bytes: bytes) -> bytes:
     # documents, but the scan PNG is used for visual OCR/VLM evaluation where
     # 150 DPI is sufficient and halves the file size.
     pages = rasterise_pdf(pdf_bytes, dpi=150)
-    first_page: np.ndarray = pages[0]  # type: ignore[assignment]
+    first_page: np.ndarray = pages[0]
 
     pil_image = Image.fromarray(first_page, mode="RGB")
     buf = BytesIO()

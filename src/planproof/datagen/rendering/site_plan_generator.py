@@ -33,9 +33,9 @@ import math
 import random
 from typing import Final
 
-from reportlab.lib.pagesizes import A3, landscape
-from reportlab.lib.units import mm
-from reportlab.pdfgen import canvas as rl_canvas
+from reportlab.lib.pagesizes import A3, landscape  # type: ignore[import-untyped]
+from reportlab.lib.units import mm  # type: ignore[import-untyped]
+from reportlab.pdfgen import canvas as rl_canvas  # type: ignore[import-untyped]
 
 from planproof.datagen.rendering.coord_utils import (
     SCALE_FACTOR,

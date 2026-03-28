@@ -31,10 +31,10 @@ import io
 import random
 from typing import Final
 
-import reportlab.lib.colors as colors
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import mm
-from reportlab.pdfgen import canvas
+import reportlab.lib.colors as colors  # type: ignore[import-untyped]
+from reportlab.lib.pagesizes import A4  # type: ignore[import-untyped]
+from reportlab.lib.units import mm  # type: ignore[import-untyped]
+from reportlab.pdfgen import canvas  # type: ignore[import-untyped]
 
 from planproof.datagen.rendering.coord_utils import pdf_points_to_pixels
 from planproof.datagen.rendering.models import GeneratedDocument, PlacedValue

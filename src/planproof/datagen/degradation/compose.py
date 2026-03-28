@@ -20,6 +20,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import yaml
@@ -195,7 +196,10 @@ def load_preset(yaml_path: Path) -> Callable[[ImageArray], ComposedResult]:
     bound_fns: list[DegradeFn] = []
     for spec in transform_specs:
         name = str(spec["name"])
-        params: dict[str, object] = dict(spec.get("params") or {})
+        raw_params = spec.get("params") or {}
+        params: dict[str, object] = dict(
+            cast(dict[str, object], raw_params)
+        )
 
         if name not in TRANSFORM_REGISTRY:
             raise KeyError(

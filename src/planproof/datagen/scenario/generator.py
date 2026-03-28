@@ -260,7 +260,9 @@ def build_scenario(
         )
         # If subtypes are defined, create one doc per subtype.
         # Otherwise create `count` docs with no subtype (e.g. FORM).
-        subtypes = comp.subtypes or [None] * comp.count
+        subtypes: list[str | None] = (
+            list(comp.subtypes) if comp.subtypes else [None] * comp.count
+        )
         for subtype in subtypes:
             # WHY: Elevations are raster (PNG) for realistic VLM testing.
             # All other document types default to PDF.

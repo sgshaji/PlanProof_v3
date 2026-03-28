@@ -19,7 +19,6 @@ from typing import Protocol, runtime_checkable
 
 from planproof.datagen.rendering.models import GeneratedDocument
 from planproof.datagen.scenario.models import DocumentSpec, Scenario
-from planproof.schemas.entities import DocumentType
 
 
 @runtime_checkable
@@ -69,11 +68,13 @@ class DocumentGeneratorRegistry:
     """
 
     def __init__(self) -> None:
-        # WHY: Typed as dict[DocumentType, DocumentGenerator] so mypy can
-        # verify that only Protocol-conforming objects are stored.
-        self._generators: dict[DocumentType, DocumentGenerator] = {}
+        # WHY: Typed as dict[str, DocumentGenerator] so callers can register by
+        # both DocumentType values (e.g. "FORM") and subtype strings (e.g.
+        # "site_plan", "floor_plan", "elevation") without needing a separate
+        # registry per dispatch level.
+        self._generators: dict[str, DocumentGenerator] = {}
 
-    def register(self, doc_type: DocumentType, generator: DocumentGenerator) -> None:
+    def register(self, doc_type: str, generator: DocumentGenerator) -> None:
         """Associate a generator with a document type.
 
         Calling register() with an already-registered doc_type replaces the
@@ -86,7 +87,7 @@ class DocumentGeneratorRegistry:
         """
         self._generators[doc_type] = generator
 
-    def get(self, doc_type: DocumentType) -> DocumentGenerator:
+    def get(self, doc_type: str) -> DocumentGenerator:
         """Retrieve the generator for a given document type.
 
         Args:

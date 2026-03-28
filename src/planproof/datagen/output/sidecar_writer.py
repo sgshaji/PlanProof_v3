@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from planproof.datagen.rendering.models import GeneratedDocument
 from planproof.datagen.scenario.models import Scenario
@@ -39,7 +39,7 @@ def _serialise_bounding_box(bbox: object) -> dict[str, Any]:
     # Pydantic model gains new internal attributes.
     """
     # BoundingBox is a Pydantic BaseModel, so model_dump() is available.
-    return bbox.model_dump()  # type: ignore[attr-defined]
+    return cast(dict[str, Any], bbox.model_dump())  # type: ignore[attr-defined]
 
 
 def _serialise_placed_value(pv: object) -> dict[str, Any]:
@@ -167,6 +167,12 @@ def write_ground_truth(
         # the sidecar captures the exact parameters used, even if the preset
         # YAML changes later.  The sidecar is an immutable record of what ran.
         "degradation": degradation_params,
+        # WHY: edge_case_strategy is None for compliant/non_compliant sets and
+        # a string identifier (e.g. "missing_evidence") for edge_case sets.
+        # Including it here lets the corpus coverage test verify that every
+        # strategy variant appears at least once without parsing filenames or
+        # directory names.
+        "edge_case_strategy": scenario.edge_case_strategy,
     }
 
     gt_path = output_dir / "ground_truth.json"
