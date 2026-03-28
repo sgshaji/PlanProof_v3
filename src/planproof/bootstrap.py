@@ -254,13 +254,42 @@ def _create_entity_extractor(
         model=config.llm_model,
     )
 
-def _create_vision_extractor(config: PipelineConfig) -> VisionExtractor | None:
-    api_key = config.llm_api_key
-    if not api_key:
-        logger.warning("no_openai_key_vision_disabled")
+def _create_vlm_client(config: PipelineConfig) -> object | None:
+    """Return a VLM client (OpenAI or GeminiVisionAdapter) based on config.
+
+    Resolution order:
+    1. vlm_provider == "gemini" AND gemini_api_key set  → GeminiVisionAdapter
+    2. vlm_provider == "openai" AND llm_api_key set     → openai.OpenAI
+    3. No key available                                  → None (VLM disabled)
+    """
+    provider = config.vlm_provider.lower()
+
+    if provider == "gemini":
+        if not config.gemini_api_key:
+            logger.warning("no_gemini_key_vlm_disabled")
+            return None
+        from planproof.infrastructure.gemini_client import GeminiVisionAdapter
+
+        logger.info("vlm_client_gemini", model=config.vlm_model)
+        return GeminiVisionAdapter(
+            api_key=config.gemini_api_key,
+            model=config.vlm_model,
+        )
+
+    # Default: OpenAI
+    if not config.llm_api_key:
+        logger.warning("no_openai_key_vlm_disabled")
         return None
     import openai
-    client = openai.OpenAI(api_key=api_key)
+
+    logger.info("vlm_client_openai", model=config.vlm_model)
+    return openai.OpenAI(api_key=config.llm_api_key)
+
+
+def _create_vision_extractor(config: PipelineConfig) -> VisionExtractor | None:
+    client = _create_vlm_client(config)
+    if client is None:
+        return None
     return VisionExtractor(
         openai_client=client,
         prompts_dir=config.configs_dir / "prompts",
@@ -269,12 +298,9 @@ def _create_vision_extractor(config: PipelineConfig) -> VisionExtractor | None:
 
 
 def _create_vlm_spatial_extractor(config: PipelineConfig) -> VLMSpatialExtractor | None:
-    api_key = config.llm_api_key
-    if not api_key:
-        logger.warning("no_openai_key_vlm_spatial_disabled")
+    client = _create_vlm_client(config)
+    if client is None:
         return None
-    import openai
-    client = openai.OpenAI(api_key=api_key)
     return VLMSpatialExtractor(
         openai_client=client,
         prompts_dir=config.configs_dir / "prompts",
