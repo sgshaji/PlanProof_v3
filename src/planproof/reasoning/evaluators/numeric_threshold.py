@@ -35,6 +35,17 @@ class NumericThresholdEvaluator:
         rule_id: str = self._params.get("rule_id", params.get("rule_id", "unknown"))
         threshold: float = float(self._params["threshold"])
         operator: str = self._params["operator"]
+
+        if evidence.best_value is None:
+            return RuleVerdict(
+                rule_id=rule_id,
+                outcome=RuleOutcome.FAIL,
+                evidence_used=evidence.sources,
+                explanation="Insufficient evidence: no value available for evaluation.",
+                evaluated_value=None,
+                threshold=threshold,
+            )
+
         value: float = float(evidence.best_value)  # type: ignore[arg-type]
 
         if operator == "<=":

@@ -47,6 +47,22 @@ class FuzzyMatchEvaluator:
         self, evidence: ReconciledEvidence, params: dict[str, Any]
     ) -> RuleVerdict:
         rule_id: str = self._params.get("rule_id", params.get("rule_id", "unknown"))
+        min_ratio: float = float(
+            self._params.get(
+                "min_similarity", self._params.get("min_ratio", 0.85)
+            )
+        )
+
+        if evidence.best_value is None:
+            return RuleVerdict(
+                rule_id=rule_id,
+                outcome=RuleOutcome.FAIL,
+                evidence_used=evidence.sources,
+                explanation="Insufficient evidence: no value available for evaluation.",
+                evaluated_value=None,
+                threshold=min_ratio,
+            )
+
         # best_value is either a dict keyed by attribute_a / attribute_b,
         # or a tuple/list of (value_a, value_b).
         best: Any = evidence.best_value
@@ -61,11 +77,6 @@ class FuzzyMatchEvaluator:
             value_a = str(seq[0])
             value_b = str(seq[1])
 
-        min_ratio: float = float(
-            self._params.get(
-                "min_similarity", self._params.get("min_ratio", 0.85)
-            )
-        )
         ratio: float = _similarity(value_a, value_b)
         passed = ratio >= min_ratio
         outcome = RuleOutcome.PASS if passed else RuleOutcome.FAIL

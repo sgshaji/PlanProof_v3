@@ -35,6 +35,17 @@ class EnumCheckEvaluator:
         allowed: list[str] = self._params.get(
             "valid_values", self._params.get("allowed_values", [])
         )
+
+        if evidence.best_value is None:
+            return RuleVerdict(
+                rule_id=rule_id,
+                outcome=RuleOutcome.FAIL,
+                evidence_used=evidence.sources,
+                explanation="Insufficient evidence: no value available for evaluation.",
+                evaluated_value=None,
+                threshold=allowed,
+            )
+
         value: str = str(evidence.best_value)
         passed = value in allowed
         outcome = RuleOutcome.PASS if passed else RuleOutcome.FAIL

@@ -35,6 +35,20 @@ class NumericToleranceEvaluator:
         self, evidence: ReconciledEvidence, params: dict[str, Any]
     ) -> RuleVerdict:
         rule_id: str = self._params.get("rule_id", params.get("rule_id", "unknown"))
+
+        raw_tol_early = float(self._params.get("tolerance_pct", 0.0))
+        threshold_early = raw_tol_early / 100.0 if raw_tol_early > 1.0 else raw_tol_early
+
+        if evidence.best_value is None:
+            return RuleVerdict(
+                rule_id=rule_id,
+                outcome=RuleOutcome.FAIL,
+                evidence_used=evidence.sources,
+                explanation="Insufficient evidence: no value available for evaluation.",
+                evaluated_value=None,
+                threshold=threshold_early,
+            )
+
         # best_value is expected to be a dict {attribute_a: v1, attribute_b: v2}
         # or a tuple/list (stated, reference).
         best: Any = evidence.best_value

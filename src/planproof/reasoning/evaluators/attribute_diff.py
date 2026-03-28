@@ -41,6 +41,16 @@ class AttributeDiffEvaluator:
         attributes: list[str] = self._params.get("attributes", [])
         tolerances: dict[str, float] = self._params.get("tolerances", {})
 
+        if evidence.best_value is None:
+            return RuleVerdict(
+                rule_id=rule_id,
+                outcome=RuleOutcome.FAIL,
+                evidence_used=evidence.sources,
+                explanation="Insufficient evidence: no value available for evaluation.",
+                evaluated_value=None,
+                threshold=tolerances,
+            )
+
         best: dict[str, Any] = evidence.best_value  # type: ignore[assignment]
 
         diffs: dict[str, dict[str, Any]] = {}
