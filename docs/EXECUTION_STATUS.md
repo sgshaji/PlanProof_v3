@@ -296,7 +296,8 @@ pip install -e ".[geo,pdf,dev]"
 - [x] `_create_assessability_evaluator(...)` wiring SNKG or stub as evidence_provider (2026-03-28)
 - [x] Rules loaded once (`RuleFactory.load_rules()`) and shared between assessability + rule evaluation (2026-03-28)
 - [x] Evidence provider selection: Neo4jSNKG if `use_snkg=True` and URI configured, else `_StubEvidenceProvider` (Phase 5) (2026-03-28)
-- [x] 522 tests passing, 7 skipped — ruff clean, mypy --strict clean (2026-03-28)
+- [x] 533 tests passing, 7 skipped — ruff clean, mypy --strict clean (2026-03-28)
+- [x] Integration tests: compliant→PASS, non-compliant→FAIL, missing→NOT_ASSESSABLE, low-confidence→NOT_ASSESSABLE, conflicting→NOT_ASSESSABLE (2026-03-28)
 
 ---
 
