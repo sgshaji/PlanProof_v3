@@ -50,6 +50,15 @@ class DocumentType(StrEnum):
     OTHER = "OTHER"
 
 
+class DrawingSubtype(StrEnum):
+    """Subtype classification for DRAWING documents."""
+
+    SITE_PLAN = "SITE_PLAN"
+    FLOOR_PLAN = "FLOOR_PLAN"
+    ELEVATION = "ELEVATION"
+    OTHER_DRAWING = "OTHER_DRAWING"
+
+
 class BoundingBox(BaseModel):
     """Spatial region within a document page.
 

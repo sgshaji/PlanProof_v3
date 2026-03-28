@@ -77,6 +77,7 @@ class PipelineConfig(BaseSettings):
     # --- VLM Provider (can differ from LLM for multimodal tasks) ---
     vlm_provider: str = "openai"
     vlm_model: str = "gpt-4o"
+    vlm_extraction_method: str = "zeroshot"  # "zeroshot" | "structured"
 
     # --- Neo4j Aura (cloud) ---
     neo4j_uri: str = ""
