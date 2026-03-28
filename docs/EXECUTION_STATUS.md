@@ -1,8 +1,8 @@
 # PlanProof — Execution Status
 
 > **Last updated**: 2026-03-28
-> **Current phase**: Phase 5 (Output Layer)
-> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). **Phase 4 complete** (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation — all wired into bootstrap). Phase 5 (Output Layer) next.
+> **Current phase**: Phase 6 (Final Integration & Ablation Prep)
+> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). **Phase 4 complete** (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation — all wired into bootstrap). **Phase 5 complete** (M10 scoring, M11 evidence requests, M12 report generation — all wired into bootstrap). Phase 6 (Final Integration & Ablation Prep) next.
 
 ---
 
@@ -16,7 +16,7 @@
 | **Phase 2b** | Ingestion Layer (M3 VLM) | **Complete** | 2026-03-27 | 2026-03-27 |
 | **Phase 3** | Representation Layer (M5) | **Complete** | 2026-03-28 | 2026-03-28 |
 | **Phase 4** | Reasoning Layer (M6–M9) | **Complete** | 2026-03-28 | 2026-03-28 |
-| Phase 5 | Output Layer (M10–M12) | Not Started | — | — |
+| **Phase 5** | Output Layer (M10–M12) | **Complete** | 2026-03-28 | 2026-03-28 |
 | Phase 6 | Final Integration & Ablation Prep | Not Started | — | — |
 | Phase 7 | Ablation Study & Evaluation | Not Started | — | — |
 | Write-up | Dissertation | Not Started | — | — |
@@ -301,10 +301,32 @@ pip install -e ".[geo,pdf,dev]"
 
 ---
 
+## Phase 5: Output Layer (M10–M12) — Detailed Status
+
+### 5.1 Compliance Scoring (M10) — Complete
+- [x] `ComplianceScorer` — aggregates rule verdicts + assessability results into `ComplianceReport` (2026-03-28)
+- [x] `ReportSummary` with total_rules, passed, failed, not_assessable counts (2026-03-28)
+- [x] `ScoringStep` wired with `ComplianceScorer` internally (2026-03-28)
+- [x] `ComplianceScorer` imported in bootstrap composition root (2026-03-28)
+
+### 5.2 Evidence Request Generation (M11) — Complete
+- [x] `MinEvidenceRequestGenerator` — converts NOT_ASSESSABLE results to actionable `EvidenceRequest` items (2026-03-28)
+- [x] `MinEvidenceRequestGenerator.from_yaml(path)` factory loads attribute guidance from `configs/evidence_guidance.yaml` (2026-03-28)
+- [x] `_create_evidence_request_generator(config)` factory wired in bootstrap (2026-03-28)
+- [x] `_StubEvidenceRequestGenerator` class and `_stub_evidence_request_generator()` removed from bootstrap (2026-03-28)
+- [x] `EvidenceRequestStep` now receives concrete `MinEvidenceRequestGenerator` (2026-03-28)
+
+### 5.3 Bootstrap Wiring (M12) — Complete
+- [x] `MinEvidenceRequestGenerator` and `ComplianceScorer` imported at top of bootstrap (2026-03-28)
+- [x] `_create_evidence_request_generator(config)` factory added (2026-03-28)
+- [x] All Phase 5 stubs removed — only `_StubEvidenceProvider` remains (pending Phase 6 FlatEvidenceProvider wiring) (2026-03-28)
+- [x] 635 tests passing, 7 skipped — ruff clean, mypy --strict clean across 100 source files (2026-03-28)
+
+---
+
 ## Next Steps
 
-1. Begin Phase 5: Output Layer (M10 scoring, M11 evidence requests, M12 report generation)
+1. Begin Phase 6: Final Integration & Ablation Prep
 2. Wire `FlatEvidenceProvider` into reasoning steps when `use_snkg=False` (replacing `_StubEvidenceProvider`)
-3. Wire `_StubEvidenceRequestGenerator` with concrete implementation
-4. Set up Label Studio for VLM ground truth annotation
-5. Consider VLM fine-tuning if zero-shot accuracy insufficient
+3. Set up Label Studio for VLM ground truth annotation
+4. Consider VLM fine-tuning if zero-shot accuracy insufficient

@@ -32,7 +32,7 @@ class MinEvidenceRequestGenerator:
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_yaml(cls, path: Path) -> "MinEvidenceRequestGenerator":
+    def from_yaml(cls, path: Path) -> MinEvidenceRequestGenerator:
         """Load guidance from a YAML file and return a new instance.
 
         Parameters
@@ -77,10 +77,11 @@ class MinEvidenceRequestGenerator:
 
             missing_items: list[MissingEvidence] = []
             for req in result.missing_evidence:
-                guidance = self._guidance.get(
-                    req.attribute,
-                    f"Please provide {req.attribute} from an acceptable source document.",
+                default_guidance = (
+                    f"Please provide {req.attribute} "
+                    "from an acceptable source document."
                 )
+                guidance = self._guidance.get(req.attribute, default_guidance)
                 missing_items.append(
                     MissingEvidence(
                         attribute=req.attribute,
