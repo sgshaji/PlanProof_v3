@@ -78,6 +78,7 @@ class PipelineConfig(BaseSettings):
     vlm_provider: str = "openai"
     vlm_model: str = "gpt-4o"
     vlm_extraction_method: str = "zeroshot"  # "zeroshot" | "structured"
+    openai_api_key: str = ""
     gemini_api_key: str = ""
 
     # --- Neo4j Aura (cloud) ---

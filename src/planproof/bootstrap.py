@@ -277,13 +277,14 @@ def _create_vlm_client(config: PipelineConfig) -> object | None:
         )
 
     # Default: OpenAI
-    if not config.llm_api_key:
+    api_key = config.openai_api_key or config.llm_api_key
+    if not api_key:
         logger.warning("no_openai_key_vlm_disabled")
         return None
     import openai
 
     logger.info("vlm_client_openai", model=config.vlm_model)
-    return openai.OpenAI(api_key=config.llm_api_key)
+    return openai.OpenAI(api_key=api_key)
 
 
 def _create_vision_extractor(config: PipelineConfig) -> VisionExtractor | None:
