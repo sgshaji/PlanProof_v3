@@ -239,13 +239,21 @@ class _StubAssessability:
 
 
 def _create_classifier(config: PipelineConfig) -> RuleBasedClassifier:
-    return RuleBasedClassifier(patterns_path=config.configs_dir / "classifier_patterns.yaml")
+    return RuleBasedClassifier(
+        patterns_path=config.configs_dir / "classifier_patterns.yaml"
+    )
 
 def _create_ocr() -> PdfPlumberExtractor:
     return PdfPlumberExtractor()
 
-def _create_entity_extractor(config: PipelineConfig, cached_llm: CachedLLMClient) -> LLMEntityExtractor:
-    return LLMEntityExtractor(llm=cached_llm, prompts_dir=config.configs_dir / "prompts", model=config.llm_model)
+def _create_entity_extractor(
+    config: PipelineConfig, cached_llm: CachedLLMClient
+) -> LLMEntityExtractor:
+    return LLMEntityExtractor(
+        llm=cached_llm,
+        prompts_dir=config.configs_dir / "prompts",
+        model=config.llm_model,
+    )
 
 def _create_vision_extractor(config: PipelineConfig) -> VisionExtractor | None:
     api_key = config.llm_api_key
@@ -254,7 +262,11 @@ def _create_vision_extractor(config: PipelineConfig) -> VisionExtractor | None:
         return None
     import openai
     client = openai.OpenAI(api_key=api_key)
-    return VisionExtractor(openai_client=client, prompts_dir=config.configs_dir / "prompts", model=config.vlm_model)
+    return VisionExtractor(
+        openai_client=client,
+        prompts_dir=config.configs_dir / "prompts",
+        model=config.vlm_model,
+    )
 
 
 def _create_vlm_spatial_extractor(config: PipelineConfig) -> VLMSpatialExtractor | None:
