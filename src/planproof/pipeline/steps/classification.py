@@ -32,7 +32,10 @@ class ClassificationStep:
 
         if not input_dir.exists():
             logger.error("input_dir_not_found", path=input_dir_str)
-            return {"success": False, "message": f"Input dir not found: {input_dir_str}"}
+            return {
+                "success": False,
+                "message": f"Input dir not found: {input_dir_str}",
+            }
 
         files = sorted(
             f for f in input_dir.iterdir()
@@ -45,11 +48,17 @@ class ClassificationStep:
                 result = self._classifier.classify(file_path)
                 classified.append(result)
             except Exception as e:
-                logger.warning("classification_failed", file=str(file_path), error=str(e))
+                logger.warning(
+                    "classification_failed", file=str(file_path), error=str(e)
+                )
 
         context["classified_documents"] = classified
 
-        logger.info("classification_complete", total_files=len(files), classified=len(classified))
+        logger.info(
+            "classification_complete",
+            total_files=len(files),
+            classified=len(classified),
+        )
 
         return {
             "success": True,
@@ -57,8 +66,12 @@ class ClassificationStep:
             "artifacts": {
                 "classified_count": len(classified),
                 "by_type": {
-                    doc_type: sum(1 for d in classified if d.doc_type.value == doc_type)
-                    for doc_type in {"FORM", "DRAWING", "REPORT", "CERTIFICATE", "OTHER"}
+                    doc_type: sum(
+                        1 for d in classified if d.doc_type.value == doc_type
+                    )
+                    for doc_type in {
+                        "FORM", "DRAWING", "REPORT", "CERTIFICATE", "OTHER"
+                    }
                 },
             },
         }
