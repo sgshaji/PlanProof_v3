@@ -211,3 +211,104 @@ class TestZeroshotExtraction:
             if isinstance(part, dict) and part.get("type") == "text"
         )
         assert DrawingSubtype.ELEVATION.value in all_text
+
+
+# ---------------------------------------------------------------------------
+# Helpers for structured path tests
+# ---------------------------------------------------------------------------
+
+
+def _mock_stage1_response() -> str:
+    return json.dumps({
+        "regions": [{
+            "attribute": "building_height",
+            "region": {"x": 400, "y": 180, "width": 200, "height": 100},
+        }]
+    })
+
+
+def _mock_stage2_response() -> str:
+    return json.dumps({
+        "entity_type": "MEASUREMENT",
+        "attribute": "building_height",
+        "value": 7.2,
+        "unit": "metres",
+        "bounding_box": {"x": 20, "y": 10, "width": 80, "height": 25},
+    })
+
+
+# ---------------------------------------------------------------------------
+# Fixtures for structured path
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def structured_extractor(prompts_dir: Path) -> VLMSpatialExtractor:
+    client = MagicMock()
+    responses = [
+        MagicMock(choices=[MagicMock(message=MagicMock(content=_mock_stage1_response()))]),
+        MagicMock(choices=[MagicMock(message=MagicMock(content=_mock_stage2_response()))]),
+    ]
+    client.chat.completions.create.side_effect = responses
+    return VLMSpatialExtractor(
+        openai_client=client, prompts_dir=prompts_dir, model="gpt-4o", method="structured"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TestStructuredExtraction
+# ---------------------------------------------------------------------------
+
+
+class TestStructuredExtraction:
+    def test_two_stage_extracts_entities(
+        self,
+        structured_extractor: VLMSpatialExtractor,
+        test_elevation: Path,
+    ) -> None:
+        entities = structured_extractor.extract_spatial_attributes(test_elevation)
+        assert len(entities) == 1
+        assert entities[0].value == 7.2
+
+    def test_extraction_method_is_vlm_structured(
+        self,
+        structured_extractor: VLMSpatialExtractor,
+        test_elevation: Path,
+    ) -> None:
+        entities = structured_extractor.extract_spatial_attributes(test_elevation)
+        assert entities[0].extraction_method == ExtractionMethod.VLM_STRUCTURED
+
+    def test_bbox_adjusted_to_global_coords(
+        self,
+        structured_extractor: VLMSpatialExtractor,
+        test_elevation: Path,
+    ) -> None:
+        # stage1 region x=400,y=180 + stage2 local bbox x=20,y=10 → global x=420,y=190
+        entities = structured_extractor.extract_spatial_attributes(test_elevation)
+        bbox = entities[0].source_region
+        assert bbox is not None
+        assert bbox.x == 420
+        assert bbox.y == 190
+
+    def test_two_api_calls_made(
+        self,
+        structured_extractor: VLMSpatialExtractor,
+        test_elevation: Path,
+    ) -> None:
+        structured_extractor.extract_spatial_attributes(test_elevation)
+        assert structured_extractor._client.chat.completions.create.call_count == 2
+
+    def test_empty_regions_returns_empty(
+        self,
+        prompts_dir: Path,
+        test_elevation: Path,
+    ) -> None:
+        client = MagicMock()
+        client.chat.completions.create.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content=json.dumps({"regions": []})))]
+        )
+        extractor = VLMSpatialExtractor(
+            openai_client=client, prompts_dir=prompts_dir, model="gpt-4o", method="structured"
+        )
+        entities = extractor.extract_spatial_attributes(test_elevation)
+        assert entities == []

@@ -4,9 +4,12 @@ from __future__ import annotations
 import base64
 import json
 import re
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from PIL import Image
 
 from planproof.infrastructure.logging import get_logger
 from planproof.ingestion.prompt_loader import PromptLoader
@@ -124,8 +127,150 @@ class VLMSpatialExtractor:
 
     def _structured_path(
         self, image: Path, subtype: DrawingSubtype
-    ) -> list[ExtractedEntity]:  # pragma: no cover
-        raise NotImplementedError("Structured path will be implemented in Task 4")
+    ) -> list[ExtractedEntity]:
+        # Stage 1: detect regions of interest
+        stage1_template = self._loader.load("spatial_structured_stage1")
+        user_text = stage1_template.user_message_template.format(subtype=subtype.value)
+        messages = self._build_vision_messages(
+            system=stage1_template.system_message,
+            user_text=user_text,
+            image_path=image,
+        )
+        stage1_response = self._call_vision(messages)
+        if stage1_response is None:
+            return []
+
+        regions = self._parse_regions(stage1_response)
+        if not regions:
+            return []
+
+        # Stage 2: extract values from each region crop
+        pil_image = Image.open(image)
+        stage2_template = self._loader.load("spatial_structured_stage2")
+        entities: list[ExtractedEntity] = []
+
+        for region_dict in regions:
+            attribute: str = region_dict.get("attribute", "")
+            region: dict[str, Any] = region_dict.get("region", {})
+            rx = int(region.get("x", 0))
+            ry = int(region.get("y", 0))
+            rw = int(region.get("width", 0))
+            rh = int(region.get("height", 0))
+
+            crop = pil_image.crop((rx, ry, rx + rw, ry + rh))
+
+            with tempfile.NamedTemporaryFile(suffix=image.suffix, delete=False) as tmp:
+                tmp_path = Path(tmp.name)
+
+            try:
+                crop.save(tmp_path)
+                user_text2 = stage2_template.user_message_template.format(
+                    attribute=attribute
+                )
+                messages2 = self._build_vision_messages(
+                    system=stage2_template.system_message,
+                    user_text=user_text2,
+                    image_path=tmp_path,
+                )
+                stage2_response = self._call_vision(messages2)
+                if stage2_response is None:
+                    continue
+                entity = self._parse_single_entity(
+                    response=stage2_response,
+                    source_document=str(image),
+                    region_x=rx,
+                    region_y=ry,
+                    method=ExtractionMethod.VLM_STRUCTURED,
+                )
+                if entity is not None:
+                    entities.append(entity)
+            finally:
+                tmp_path.unlink(missing_ok=True)
+
+        return entities
+
+    # ------------------------------------------------------------------
+    # Structured path helpers
+    # ------------------------------------------------------------------
+
+    def _parse_regions(self, response: str) -> list[dict[str, Any]]:
+        """Parse stage-1 JSON response and return the regions list."""
+        try:
+            cleaned = response.strip()
+            if cleaned.startswith("```"):
+                lines = cleaned.split("\n")
+                cleaned = "\n".join(lines[1:-1])
+            data: dict[str, Any] = json.loads(cleaned)
+            regions: list[dict[str, Any]] = data.get("regions", [])
+            return regions
+        except (json.JSONDecodeError, ValueError) as exc:
+            logger.warning(
+                "vlm_structured_stage1_parse_failed",
+                error=str(exc),
+                response_preview=response[:200],
+            )
+            return []
+
+    def _parse_single_entity(
+        self,
+        response: str,
+        source_document: str,
+        region_x: int,
+        region_y: int,
+        method: ExtractionMethod,
+    ) -> ExtractedEntity | None:
+        """Parse a single-entity JSON from stage-2 response.
+
+        Adjusts the bounding box coordinates to global image coords by adding
+        the region's x, y offset.
+        """
+        try:
+            cleaned = response.strip()
+            if cleaned.startswith("```"):
+                lines = cleaned.split("\n")
+                cleaned = "\n".join(lines[1:-1])
+            raw: dict[str, Any] = json.loads(cleaned)
+        except (json.JSONDecodeError, ValueError) as exc:
+            logger.warning(
+                "vlm_structured_stage2_parse_failed",
+                error=str(exc),
+                response_preview=response[:200],
+            )
+            return None
+
+        try:
+            entity_type = EntityType(raw.get("entity_type", ""))
+            confidence = _DEFAULT_CONFIDENCE.get(entity_type, 0.70)
+
+            source_region: BoundingBox | None = None
+            bbox_raw: dict[str, Any] | None = raw.get("bounding_box")
+            if bbox_raw:
+                source_region = BoundingBox(
+                    x=float(bbox_raw["x"]) + region_x,
+                    y=float(bbox_raw["y"]) + region_y,
+                    width=float(bbox_raw["width"]),
+                    height=float(bbox_raw["height"]),
+                    page=int(raw.get("source_page", 1)),
+                )
+
+            return ExtractedEntity(
+                entity_type=entity_type,
+                value=raw.get("value"),
+                unit=raw.get("unit"),
+                confidence=confidence,
+                source_document=source_document,
+                source_page=raw.get("source_page"),
+                source_region=source_region,
+                extraction_method=method,
+                timestamp=datetime.now(UTC),
+            )
+        except (ValueError, KeyError) as exc:
+            logger.warning(
+                "vlm_structured_entity_parse_skipped",
+                error=str(exc),
+                raw=raw,
+            )
+            return None
 
     # ------------------------------------------------------------------
     # Vision API helpers
