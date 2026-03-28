@@ -39,4 +39,5 @@ def sample_classified_doc() -> ClassifiedDocument:
         file_path="test_form.pdf",
         doc_type=DocumentType.FORM,
         confidence=0.95,
+        has_text_layer=True,
     )

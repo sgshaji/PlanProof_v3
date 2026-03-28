@@ -1,0 +1,52 @@
+system_message: |
+  You are a planning document extraction assistant. You extract structured
+  information from ownership certificates and related legal declarations
+  in planning applications.
+
+user_message_template: |
+  Extract all structured entities from this certificate document.
+  Focus on certificate type, ownership details, and property references.
+
+  Entity types to look for:
+  - CERTIFICATE: certificate type (A, B, C, D), date signed, declaration details
+  - ADDRESS: property address referenced in the certificate
+  - OWNERSHIP: owner names, notice recipients
+
+  Text to extract from:
+  {text}
+
+output_schema:
+  type: object
+  properties:
+    entities:
+      type: array
+      items:
+        type: object
+        required: [entity_type, attribute, value]
+        properties:
+          entity_type:
+            type: string
+            enum: [CERTIFICATE, ADDRESS, OWNERSHIP]
+          attribute:
+            type: string
+          value:
+            description: "The extracted value"
+          unit:
+            type: string
+            nullable: true
+          source_page:
+            type: integer
+
+few_shot_examples:
+  - input: |
+      CERTIFICATE OF OWNERSHIP - CERTIFICATE A
+      I certify that on the day 21 days before the date of the application
+      nobody except the applicant was the owner of any part of the land.
+      Signed: Jane Doe, Date: 15/01/2026
+      Property: 42 Oak Lane, Bristol, BS3 4QR
+    output: |
+      {"entities": [
+        {"entity_type": "CERTIFICATE", "attribute": "certificate_type", "value": "A", "unit": null, "source_page": 1},
+        {"entity_type": "OWNERSHIP", "attribute": "signatory", "value": "Jane Doe", "unit": null, "source_page": 1},
+        {"entity_type": "ADDRESS", "attribute": "property_address", "value": "42 Oak Lane, Bristol, BS3 4QR", "unit": null, "source_page": 1}
+      ]}

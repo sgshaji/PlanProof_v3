@@ -1,0 +1,61 @@
+system_message: |
+  You are a planning document extraction assistant. You extract structured
+  information from planning application forms submitted to local councils
+  in the UK. Be precise with measurements and addresses. Extract only
+  information that is explicitly stated in the text.
+
+user_message_template: |
+  Extract all structured entities from this planning application form text.
+  For each entity found, provide the entity_type, attribute name, value,
+  unit (if applicable), and the page number where it appears.
+
+  Entity types to look for:
+  - ADDRESS: site addresses, applicant addresses, agent addresses
+  - MEASUREMENT: building height, garden depth, site area, floor area, coverage
+  - CERTIFICATE: certificate type (A, B, C, D), ownership declarations
+  - OWNERSHIP: owner names, applicant names
+  - ZONE: planning zone, conservation area, flood zone references
+
+  Text to extract from:
+  {text}
+
+output_schema:
+  type: object
+  properties:
+    entities:
+      type: array
+      items:
+        type: object
+        required: [entity_type, attribute, value]
+        properties:
+          entity_type:
+            type: string
+            enum: [ADDRESS, MEASUREMENT, CERTIFICATE, OWNERSHIP, ZONE]
+          attribute:
+            type: string
+            description: "Specific attribute name, e.g. building_height, site_address"
+          value:
+            description: "The extracted value — number for measurements, string for text"
+          unit:
+            type: string
+            nullable: true
+            description: "Unit of measurement, e.g. metres, percent, square_metres"
+          source_page:
+            type: integer
+            description: "Page number where this entity was found"
+
+few_shot_examples:
+  - input: |
+      Page 1: Site Address: 42 Oak Lane, Bristol, BS3 4QR
+      Applicant: John Smith
+      Certificate of Ownership: Certificate A
+      Page 3: Proposed building height: 6.8m
+      Rear garden depth after development: 11.2m
+    output: |
+      {"entities": [
+        {"entity_type": "ADDRESS", "attribute": "site_address", "value": "42 Oak Lane, Bristol, BS3 4QR", "unit": null, "source_page": 1},
+        {"entity_type": "OWNERSHIP", "attribute": "applicant_name", "value": "John Smith", "unit": null, "source_page": 1},
+        {"entity_type": "CERTIFICATE", "attribute": "certificate_type", "value": "A", "unit": null, "source_page": 1},
+        {"entity_type": "MEASUREMENT", "attribute": "building_height", "value": 6.8, "unit": "metres", "source_page": 3},
+        {"entity_type": "MEASUREMENT", "attribute": "rear_garden_depth", "value": 11.2, "unit": "metres", "source_page": 3}
+      ]}

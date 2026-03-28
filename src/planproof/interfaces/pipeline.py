@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Any, Protocol, TypedDict
 
 from planproof.schemas.assessability import AssessabilityResult
-from planproof.schemas.entities import ExtractedEntity
+from planproof.schemas.entities import ClassifiedDocument, ExtractedEntity
 from planproof.schemas.rules import RuleVerdict
 
 
@@ -20,6 +20,7 @@ class PipelineContext(TypedDict, total=False):
     # context; later steps read what earlier steps wrote.
     """
 
+    classified_documents: list[ClassifiedDocument]
     entities: list[ExtractedEntity]
     graph_ref: Any  # opaque handle to the populated knowledge graph
     verdicts: list[RuleVerdict]

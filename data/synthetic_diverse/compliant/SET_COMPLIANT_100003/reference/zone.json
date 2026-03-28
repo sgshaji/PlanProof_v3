@@ -1,0 +1,9 @@
+{
+  "zone_code": "R2",
+  "zone_name": "Low Density Residential",
+  "applicable_rules": [
+    "R001",
+    "R002",
+    "R003"
+  ]
+}

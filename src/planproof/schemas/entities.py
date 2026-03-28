@@ -85,6 +85,7 @@ class ClassifiedDocument(BaseModel):
     file_path: str
     doc_type: DocumentType
     confidence: float = Field(ge=0, le=1)
+    has_text_layer: bool = False
 
     model_config = {"from_attributes": True}
 
