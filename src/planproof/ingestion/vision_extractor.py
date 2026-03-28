@@ -137,6 +137,7 @@ class VisionExtractor:
                 confidence = DEFAULT_CONFIDENCE.get(entity_type_str, 0.70)
                 entity = ExtractedEntity(
                     entity_type=entity_type,
+                    attribute=raw.get("attribute"),
                     value=raw.get("value"),
                     unit=raw.get("unit"),
                     confidence=confidence,

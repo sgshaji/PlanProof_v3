@@ -134,35 +134,7 @@ class DefaultAssessabilityEvaluator:
             # (c) Spatial grounding check (deferred — met if evidence exists)
             # Future: verify spatial coordinates match the expected region.
 
-            # (d) Attribute-tag filtering: the ablation runner stores the
-            # extraction attribute name in entity.unit using the special prefix
-            # "attr:" (e.g. "attr:building_height").  When such tags are present
-            # we filter to only entities whose tag matches req.attribute.
-            # If tags are present but none match, treat this as missing evidence.
-            # Entities with real unit strings (e.g. "metres") or unit=None are
-            # left unaffected so production pipeline behaviour is preserved.
-            _ATTR_TAG_PREFIX = "attr:"
-            attribute_tagged = [
-                e for e in trusted
-                if e.unit is not None
-                and e.unit.startswith(_ATTR_TAG_PREFIX)
-                and e.unit[len(_ATTR_TAG_PREFIX):] == req.attribute
-            ]
-            has_any_tagged = any(
-                e.unit is not None and e.unit.startswith(_ATTR_TAG_PREFIX)
-                for e in trusted
-            )
-            if has_any_tagged and not attribute_tagged:
-                # Attribute-tagged pool but no entity matches this requirement.
-                _log.debug(
-                    "assessability.requirement_missing",
-                    rule_id=rule_id,
-                    attribute=req.attribute,
-                    reason="no_attribute_tag_match",
-                )
-                missing.append(req)
-                continue
-            met_entities[req.attribute] = attribute_tagged if attribute_tagged else trusted
+            met_entities[req.attribute] = trusted
 
         # ----- Step 2: Reconciliation for met requirements -----
         for req in rule.required_evidence:
@@ -236,16 +208,33 @@ class DefaultAssessabilityEvaluator:
         entities: list[ExtractedEntity],
         requirement: EvidenceRequirement,
     ) -> list[ExtractedEntity]:
-        """Filter entities whose source_document filename matches acceptable sources.
+        """Filter entities by acceptable source and matching attribute name.
 
         Pragmatic approach: check if any acceptable_source string appears in
         the entity's source_document filename (e.g. "DRAWING" in
         "site_plan_DRAWING.pdf").
+
+        When the entity carries an ``attribute`` value (non-None), it must
+        also match the requirement's ``attribute`` name.  Legacy entities
+        without an attribute set fall back to source-only matching for
+        backward compatibility.
         """
         matched: list[ExtractedEntity] = []
         for entity in entities:
-            for source in requirement.acceptable_sources:
-                if source in entity.source_document:
-                    matched.append(entity)
-                    break
+            # Source document check
+            source_ok = any(
+                source in entity.source_document
+                for source in requirement.acceptable_sources
+            )
+            if not source_ok:
+                continue
+
+            # Attribute check — only enforced when entity has attribute set
+            if (
+                entity.attribute is not None
+                and entity.attribute != requirement.attribute
+            ):
+                continue
+
+            matched.append(entity)
         return matched

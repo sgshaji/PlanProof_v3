@@ -61,13 +61,17 @@ class RuleEvaluationStep:
                 )
                 continue
 
+            # Look up reconciled evidence by the rule's primary attribute name
+            # (from config parameters), falling back to rule_id for rules
+            # that don't specify an attribute.
+            attribute_key = config.parameters.get("attribute", config.rule_id)
             fallback = ReconciledEvidence(
-                attribute=config.rule_id,
+                attribute=attribute_key,
                 status=ReconciliationStatus.MISSING,
                 sources=[],
             )
             evidence: ReconciledEvidence = reconciled_evidence.get(
-                config.rule_id, fallback
+                attribute_key, fallback
             )
             verdict = evaluator.evaluate(evidence, config.parameters)
             verdicts.append(verdict)

@@ -107,6 +107,7 @@ class ExtractedEntity(BaseModel):
     """
 
     entity_type: EntityType
+    attribute: str | None = None  # e.g. "building_height", "rear_garden_depth"
     value: Any
     unit: str | None = None
     # WHY: Confidence is bounded [0, 1] so downstream gating logic can apply

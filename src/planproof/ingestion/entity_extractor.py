@@ -127,6 +127,7 @@ class LLMEntityExtractor:
 
                 entity = ExtractedEntity(
                     entity_type=entity_type,
+                    attribute=raw.get("attribute"),
                     value=raw.get("value"),
                     unit=raw.get("unit"),
                     confidence=confidence,

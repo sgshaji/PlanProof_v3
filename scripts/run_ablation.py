@@ -236,18 +236,14 @@ def _build_entities_from_ground_truth(
                 except (TypeError, ValueError):
                     source_region = None
 
-            # Store the extraction attribute name in the unit field using the
-            # "attr:" prefix so the ablation runner can group entities by
-            # attribute for reconciliation, and the assessability evaluator can
-            # distinguish these tags from real measurement units (e.g. "metres").
             raw_attr: str | None = extraction.get("attribute") or None
-            attribute_name: str | None = f"attr:{raw_attr}" if raw_attr else None
 
             entities.append(
                 ExtractedEntity(
                     entity_type=entity_type,
+                    attribute=raw_attr,
                     value=extraction.get("value"),
-                    unit=attribute_name,
+                    unit=extraction.get("unit"),
                     confidence=1.0,  # ground truth data is considered perfect
                     source_document=source_document,
                     source_page=extraction.get("page"),
@@ -418,14 +414,9 @@ def _run_pipeline_config(
     if ablation_yaml.get("use_evidence_reconciliation", True):
         from planproof.schemas.entities import ExtractedEntity
 
-        _ATTR_TAG_PREFIX = "attr:"
         groups: dict[str, list[ExtractedEntity]] = {}
         for entity in entities:
-            if entity.unit and entity.unit.startswith(_ATTR_TAG_PREFIX):
-                # Attribute-tagged entity (from ground truth): group by attribute name
-                key = entity.unit[len(_ATTR_TAG_PREFIX):]
-            else:
-                key = entity.entity_type.value
+            key = entity.attribute if entity.attribute is not None else entity.entity_type.value
             groups.setdefault(key, []).append(entity)
         for attr, group in groups.items():
             reconciled_evidence[attr] = reconciler.reconcile(group, attr)

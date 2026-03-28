@@ -255,6 +255,7 @@ class VLMSpatialExtractor:
 
             return ExtractedEntity(
                 entity_type=entity_type,
+                attribute=raw.get("attribute"),
                 value=raw.get("value"),
                 unit=raw.get("unit"),
                 confidence=confidence,
@@ -369,6 +370,7 @@ class VLMSpatialExtractor:
 
                 entity = ExtractedEntity(
                     entity_type=entity_type,
+                    attribute=raw.get("attribute"),
                     value=raw.get("value"),
                     unit=raw.get("unit"),
                     confidence=confidence,

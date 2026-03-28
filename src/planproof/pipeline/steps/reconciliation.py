@@ -40,10 +40,14 @@ class ReconciliationStep:
         if isinstance(self._evidence_provider, FlatEvidenceProvider):
             self._evidence_provider.update_entities(entities)
 
-        # Group entities by entity_type
+        # Group entities by attribute when available, falling back to entity_type
         groups: dict[str, list[ExtractedEntity]] = {}
         for entity in entities:
-            key = entity.entity_type.value
+            key = (
+                entity.attribute
+                if entity.attribute is not None
+                else entity.entity_type.value
+            )
             groups.setdefault(key, []).append(entity)
 
         reconciled: dict[str, ReconciledEvidence] = {}

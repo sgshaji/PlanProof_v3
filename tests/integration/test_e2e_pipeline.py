@@ -333,10 +333,10 @@ class TestE2EPipeline:
         r003_assess = _make_assessable("R003")
 
         # --- Step 4: Rule evaluation via RuleEvaluationStep ---
-        # reconciled_evidence keyed by rule_id (the contract RuleEvaluationStep expects)
+        # reconciled_evidence keyed by attribute name (matching rule parameters)
         context["reconciled_evidence"] = {
-            "R001": _make_reconciled("R001", values["building_height"], [height_entity]),
-            "R002": _make_reconciled("R002", values["rear_garden_depth"], [garden_entity]),
+            "building_height": _make_reconciled("building_height", values["building_height"], [height_entity]),
+            "rear_garden_depth": _make_reconciled("rear_garden_depth", values["rear_garden_depth"], [garden_entity]),
             "R003": _make_reconciled("R003", coverage_ratio, [coverage_entity]),
         }
         context["assessability_results"] = [r001_assess, r002_assess, r003_assess]
@@ -427,9 +427,9 @@ class TestE2EPipeline:
             f"R001 should be ASSESSABLE: {r001_assess.blocking_reason}"
         )
 
-        # Rule evaluation
+        # Rule evaluation — keyed by attribute name matching rule parameters
         context["reconciled_evidence"] = {
-            "R001": _make_reconciled("R001", 9.5, [height_entity]),
+            "building_height": _make_reconciled("building_height", 9.5, [height_entity]),
         }
         context["assessability_results"] = [r001_assess]
 
@@ -609,8 +609,8 @@ class TestE2EPipeline:
 
         context["assessability_results"] = [r001_assess, r002_assess, r003_assess]
         context["reconciled_evidence"] = {
-            "R001": _make_reconciled("R001", values["building_height"], [height_entity]),
-            "R002": _make_reconciled("R002", values["rear_garden_depth"], [garden_entity]),
+            "building_height": _make_reconciled("building_height", values["building_height"], [height_entity]),
+            "rear_garden_depth": _make_reconciled("rear_garden_depth", values["rear_garden_depth"], [garden_entity]),
         }
 
         RuleEvaluationStep(rule_factory=factory, rules_dir=_RULES_DIR).execute(context)
