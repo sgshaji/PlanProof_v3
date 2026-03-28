@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              151.0015,
+              -33.8709
+            ],
+            [
+              151.0016216,
+              -33.8709
+            ],
+            [
+              151.0016216,
+              -33.8704681
+            ],
+            [
+              151.0015,
+              -33.8704681
+            ],
+            [
+              151.0015,
+              -33.8709
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "SET_EDGECASE_300000003",
+        "set_id": "SET_EDGECASE_300000003"
+      }
+    }
+  ]
+}

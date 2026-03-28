@@ -1,0 +1,299 @@
+{
+  "set_id": "SET_NONCOMPLIANT_200000004",
+  "category": "noncompliant",
+  "seed": 200000004,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "building_height",
+      "value": 5.12,
+      "unit": "metres",
+      "display_text": "5.1m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 1.8,
+      "unit": "metres",
+      "display_text": "1.8m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 27.33,
+      "unit": "percent",
+      "display_text": "27.3%"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "R001",
+      "outcome": "PASS",
+      "evaluated_value": 5.12,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "FAIL",
+      "evaluated_value": 1.8,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 27.33,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_200000004_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "138 Ivy Gardens, Brighton, S1 2GH",
+          "text_rendered": "138 Ivy Gardens, Brighton, S1 2GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 5.12,
+          "text_rendered": "5.1m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 27.33,
+          "text_rendered": "27.3%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "138 Ivy Gardens, Brighton, S1 2GH",
+          "text_rendered": "138 Ivy Gardens, Brighton, S1 2GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 5.12,
+          "text_rendered": "5.1m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 27.33,
+          "text_rendered": "27.3%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000004_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "rear_garden_depth",
+          "value": 1.8,
+          "text_rendered": "1.8m",
+          "page": 1,
+          "bounding_box": {
+            "x": 48.11023622047245,
+            "y": 1387.0882946230424,
+            "width": 70.00000000000001,
+            "height": 35.00000000000001,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 27.33,
+          "text_rendered": "27.3%",
+          "page": 1,
+          "bounding_box": {
+            "x": 685.0607497576486,
+            "y": 1519.6997306001326,
+            "width": 350.0,
+            "height": 35.00000000000001,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "rear_garden_depth",
+          "value": 1.8,
+          "text_rendered": "1.8m",
+          "page": 1,
+          "bounding_box": {
+            "x": 48.11023622047245,
+            "y": 1387.0882946230424,
+            "width": 70.00000000000001,
+            "height": 35.00000000000001,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 27.33,
+          "text_rendered": "27.3%",
+          "page": 1,
+          "bounding_box": {
+            "x": 685.0607497576486,
+            "y": 1519.6997306001326,
+            "width": 350.0,
+            "height": 35.00000000000001,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000004_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000004_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.12,
+          "text_rendered": "5.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1947.0,
+            "y": 2798.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.12,
+          "text_rendered": "5.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1947.0,
+            "y": 2798.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000004_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.12,
+          "text_rendered": "5.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1934.0,
+            "y": 2786.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.12,
+          "text_rendered": "5.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1934.0,
+            "y": 2786.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000004_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 200000004
+  },
+  "edge_case_strategy": null
+}

@@ -1,0 +1,299 @@
+{
+  "set_id": "SET_NONCOMPLIANT_200000002",
+  "category": "noncompliant",
+  "seed": 200000002,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "building_height",
+      "value": 8.06,
+      "unit": "metres",
+      "display_text": "8.1m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 27.13,
+      "unit": "metres",
+      "display_text": "27.1m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 12.19,
+      "unit": "percent",
+      "display_text": "12.2%"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "R001",
+      "outcome": "FAIL",
+      "evaluated_value": 8.06,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "PASS",
+      "evaluated_value": 27.13,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 12.19,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_200000002_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "134 Acacia Avenue, Manchester, OX1 3BQ",
+          "text_rendered": "134 Acacia Avenue, Manchester, OX1 3BQ",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 8.06,
+          "text_rendered": "8.1m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 12.19,
+          "text_rendered": "12.2%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "134 Acacia Avenue, Manchester, OX1 3BQ",
+          "text_rendered": "134 Acacia Avenue, Manchester, OX1 3BQ",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 8.06,
+          "text_rendered": "8.1m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 12.19,
+          "text_rendered": "12.2%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000002_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "rear_garden_depth",
+          "value": 27.13,
+          "text_rendered": "27.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 30.610236220472455,
+            "y": 1932.217037651476,
+            "width": 87.5,
+            "height": 35.00000000000001,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 12.19,
+          "text_rendered": "12.2%",
+          "page": 1,
+          "bounding_box": {
+            "x": 1000.8303627862009,
+            "y": 2196.6341564234976,
+            "width": 350.0,
+            "height": 35.00000000000001,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "rear_garden_depth",
+          "value": 27.13,
+          "text_rendered": "27.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 30.610236220472455,
+            "y": 1932.217037651476,
+            "width": 87.5,
+            "height": 35.00000000000001,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 12.19,
+          "text_rendered": "12.2%",
+          "page": 1,
+          "bounding_box": {
+            "x": 1000.8303627862009,
+            "y": 2196.6341564234976,
+            "width": 350.0,
+            "height": 35.00000000000001,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000002_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000002_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 8.06,
+          "text_rendered": "8.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2077.0,
+            "y": 2734.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 8.06,
+          "text_rendered": "8.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2077.0,
+            "y": 2734.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000002_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 8.06,
+          "text_rendered": "8.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2102.0,
+            "y": 2708.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 8.06,
+          "text_rendered": "8.1m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2102.0,
+            "y": 2708.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_200000002_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 200000002
+  },
+  "edge_case_strategy": null
+}
