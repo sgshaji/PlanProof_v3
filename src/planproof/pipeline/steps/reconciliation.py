@@ -5,6 +5,7 @@ from planproof.infrastructure.logging import get_logger
 from planproof.interfaces.graph import EvidenceProvider
 from planproof.interfaces.pipeline import PipelineContext, StepResult
 from planproof.interfaces.reasoning import Reconciler
+from planproof.representation.flat_evidence import FlatEvidenceProvider
 from planproof.schemas.entities import ExtractedEntity
 from planproof.schemas.reconciliation import ReconciledEvidence
 
@@ -32,6 +33,12 @@ class ReconciliationStep:
 
     def execute(self, context: PipelineContext) -> StepResult:
         entities = context.get("entities", [])
+
+        # Hydrate FlatEvidenceProvider now that entities are available.
+        # update_entities is not on the Protocol — only called when we hold the
+        # concrete flat implementation (Ablation B path).
+        if isinstance(self._evidence_provider, FlatEvidenceProvider):
+            self._evidence_provider.update_entities(entities)
 
         # Group entities by entity_type
         groups: dict[str, list[ExtractedEntity]] = {}

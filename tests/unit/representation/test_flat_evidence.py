@@ -125,3 +125,33 @@ class TestGetConflictingEvidence:
         conflicts = provider.get_conflicting_evidence("ADDRESS")
         assert len(conflicts) == 1
         assert entity_a in conflicts[0] and entity_b in conflicts[0]
+
+
+class TestUpdateEntities:
+    def test_empty_provider_sees_entities_after_update(self) -> None:
+        provider = FlatEvidenceProvider([])
+        assert provider.get_evidence_for_rule("any") == []
+
+        entity = _make_entity()
+        provider.update_entities([entity])
+        assert provider.get_evidence_for_rule("any") == [entity]
+
+    def test_update_replaces_existing_entities(self) -> None:
+        old = _make_entity(value=1.0)
+        provider = FlatEvidenceProvider([old])
+
+        new_a = _make_entity(value=2.0, source_document="doc_a.pdf")
+        new_b = _make_entity(value=3.0, source_document="doc_b.pdf")
+        provider.update_entities([new_a, new_b])
+
+        result = provider.get_evidence_for_rule("rule_x")
+        assert result == [new_a, new_b]
+
+    def test_conflicting_evidence_reflects_updated_entities(self) -> None:
+        provider = FlatEvidenceProvider([])
+        entity_a = _make_entity(value=7.5, source_document="doc_a.pdf")
+        entity_b = _make_entity(value=9.0, source_document="doc_b.pdf")
+        provider.update_entities([entity_a, entity_b])
+
+        conflicts = provider.get_conflicting_evidence("MEASUREMENT")
+        assert len(conflicts) == 1

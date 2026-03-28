@@ -45,11 +45,10 @@ from planproof.reasoning.evaluators.numeric_threshold import NumericThresholdEva
 from planproof.reasoning.evaluators.numeric_tolerance import NumericToleranceEvaluator
 from planproof.reasoning.evaluators.ratio_threshold import RatioThresholdEvaluator
 from planproof.reasoning.reconciliation import PairwiseReconciler
-from planproof.representation.flat_evidence import FlatEvidenceProvider  # noqa: F401
+from planproof.representation.flat_evidence import FlatEvidenceProvider
 from planproof.representation.normalisation import Normaliser
 from planproof.representation.snkg import Neo4jSNKG
 from planproof.schemas.config import PipelineConfig
-from planproof.schemas.entities import ExtractedEntity
 
 logger = get_logger(__name__)
 
@@ -174,15 +173,17 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
         if snkg_instance is not None:
             pipeline.register(GraphPopulationStep(populator=snkg_instance))
 
-    # Select evidence provider: SNKG (graph) or stub (flat wired in Phase 5).
-    # Typed as object because Neo4jSNKG and _StubEvidenceProvider satisfy the
+    # Select evidence provider: SNKG (graph) or FlatEvidenceProvider (Ablation B).
+    # FlatEvidenceProvider is initialised empty here; ReconciliationStep calls
+    # update_entities() once extraction has populated context["entities"].
+    # Typed as object because Neo4jSNKG and FlatEvidenceProvider satisfy the
     # EvidenceProvider Protocol structurally — mypy cannot verify this without
     # explicit Protocol subclassing, so we use object and suppress below.
     evidence_provider: object
     if snkg_instance is not None:
         evidence_provider = snkg_instance
     else:
-        evidence_provider = _stub_evidence_provider()
+        evidence_provider = FlatEvidenceProvider([])
 
     # Layer 3: Reasoning
     if config.ablation.use_evidence_reconciliation:
@@ -230,8 +231,9 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
 
 
 # ---------------------------------------------------------------------------
-# Stub factories — return placeholder objects until concrete implementations
-# are built in later phases. These satisfy Protocol interfaces structurally.
+# Component factories — each returns a concrete implementation wired from
+# config.  Keeping them as named functions makes the build_pipeline body easy
+# to read and the individual factories independently testable.
 # ---------------------------------------------------------------------------
 
 
@@ -320,7 +322,7 @@ def _create_assessability_evaluator(
     """Wire a DefaultAssessabilityEvaluator with all reasoning dependencies.
 
     ``evidence_provider`` and ``rules`` are typed as ``object`` because the
-    concrete values (Neo4jSNKG or _StubEvidenceProvider, RuleConfig dicts)
+    concrete values (Neo4jSNKG or FlatEvidenceProvider, RuleConfig dicts)
     satisfy the Protocols structurally — mypy cannot verify structural
     compatibility without explicit Protocol annotations on those classes.
     """
@@ -332,25 +334,9 @@ def _create_assessability_evaluator(
     )
 
 
-class _StubEvidenceProvider:
-    """Placeholder until Phase 3."""
-
-    def get_evidence_for_rule(self, rule_id: str) -> list[ExtractedEntity]:
-        raise NotImplementedError("Concrete evidence provider implemented in Phase 3")
-
-    def get_conflicting_evidence(
-        self, attribute: str
-    ) -> list[tuple[ExtractedEntity, ExtractedEntity]]:
-        raise NotImplementedError("Concrete evidence provider implemented in Phase 3")
-
-
 def _create_evidence_request_generator(
     config: PipelineConfig,
 ) -> MinEvidenceRequestGenerator:
     """Load evidence guidance from YAML and return a MinEvidenceRequestGenerator."""
     yaml_path = config.configs_dir / "evidence_guidance.yaml"
     return MinEvidenceRequestGenerator.from_yaml(yaml_path)
-
-
-def _stub_evidence_provider() -> _StubEvidenceProvider:
-    return _StubEvidenceProvider()

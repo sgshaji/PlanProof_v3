@@ -45,6 +45,18 @@ class FlatEvidenceProvider:
         )
         return list(self._entities)
 
+    def update_entities(self, entities: list[ExtractedEntity]) -> None:
+        """Replace the internal entity list after construction.
+
+        # WHY: Bootstrap creates FlatEvidenceProvider([]) before the pipeline
+        # runs (entities not yet available).  ReconciliationStep calls this
+        # once extraction is complete so downstream queries see real data.
+        # update_entities is intentionally NOT on the EvidenceProvider Protocol
+        # — it is an implementation detail of the flat ablation path only.
+        """
+        self._entities = entities
+        _log.debug("FlatEvidenceProvider entities updated", entity_count=len(entities))
+
     def get_conflicting_evidence(
         self, attribute: str
     ) -> list[tuple[ExtractedEntity, ExtractedEntity]]:

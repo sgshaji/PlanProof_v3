@@ -163,6 +163,22 @@ class TestReconciliationStep:
         step = ReconciliationStep(MagicMock(), MagicMock())
         assert step.name == "reconciliation"
 
+    def test_hydrates_flat_evidence_provider_before_reconciling(self) -> None:
+        """ReconciliationStep calls update_entities on FlatEvidenceProvider."""
+        from planproof.representation.flat_evidence import FlatEvidenceProvider
+
+        reconciler = MagicMock()
+        flat_provider = FlatEvidenceProvider([])
+        reconciler.reconcile.return_value = _make_reconciled("MEASUREMENT")
+
+        entity = _make_entity(EntityType.MEASUREMENT)
+        step = ReconciliationStep(reconciler, flat_provider)
+        context: PipelineContext = {"entities": [entity]}
+        step.execute(context)
+
+        # After execution the flat provider should hold the pipeline entities
+        assert flat_provider.get_evidence_for_rule("any") == [entity]
+
 
 # ---------------------------------------------------------------------------
 # ConfidenceGatingStep
