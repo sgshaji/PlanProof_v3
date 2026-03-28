@@ -66,7 +66,7 @@ class TestEdgeCaseCoverage:
         # selector loses a variant.
         """
         strategies: set[str] = set()
-        ec_dir = DATA_DIR / "edgecase"
+        ec_dir = DATA_DIR / "edge_case"  # runner writes to edge_case/ (with underscore)
         for gt_path in ec_dir.rglob("ground_truth.json"):
             gt = json.loads(gt_path.read_text())
             s = gt.get("edge_case_strategy")

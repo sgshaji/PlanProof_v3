@@ -233,6 +233,7 @@ def generate_sets(
         load_profiles,
         load_rule_configs,
     )
+    from planproof.datagen.scenario.edge_cases import apply_edge_case
     from planproof.datagen.scenario.generator import build_scenario
 
     # Load configuration once for all sets in this run.
@@ -289,6 +290,23 @@ def generate_sets(
                 category=scenario_cat,
                 seed=set_seed,
             )
+
+            # For edge_case sets, apply one of the five strategies in round-robin
+            # order so the corpus always contains all strategy variants.
+            # WHY round-robin rather than random: a deterministic assignment means
+            # every strategy appears at least once when n_sets >= 5, which is the
+            # corpus coverage invariant checked by the integration test.  Using the
+            # set index (i) as the selector is stable across runs with the same seed.
+            if cat == "edge_case":
+                _EDGE_CASE_STRATEGIES = [
+                    "missing_evidence",
+                    "conflicting_values",
+                    "low_confidence_scan",
+                    "partial_documents",
+                    "ambiguous_units",
+                ]
+                strategy = _EDGE_CASE_STRATEGIES[i % len(_EDGE_CASE_STRATEGIES)]
+                scenario = apply_edge_case(scenario, strategy, seed=set_seed)
 
             # Render each document via the registry.
             # WHY: Dispatch by subtype for DRAWING docs (site_plan,

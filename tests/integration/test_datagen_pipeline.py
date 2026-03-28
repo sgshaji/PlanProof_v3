@@ -98,11 +98,18 @@ class TestDatagenPipeline:
         assert len(scans) >= 1
 
     def test_drawing_files_exist(self, generated_set: Path) -> None:
-        """At least one DRAWING-type document must be present."""
-        # WHY: Profiles always include at least one site plan drawing.
-        # Missing drawings indicate a rendering or registry failure.
+        """At least one drawing-type document must be present."""
+        # WHY: Drawing docs are rendered under their subtype label (SITE_PLAN,
+        # FLOOR_PLAN, ELEVATION) rather than the generic "DRAWING" doc_type,
+        # because file_writer.py uses doc_spec.subtype as the filename stem so
+        # that multiple drawings in one set don't overwrite each other.
+        # Profiles always include at least one site plan drawing; its absence
+        # means the rendering or registry has failed silently.
+        drawing_subtypes = {"SITE_PLAN", "FLOOR_PLAN", "ELEVATION"}
         drawings = [
-            f for f in generated_set.iterdir() if "DRAWING" in f.name
+            f
+            for f in generated_set.iterdir()
+            if any(sub in f.name for sub in drawing_subtypes)
         ]
         assert len(drawings) >= 1
 
