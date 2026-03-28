@@ -134,7 +134,35 @@ class DefaultAssessabilityEvaluator:
             # (c) Spatial grounding check (deferred — met if evidence exists)
             # Future: verify spatial coordinates match the expected region.
 
-            met_entities[req.attribute] = trusted
+            # (d) Attribute-tag filtering: the ablation runner stores the
+            # extraction attribute name in entity.unit using the special prefix
+            # "attr:" (e.g. "attr:building_height").  When such tags are present
+            # we filter to only entities whose tag matches req.attribute.
+            # If tags are present but none match, treat this as missing evidence.
+            # Entities with real unit strings (e.g. "metres") or unit=None are
+            # left unaffected so production pipeline behaviour is preserved.
+            _ATTR_TAG_PREFIX = "attr:"
+            attribute_tagged = [
+                e for e in trusted
+                if e.unit is not None
+                and e.unit.startswith(_ATTR_TAG_PREFIX)
+                and e.unit[len(_ATTR_TAG_PREFIX):] == req.attribute
+            ]
+            has_any_tagged = any(
+                e.unit is not None and e.unit.startswith(_ATTR_TAG_PREFIX)
+                for e in trusted
+            )
+            if has_any_tagged and not attribute_tagged:
+                # Attribute-tagged pool but no entity matches this requirement.
+                _log.debug(
+                    "assessability.requirement_missing",
+                    rule_id=rule_id,
+                    attribute=req.attribute,
+                    reason="no_attribute_tag_match",
+                )
+                missing.append(req)
+                continue
+            met_entities[req.attribute] = attribute_tagged if attribute_tagged else trusted
 
         # ----- Step 2: Reconciliation for met requirements -----
         for req in rule.required_evidence:

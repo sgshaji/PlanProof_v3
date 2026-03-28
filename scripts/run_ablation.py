@@ -167,16 +167,29 @@ def load_ground_truth(test_set_dir: Path) -> dict[str, Any]:
 
 def _build_entities_from_ground_truth(
     ground_truth: dict[str, Any],
+    test_set_dir: Path | None = None,
 ) -> list[Any]:
     """Construct ExtractedEntity objects from ground truth document extractions.
 
     Each document's ``extractions`` list is converted to an ExtractedEntity so
     the pipeline reasoning steps can run without re-invoking the LLM.
 
+    The ``source_document`` field is prefixed with the document's ``doc_type``
+    (e.g. ``"DRAWING_site_plan.pdf"``) so that the assessability evaluator's
+    substring match against ``acceptable_sources`` (e.g. ``"DRAWING"``,
+    ``"FORM"``) works correctly.
+
+    If *test_set_dir* is provided and contains ``reference/zone.json``, a
+    synthetic ZONE entity is appended with ``source_document`` set to
+    ``"EXTERNAL_DATA_zone.json"`` so rules that require a zone from
+    ``EXTERNAL_DATA`` sources are assessable.
+
     Parameters
     ----------
     ground_truth:
         Parsed ground_truth.json dict.
+    test_set_dir:
+        Optional path to the test set directory used to locate reference data.
 
     Returns
     -------
@@ -196,6 +209,12 @@ def _build_entities_from_ground_truth(
 
     for doc in ground_truth.get("documents", []):
         filename: str = doc.get("filename", "unknown")
+        doc_type: str = doc.get("doc_type", "").upper()
+        # Prefix the filename with the doc_type so that assessability source
+        # matching (substring of acceptable_sources against source_document)
+        # can find tokens like "DRAWING" or "FORM" in the field value.
+        source_document = f"{doc_type}_{filename}" if doc_type else filename
+
         for extraction in doc.get("extractions", []):
             raw_entity_type = str(extraction.get("entity_type", "MEASUREMENT")).upper()
             try:
@@ -217,19 +236,55 @@ def _build_entities_from_ground_truth(
                 except (TypeError, ValueError):
                     source_region = None
 
+            # Store the extraction attribute name in the unit field using the
+            # "attr:" prefix so the ablation runner can group entities by
+            # attribute for reconciliation, and the assessability evaluator can
+            # distinguish these tags from real measurement units (e.g. "metres").
+            raw_attr: str | None = extraction.get("attribute") or None
+            attribute_name: str | None = f"attr:{raw_attr}" if raw_attr else None
+
             entities.append(
                 ExtractedEntity(
                     entity_type=entity_type,
                     value=extraction.get("value"),
-                    unit=None,  # ground truth does not carry unit per-extraction
+                    unit=attribute_name,
                     confidence=1.0,  # ground truth data is considered perfect
-                    source_document=filename,
+                    source_document=source_document,
                     source_page=extraction.get("page"),
                     source_region=source_region,
                     extraction_method=ExtractionMethod.MANUAL,
                     timestamp=extraction_ts,
                 )
             )
+
+    # --- Synthetic ZONE entity from reference/zone.json ---
+    if test_set_dir is not None:
+        zone_path = test_set_dir / "reference" / "zone.json"
+        if zone_path.exists():
+            try:
+                with zone_path.open(encoding="utf-8") as fh:
+                    zone_data = json.load(fh)
+                zone_code = zone_data.get("zone_code")
+                if zone_code is not None:
+                    entities.append(
+                        ExtractedEntity(
+                            entity_type=EntityType.ZONE,
+                            value=zone_code,
+                            # Store "attr:zone_category" in unit so the ablation
+                            # runner can group this entity correctly for
+                            # reconciliation, and the assessability evaluator
+                            # recognises it as an attribute tag (not a unit).
+                            unit="attr:zone_category",
+                            confidence=1.0,
+                            source_document="EXTERNAL_DATA_zone.json",
+                            source_page=None,
+                            source_region=None,
+                            extraction_method=ExtractionMethod.MANUAL,
+                            timestamp=extraction_ts,
+                        )
+                    )
+            except Exception as exc:  # noqa: BLE001
+                _log.warning("Could not load zone reference data from %s: %s", zone_path, exc)
 
     return entities
 
@@ -296,6 +351,7 @@ def _run_pipeline_config(
     ground_truth: dict[str, Any],
     ablation_yaml: dict[str, Any],
     configs_dir: Path,
+    test_set_dir: Path | None = None,
 ) -> list[Any]:
     """Run the reasoning pipeline steps against ground-truth entities.
 
@@ -327,7 +383,7 @@ def _run_pipeline_config(
     RuleFactory.register_evaluator("attribute_diff", AttributeDiffEvaluator)
 
     # --- Build entities from ground truth ---
-    entities = _build_entities_from_ground_truth(ground_truth)
+    entities = _build_entities_from_ground_truth(ground_truth, test_set_dir=test_set_dir)
 
     # --- Normalisation ---
     normaliser = Normaliser()
@@ -354,13 +410,22 @@ def _run_pipeline_config(
         evidence_provider.update_entities(entities)
 
     # --- Reconciliation ---
+    # Group entities by attribute name (stored in the unit field by
+    # _build_entities_from_ground_truth) rather than by entity_type, so that
+    # building_height and rear_garden_depth entities are reconciled separately.
+    # Fall back to entity_type.value for entities without an attribute tag.
     reconciled_evidence: dict[str, ReconciledEvidence] = {}
     if ablation_yaml.get("use_evidence_reconciliation", True):
         from planproof.schemas.entities import ExtractedEntity
 
+        _ATTR_TAG_PREFIX = "attr:"
         groups: dict[str, list[ExtractedEntity]] = {}
         for entity in entities:
-            key = entity.entity_type.value
+            if entity.unit and entity.unit.startswith(_ATTR_TAG_PREFIX):
+                # Attribute-tagged entity (from ground truth): group by attribute name
+                key = entity.unit[len(_ATTR_TAG_PREFIX):]
+            else:
+                key = entity.entity_type.value
             groups.setdefault(key, []).append(entity)
         for attr, group in groups.items():
             reconciled_evidence[attr] = reconciler.reconcile(group, attr)
@@ -406,8 +471,21 @@ def _run_pipeline_config(
     for config, evaluator in loaded_rule_pairs:
         if config.rule_id not in assessable_ids:
             continue
-        evidence = reconciled_evidence.get(config.rule_id, fallback_missing)
-        verdict = evaluator.evaluate(evidence, config.parameters)
+        # Look up reconciled evidence by the primary attribute of this rule
+        # (stored in parameters["attribute"] for single-attribute rules, or
+        # parameters["numerator_attribute"] for ratio rules).  Fall back to
+        # rule_id if no attribute key is found (should not happen in practice).
+        primary_attr = (
+            config.parameters.get("attribute")
+            or config.parameters.get("numerator_attribute")
+            or config.rule_id
+        )
+        evidence = reconciled_evidence.get(primary_attr, fallback_missing)
+        # Inject rule_id into params so evaluators can produce correctly-labelled
+        # RuleVerdict objects.  Evaluators read rule_id from self._params first,
+        # then fall back to the passed params dict.
+        params_with_id = {**config.parameters, "rule_id": config.rule_id}
+        verdict = evaluator.evaluate(evidence, params_with_id)
         verdicts.append(verdict)
 
     return verdicts
@@ -691,7 +769,8 @@ def run_experiment(
         # --- Dispatch to the correct runner ---
         if config_name in PIPELINE_CONFIGS:
             verdicts = _run_pipeline_config(
-                config_name, ground_truth, ablation_yaml, configs_dir
+                config_name, ground_truth, ablation_yaml, configs_dir,
+                test_set_dir=test_set_dir,
             )
         else:
             verdicts = _run_baseline(config_name, ground_truth, configs_dir, ablation_yaml)
