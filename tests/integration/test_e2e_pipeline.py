@@ -315,16 +315,18 @@ class TestE2EPipeline:
         r001_assess = _build_assessability(
             "R001", [height_entity, zone_entity], gate, reconciler, rules_dict
         )
-        assert r001_assess.status == "ASSESSABLE", (
-            f"R001 should be ASSESSABLE; blocking={r001_assess.blocking_reason}, "
+        assert r001_assess.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE"), (
+            f"R001 should be ASSESSABLE/PARTIALLY_ASSESSABLE; "
+            f"blocking={r001_assess.blocking_reason}, "
             f"missing={[m.attribute for m in r001_assess.missing_evidence]}"
         )
 
         r002_assess = _build_assessability(
             "R002", [garden_entity, zone_entity], gate, reconciler, rules_dict
         )
-        assert r002_assess.status == "ASSESSABLE", (
-            f"R002 should be ASSESSABLE; blocking={r002_assess.blocking_reason}, "
+        assert r002_assess.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE"), (
+            f"R002 should be ASSESSABLE/PARTIALLY_ASSESSABLE; "
+            f"blocking={r002_assess.blocking_reason}, "
             f"missing={[m.attribute for m in r002_assess.missing_evidence]}"
         )
 
@@ -423,8 +425,8 @@ class TestE2EPipeline:
         r001_assess = _build_assessability(
             "R001", [height_entity, zone_entity], gate, reconciler, rules_dict
         )
-        assert r001_assess.status == "ASSESSABLE", (
-            f"R001 should be ASSESSABLE: {r001_assess.blocking_reason}"
+        assert r001_assess.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE"), (
+            f"R001 should be ASSESSABLE/PARTIALLY_ASSESSABLE: {r001_assess.blocking_reason}"
         )
 
         # Rule evaluation — keyed by attribute name matching rule parameters
@@ -603,8 +605,8 @@ class TestE2EPipeline:
             "R003", [zone_entity], gate, reconciler, rules_dict
         )
 
-        assert r001_assess.status == "ASSESSABLE"
-        assert r002_assess.status == "ASSESSABLE"
+        assert r001_assess.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE")
+        assert r002_assess.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE")
         assert r003_assess.status == "NOT_ASSESSABLE"
 
         context["assessability_results"] = [r001_assess, r002_assess, r003_assess]

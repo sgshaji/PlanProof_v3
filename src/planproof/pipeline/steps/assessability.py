@@ -9,11 +9,12 @@ logger = get_logger(__name__)
 
 
 class AssessabilityStep:
-    """Classify each rule as ASSESSABLE or NOT_ASSESSABLE.
+    """Classify each rule as ASSESSABLE, PARTIALLY_ASSESSABLE, or NOT_ASSESSABLE.
 
     This is the core research contribution of PlanProof.  Rules that lack
     sufficient evidence are explicitly flagged rather than being forced into
-    a binary PASS/FAIL verdict.
+    a binary PASS/FAIL verdict.  The PARTIALLY_ASSESSABLE state (SABLE
+    algorithm) indicates borderline evidence sufficiency.
     """
 
     def __init__(self, evaluator: AssessabilityEvaluator) -> None:

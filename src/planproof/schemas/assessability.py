@@ -59,7 +59,7 @@ class AssessabilityResult(BaseModel):
     """
 
     rule_id: str
-    status: Literal["ASSESSABLE", "NOT_ASSESSABLE"]
+    status: Literal["ASSESSABLE", "NOT_ASSESSABLE", "PARTIALLY_ASSESSABLE"]
     blocking_reason: BlockingReason
     missing_evidence: list[EvidenceRequirement]
     conflicts: list[ConflictDetail]

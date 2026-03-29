@@ -190,8 +190,9 @@ class TestFullReasoningPipeline:
             rules=rules_dict,
         )
         r001_assessability = r001_ae.evaluate("R001")
-        assert r001_assessability.status == "ASSESSABLE", (
-            f"R001 should be ASSESSABLE but got {r001_assessability.blocking_reason}: "
+        assert r001_assessability.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE"), (
+            f"R001 should be ASSESSABLE/PARTIALLY_ASSESSABLE but got "
+            f"{r001_assessability.status} ({r001_assessability.blocking_reason}): "
             f"missing={[m.attribute for m in r001_assessability.missing_evidence]}"
         )
 
@@ -223,8 +224,9 @@ class TestFullReasoningPipeline:
             rules=rules_dict,
         )
         r002_assessability = r002_ae.evaluate("R002")
-        assert r002_assessability.status == "ASSESSABLE", (
-            f"R002 should be ASSESSABLE but got {r002_assessability.blocking_reason}: "
+        assert r002_assessability.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE"), (
+            f"R002 should be ASSESSABLE/PARTIALLY_ASSESSABLE but got "
+            f"{r002_assessability.status} ({r002_assessability.blocking_reason}): "
             f"missing={[m.attribute for m in r002_assessability.missing_evidence]}"
         )
 
@@ -304,8 +306,9 @@ class TestFullReasoningPipeline:
         )
 
         r003_assessability = evaluator.evaluate("R003")
-        assert r003_assessability.status == "ASSESSABLE", (
-            f"R003 should be ASSESSABLE but got {r003_assessability.blocking_reason}: "
+        assert r003_assessability.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE"), (
+            f"R003 should be ASSESSABLE/PARTIALLY_ASSESSABLE but got "
+            f"{r003_assessability.status} ({r003_assessability.blocking_reason}): "
             f"missing={[m.attribute for m in r003_assessability.missing_evidence]}"
         )
 
@@ -354,8 +357,9 @@ class TestFullReasoningPipeline:
         )
 
         r001_assessability = evaluator.evaluate("R001")
-        assert r001_assessability.status == "ASSESSABLE", (
-            f"R001 should be ASSESSABLE: {r001_assessability.blocking_reason}"
+        assert r001_assessability.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE"), (
+            f"R001 should be ASSESSABLE/PARTIALLY_ASSESSABLE: "
+            f"{r001_assessability.blocking_reason}"
         )
 
         r001_config = rules_dict["R001"]

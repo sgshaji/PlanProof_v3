@@ -45,6 +45,7 @@ from planproof.reasoning.evaluators.numeric_threshold import NumericThresholdEva
 from planproof.reasoning.evaluators.numeric_tolerance import NumericToleranceEvaluator
 from planproof.reasoning.evaluators.ratio_threshold import RatioThresholdEvaluator
 from planproof.reasoning.reconciliation import PairwiseReconciler
+from planproof.reasoning.semantic_similarity import SemanticSimilarity
 from planproof.representation.flat_evidence import FlatEvidenceProvider
 from planproof.representation.normalisation import Normaliser
 from planproof.representation.snkg import Neo4jSNKG
@@ -353,11 +354,13 @@ def _create_assessability_evaluator(
     satisfy the Protocols structurally — mypy cannot verify structural
     compatibility without explicit Protocol annotations on those classes.
     """
+    similarity = SemanticSimilarity()  # lazy-loads model, falls back to string matching
     return DefaultAssessabilityEvaluator(
         evidence_provider=evidence_provider,  # type: ignore[arg-type]
         confidence_gate=confidence_gate,
         reconciler=reconciler,
         rules=rules,  # type: ignore[arg-type]
+        semantic_similarity=similarity,
     )
 
 

@@ -15,7 +15,8 @@ logger = get_logger(__name__)
 class RuleEvaluationStep:
     """Evaluate each assessable rule and produce PASS/FAIL verdicts.
 
-    Only rules classified as ASSESSABLE by the preceding step are evaluated.
+    Rules classified as ASSESSABLE or PARTIALLY_ASSESSABLE by the preceding
+    step are evaluated.  NOT_ASSESSABLE rules are skipped.
     The RuleFactory loads rule definitions from YAML and dispatches to the
     correct evaluator based on ``evaluation_type``.
     """
@@ -45,7 +46,8 @@ class RuleEvaluationStep:
         # treat all rules as assessable.
         if assessability_results:
             assessable_ids = {
-                r.rule_id for r in assessability_results if r.status == "ASSESSABLE"
+                r.rule_id for r in assessability_results
+                if r.status in ("ASSESSABLE", "PARTIALLY_ASSESSABLE")
             }
         else:
             assessable_ids = {config.rule_id for config, _ in rules}
