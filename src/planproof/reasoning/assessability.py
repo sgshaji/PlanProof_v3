@@ -75,6 +75,9 @@ class DefaultAssessabilityEvaluator:
                 blocking_reason=BlockingReason.MISSING_EVIDENCE,
                 missing_evidence=[],
                 conflicts=[],
+                belief=0.0,
+                plausibility=1.0,
+                conflict_mass=0.0,
             )
 
         # Vacuously true: no evidence required
@@ -86,6 +89,9 @@ class DefaultAssessabilityEvaluator:
                 blocking_reason=BlockingReason.NONE,
                 missing_evidence=[],
                 conflicts=[],
+                belief=0.0,
+                plausibility=1.0,
+                conflict_mass=0.0,
             )
 
         all_evidence = self._evidence_provider.get_evidence_for_rule(rule_id)
@@ -160,6 +166,21 @@ class DefaultAssessabilityEvaluator:
                     )
                 )
 
+        # ----- Step 2b: Dempster-Shafer evidence sufficiency scoring -----
+        requirement_beliefs: list[tuple[float, float, float]] = []
+        for req in rule.required_evidence:
+            entities = met_entities.get(req.attribute)
+            if entities:
+                bel, pl, k = self._compute_requirement_belief(entities, req)
+                requirement_beliefs.append((bel, pl, k))
+
+        if requirement_beliefs:
+            combined_belief = min(b[0] for b in requirement_beliefs)
+            combined_plausibility = min(b[1] for b in requirement_beliefs)
+            combined_conflict = max(b[2] for b in requirement_beliefs)
+        else:
+            combined_belief, combined_plausibility, combined_conflict = 0.0, 1.0, 0.0
+
         # ----- Step 3: Final decision (priority ordering) -----
         # Priority: MISSING > CONFLICTING > LOW_CONFIDENCE > NONE
         if missing:
@@ -169,6 +190,9 @@ class DefaultAssessabilityEvaluator:
                 blocking_reason=BlockingReason.MISSING_EVIDENCE,
                 missing_evidence=missing,
                 conflicts=[],
+                belief=combined_belief,
+                plausibility=combined_plausibility,
+                conflict_mass=combined_conflict,
             )
 
         if conflicts:
@@ -178,6 +202,9 @@ class DefaultAssessabilityEvaluator:
                 blocking_reason=BlockingReason.CONFLICTING_EVIDENCE,
                 missing_evidence=[],
                 conflicts=conflicts,
+                belief=combined_belief,
+                plausibility=combined_plausibility,
+                conflict_mass=combined_conflict,
             )
 
         if low_confidence_requirements:
@@ -187,6 +214,9 @@ class DefaultAssessabilityEvaluator:
                 blocking_reason=BlockingReason.LOW_CONFIDENCE,
                 missing_evidence=[],
                 conflicts=[],
+                belief=combined_belief,
+                plausibility=combined_plausibility,
+                conflict_mass=combined_conflict,
             )
 
         # All requirements met, no conflicts, sufficient confidence
@@ -197,10 +227,113 @@ class DefaultAssessabilityEvaluator:
             blocking_reason=BlockingReason.NONE,
             missing_evidence=[],
             conflicts=[],
+            belief=combined_belief,
+            plausibility=combined_plausibility,
+            conflict_mass=combined_conflict,
         )
 
     # ------------------------------------------------------------------
-    # Private helpers
+    # Private helpers — Dempster-Shafer evidence theory (M8)
+    # ------------------------------------------------------------------
+
+    def _get_reliability_weight(self, entity: ExtractedEntity) -> float:
+        """Map extraction method to a reliability weight via the confidence gate.
+
+        Uses the ConfidenceGate's per-method, per-type thresholds as a proxy
+        for method reliability.  The threshold represents the *minimum*
+        acceptable confidence; we treat it as the reliability weight so that
+        methods with stricter thresholds (i.e. higher bars) contribute more
+        to the belief mass.
+
+        Falls back to 0.8 when the gate has no threshold configured.
+        """
+        method_key = entity.extraction_method.value
+        type_key = entity.entity_type.value
+
+        thresholds = getattr(self._confidence_gate, "_thresholds", None)
+        if thresholds is None:
+            return 0.8
+
+        method_thresholds = thresholds.get(method_key)
+        if method_thresholds is None:
+            return 0.8
+
+        threshold = method_thresholds.get(type_key)
+        if threshold is None:
+            return 0.8
+
+        return float(threshold)
+
+    @staticmethod
+    def _dempster_combine(
+        m1: dict[str, float],
+        m2: dict[str, float],
+    ) -> tuple[dict[str, float], float]:
+        """Dempster's rule of combination for two mass functions.
+
+        Frame of discernment: {sufficient, insufficient}.
+        Returns (combined_mass, conflict_K).
+        """
+        raw: dict[str, float] = {}
+        conflict_k = 0.0
+
+        for hyp1, mass1 in m1.items():
+            for hyp2, mass2 in m2.items():
+                product = mass1 * mass2
+                if hyp1 == hyp2:
+                    raw[hyp1] = raw.get(hyp1, 0.0) + product
+                else:
+                    conflict_k += product
+
+        # Total conflict — return m1 unchanged
+        if conflict_k >= 1.0:
+            return dict(m1), 1.0
+
+        # Normalise by (1 - K)
+        normaliser = 1.0 - conflict_k
+        combined = {hyp: mass / normaliser for hyp, mass in raw.items()}
+        return combined, conflict_k
+
+    def _compute_requirement_belief(
+        self,
+        entities: list[ExtractedEntity],
+        requirement: EvidenceRequirement,
+    ) -> tuple[float, float, float]:
+        """Compute D-S belief, plausibility, and conflict for one requirement.
+
+        Each entity contributes a mass function over {sufficient, insufficient},
+        weighted by extraction-method reliability and entity confidence.
+        Mass functions are combined left-to-right using Dempster's rule.
+
+        Returns (belief, plausibility, accumulated_conflict).
+        """
+        if not entities:
+            return (0.0, 1.0, 0.0)
+
+        # Build per-entity mass functions
+        mass_functions: list[dict[str, float]] = []
+        for entity in entities:
+            reliability = self._get_reliability_weight(entity)
+            support = max(0.0, min(1.0, reliability * entity.confidence))
+            mass_functions.append({
+                "sufficient": support,
+                "insufficient": 1.0 - support,
+            })
+
+        # Fold-left combination
+        combined = mass_functions[0]
+        accumulated_k = 0.0
+        for m_next in mass_functions[1:]:
+            combined, k = self._dempster_combine(combined, m_next)
+            accumulated_k = max(accumulated_k, k)
+
+        belief = max(0.0, min(1.0, combined.get("sufficient", 0.0)))
+        plausibility = max(0.0, min(1.0, 1.0 - combined.get("insufficient", 0.0)))
+
+        return (belief, plausibility, accumulated_k)
+
+    # ------------------------------------------------------------------
+    # Private helpers — source filtering
     # ------------------------------------------------------------------
 
     @staticmethod

@@ -29,6 +29,13 @@ class AssessabilityStep:
         results = []
         for rule_id in rule_ids:
             result = self._evaluator.evaluate(rule_id)
+            logger.debug(
+                "assessability.ds_metrics",
+                rule_id=result.rule_id,
+                belief=round(result.belief, 3),
+                plausibility=round(result.plausibility, 3),
+                conflict_mass=round(result.conflict_mass, 3),
+            )
             results.append(result)
 
         context["assessability_results"] = results

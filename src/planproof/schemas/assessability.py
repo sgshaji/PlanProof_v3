@@ -64,4 +64,9 @@ class AssessabilityResult(BaseModel):
     missing_evidence: list[EvidenceRequirement]
     conflicts: list[ConflictDetail]
 
+    # Dempster-Shafer evidence sufficiency metrics (M8)
+    belief: float = 0.0           # Bel(sufficient) — lower bound of evidence support
+    plausibility: float = 1.0     # Pl(sufficient) — upper bound
+    conflict_mass: float = 0.0    # K from Dempster's rule — source disagreement
+
     model_config = {"from_attributes": True}

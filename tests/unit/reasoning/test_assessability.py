@@ -114,6 +114,11 @@ def _make_evaluator(
 
     confidence_gate = MagicMock()
     confidence_gate.is_trustworthy.return_value = trustworthy
+    # Expose _thresholds for D-S reliability weight lookup
+    confidence_gate._thresholds = {
+        "OCR_LLM": {"MEASUREMENT": 0.80, "ADDRESS": 0.85},
+        "VLM_ZEROSHOT": {"MEASUREMENT": 0.70},
+    }
 
     reconciler = MagicMock()
     reconciler.reconcile.return_value = _reconciled(status=reconciled_status)
@@ -152,6 +157,10 @@ class TestAllEvidencePresent:
         assert result.blocking_reason == BlockingReason.NONE
         assert result.missing_evidence == []
         assert result.conflicts == []
+        # D-S assertions
+        assert result.belief > 0
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
     def test_assessable_with_multiple_requirements_all_met(self) -> None:
         rule = _rule(
@@ -176,6 +185,10 @@ class TestAllEvidencePresent:
 
         assert result.status == "ASSESSABLE"
         assert result.blocking_reason == BlockingReason.NONE
+        # D-S assertions
+        assert result.belief > 0
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
     def test_assessable_with_single_source_reconciliation(self) -> None:
         """SINGLE_SOURCE is not a conflict — rule should still be ASSESSABLE."""
@@ -193,6 +206,10 @@ class TestAllEvidencePresent:
 
         assert result.status == "ASSESSABLE"
         assert result.blocking_reason == BlockingReason.NONE
+        # D-S assertions
+        assert result.belief > 0
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -215,6 +232,10 @@ class TestMissingEvidence:
         assert result.blocking_reason == BlockingReason.MISSING_EVIDENCE
         assert len(result.missing_evidence) == 1
         assert result.missing_evidence[0].attribute == "setback"
+        # D-S: no entities matched → zero belief
+        assert result.belief == 0.0
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
     def test_not_assessable_when_source_mismatch(self) -> None:
         """Evidence exists but from wrong document type."""
@@ -237,6 +258,10 @@ class TestMissingEvidence:
         assert result.blocking_reason == BlockingReason.MISSING_EVIDENCE
         assert len(result.missing_evidence) == 1
         assert result.missing_evidence[0].attribute == "setback"
+        # D-S: no entities matched → zero belief
+        assert result.belief == 0.0
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -259,6 +284,10 @@ class TestLowConfidence:
 
         assert result.status == "NOT_ASSESSABLE"
         assert result.blocking_reason == BlockingReason.LOW_CONFIDENCE
+        # D-S: confidence gate rejected all → no met entities → zero belief
+        assert result.belief == 0.0
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
     def test_low_confidence_when_all_entities_rejected(self) -> None:
         """Multiple entities exist but all are below confidence threshold."""
@@ -278,6 +307,10 @@ class TestLowConfidence:
 
         assert result.status == "NOT_ASSESSABLE"
         assert result.blocking_reason == BlockingReason.LOW_CONFIDENCE
+        # D-S assertions
+        assert result.belief == 0.0
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -305,6 +338,9 @@ class TestConflictingEvidence:
         assert result.status == "NOT_ASSESSABLE"
         assert result.blocking_reason == BlockingReason.CONFLICTING_EVIDENCE
         assert len(result.conflicts) >= 1
+        # D-S assertions
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
     def test_conflict_detail_populated(self) -> None:
         """The conflict detail should capture attribute, values, and sources."""
@@ -331,6 +367,9 @@ class TestConflictingEvidence:
         assert result.status == "NOT_ASSESSABLE"
         assert result.blocking_reason == BlockingReason.CONFLICTING_EVIDENCE
         assert any(c.attribute == "setback" for c in result.conflicts)
+        # D-S assertions
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -364,6 +403,9 @@ class TestPartialRequirements:
         assert "height" in missing_attrs
         # setback should NOT be in missing
         assert "setback" not in missing_attrs
+        # D-S assertions
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
     def test_three_requirements_two_missing(self) -> None:
         rule = _rule(
@@ -388,6 +430,9 @@ class TestPartialRequirements:
         assert "height" in missing_attrs
         assert "fsr" in missing_attrs
         assert len(result.missing_evidence) == 2
+        # D-S assertions
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -404,6 +449,10 @@ class TestUnknownRule:
         assert result.status == "NOT_ASSESSABLE"
         assert result.blocking_reason == BlockingReason.MISSING_EVIDENCE
         assert result.rule_id == "NONEXISTENT"
+        # D-S: early return → defaults
+        assert result.belief == 0.0
+        assert result.plausibility == 1.0
+        assert result.conflict_mass == 0.0
 
     def test_unknown_rule_has_empty_conflicts_and_missing(self) -> None:
         evaluator, _, _, _ = _make_evaluator(rules={})
@@ -412,6 +461,10 @@ class TestUnknownRule:
 
         assert result.conflicts == []
         assert result.missing_evidence == []
+        # D-S: early return → defaults
+        assert result.belief == 0.0
+        assert result.plausibility == 1.0
+        assert result.conflict_mass == 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -431,6 +484,10 @@ class TestVacuouslyTrue:
         assert result.blocking_reason == BlockingReason.NONE
         assert result.missing_evidence == []
         assert result.conflicts == []
+        # D-S: vacuously true → defaults
+        assert result.belief == 0.0
+        assert result.plausibility == 1.0
+        assert result.conflict_mass == 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -456,6 +513,9 @@ class TestMixedConfidence:
         confidence_gate = MagicMock()
         # e1 is trustworthy, e2 is not
         confidence_gate.is_trustworthy.side_effect = lambda e: e.confidence >= 0.8
+        confidence_gate._thresholds = {
+            "OCR_LLM": {"MEASUREMENT": 0.80},
+        }
 
         reconciler = MagicMock()
         reconciler.reconcile.return_value = _reconciled(
@@ -473,6 +533,9 @@ class TestMixedConfidence:
 
         assert result.status == "NOT_ASSESSABLE"
         assert result.blocking_reason == BlockingReason.LOW_CONFIDENCE
+        # D-S assertions — one requirement met (setback), one not (height)
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -498,6 +561,7 @@ class TestBlockingReasonPriority:
 
         confidence_gate = MagicMock()
         confidence_gate.is_trustworthy.return_value = False
+        confidence_gate._thresholds = {"OCR_LLM": {"MEASUREMENT": 0.80}}
 
         reconciler = MagicMock()
         reconciler.reconcile.return_value = _reconciled()
@@ -514,6 +578,9 @@ class TestBlockingReasonPriority:
         assert result.status == "NOT_ASSESSABLE"
         # Missing evidence is more fundamental than low confidence
         assert result.blocking_reason == BlockingReason.MISSING_EVIDENCE
+        # D-S assertions
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
     def test_conflict_takes_priority_over_low_confidence(self) -> None:
         """If evidence conflicts AND has low confidence, report conflict."""
@@ -535,6 +602,9 @@ class TestBlockingReasonPriority:
         result = evaluator.evaluate("R001")
 
         assert result.blocking_reason == BlockingReason.CONFLICTING_EVIDENCE
+        # D-S assertions
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
 
 class TestSpatialGrounding:
@@ -560,6 +630,10 @@ class TestSpatialGrounding:
         result = evaluator.evaluate("R001")
 
         assert result.status == "ASSESSABLE"
+        # D-S assertions
+        assert result.belief > 0
+        assert result.plausibility >= result.belief
+        assert 0.0 <= result.conflict_mass <= 1.0
 
 
 class TestResultSchema:
@@ -580,3 +654,153 @@ class TestResultSchema:
         result = evaluator.evaluate("R001")
 
         assert isinstance(result, AssessabilityResult)
+
+
+# ---------------------------------------------------------------------------
+# 9. Dempster-Shafer evidence theory metrics (M8)
+# ---------------------------------------------------------------------------
+
+
+class TestDempsterShaferMetrics:
+    """Test the Dempster-Shafer evidence sufficiency scoring — core research."""
+
+    def test_belief_increases_with_confidence(self) -> None:
+        """Higher entity confidence should produce higher belief."""
+        low_entity = _entity(source="plan_DRAWING.pdf", confidence=0.5)
+        high_entity = _entity(source="plan_DRAWING.pdf", confidence=0.95)
+
+        rule = _rule(required_evidence=[_requirement(attribute="setback")])
+
+        # Low confidence run
+        eval_low, _, _, _ = _make_evaluator(
+            rules={"R001": rule},
+            evidence=[low_entity],
+            trustworthy=True,
+        )
+        result_low = eval_low.evaluate("R001")
+
+        # High confidence run
+        eval_high, _, _, _ = _make_evaluator(
+            rules={"R001": rule},
+            evidence=[high_entity],
+            trustworthy=True,
+        )
+        result_high = eval_high.evaluate("R001")
+
+        assert result_high.belief > result_low.belief
+
+    def test_conflict_mass_rises_with_disagreement(self) -> None:
+        """Two entities with very different confidences → higher conflict_mass."""
+        # One entity strongly supports, one weakly supports —
+        # they form mass functions that partially disagree.
+        e_strong = _entity(source="plan1_DRAWING.pdf", confidence=0.95)
+        e_weak = _entity(source="plan2_DRAWING.pdf", confidence=0.10)
+
+        rule = _rule(required_evidence=[_requirement(attribute="setback")])
+
+        evaluator, _, _, _ = _make_evaluator(
+            rules={"R001": rule},
+            evidence=[e_strong, e_weak],
+            trustworthy=True,
+        )
+        result = evaluator.evaluate("R001")
+
+        # With opposing mass functions there should be measurable conflict
+        assert result.conflict_mass > 0.0
+
+    def test_plausibility_always_gte_belief(self) -> None:
+        """Plausibility >= Belief is a fundamental D-S property."""
+        scenarios = [
+            ([_entity(confidence=0.95)], True),
+            ([_entity(confidence=0.3)], True),
+            ([_entity(confidence=0.5), _entity(source="plan2_DRAWING.pdf", confidence=0.9)], True),
+            ([_entity(confidence=0.1), _entity(source="plan2_DRAWING.pdf", confidence=0.99)], True),
+        ]
+        rule = _rule(required_evidence=[_requirement(attribute="setback")])
+
+        for entities, trustworthy in scenarios:
+            evaluator, _, _, _ = _make_evaluator(
+                rules={"R001": rule},
+                evidence=entities,
+                trustworthy=trustworthy,
+            )
+            result = evaluator.evaluate("R001")
+            assert result.plausibility >= result.belief, (
+                f"Pl={result.plausibility} < Bel={result.belief} "
+                f"for entities with confidences "
+                f"{[e.confidence for e in entities]}"
+            )
+
+    def test_missing_evidence_zero_belief(self) -> None:
+        """No matched entities → belief must be zero."""
+        rule = _rule(required_evidence=[_requirement(attribute="setback")])
+
+        evaluator, _, _, _ = _make_evaluator(
+            rules={"R001": rule},
+            evidence=[],
+        )
+        result = evaluator.evaluate("R001")
+
+        assert result.belief == 0.0
+        assert result.plausibility == 1.0
+        assert result.conflict_mass == 0.0
+
+    def test_dempster_combine_no_conflict(self) -> None:
+        """Two agreeing mass functions → K approximately 0."""
+        from planproof.reasoning.assessability import DefaultAssessabilityEvaluator
+
+        m1 = {"sufficient": 0.9, "insufficient": 0.1}
+        m2 = {"sufficient": 0.8, "insufficient": 0.2}
+
+        combined, k = DefaultAssessabilityEvaluator._dempster_combine(m1, m2)
+
+        # Both strongly support "sufficient" — conflict should be low
+        assert k < 0.3
+        assert combined["sufficient"] > 0.9
+
+    def test_dempster_combine_high_conflict(self) -> None:
+        """Two opposing mass functions → K > 0.3."""
+        from planproof.reasoning.assessability import DefaultAssessabilityEvaluator
+
+        m1 = {"sufficient": 0.9, "insufficient": 0.1}
+        m2 = {"sufficient": 0.1, "insufficient": 0.9}
+
+        combined, k = DefaultAssessabilityEvaluator._dempster_combine(m1, m2)
+
+        # Strong disagreement → high conflict
+        assert k > 0.3
+
+    def test_multiple_requirements_weakest_link(self) -> None:
+        """Belief = min across requirements (weakest-link aggregation)."""
+        rule = _rule(
+            required_evidence=[
+                _requirement(attribute="setback", acceptable_sources=["DRAWING"]),
+                _requirement(attribute="height", acceptable_sources=["FORM"]),
+            ],
+        )
+        # setback entity has high confidence, height entity has low confidence
+        e_strong = _entity(source="plan_DRAWING.pdf", confidence=0.95)
+        e_weak = _entity(source="app_FORM.pdf", confidence=0.50)
+
+        evaluator, _, _, _ = _make_evaluator(
+            rules={"R001": rule},
+            evidence=[e_strong, e_weak],
+            trustworthy=True,
+        )
+        result = evaluator.evaluate("R001")
+
+        # The strong entity alone would give higher belief than the combined result
+        rule_single = _rule(
+            required_evidence=[
+                _requirement(attribute="setback", acceptable_sources=["DRAWING"]),
+            ],
+        )
+        eval_single, _, _, _ = _make_evaluator(
+            rules={"R001": rule_single},
+            evidence=[e_strong],
+            trustworthy=True,
+        )
+        result_single = eval_single.evaluate("R001")
+
+        # Weakest link: combined belief <= belief from the strong requirement alone
+        assert result.belief <= result_single.belief
