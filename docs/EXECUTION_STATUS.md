@@ -1,8 +1,8 @@
 # PlanProof — Execution Status
 
-> **Last updated**: 2026-03-28
+> **Last updated**: 2026-03-29
 > **Current phase**: Phase 7 (Ablation Study & Evaluation)
-> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). **Phase 4 complete** (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation — all wired into bootstrap). **Phase 5 complete** (M10 scoring, M11 evidence requests, M12 report generation — all wired into bootstrap). **Phase 6 complete** (Final Integration & Ablation Prep). Phase 7 (Ablation Study & Evaluation) in progress.
+> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). **Phase 4 complete** (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation — all wired into bootstrap). **Phase 5 complete** (M10 scoring, M11 evidence requests, M12 report generation — all wired into bootstrap). **Phase 6 complete** (Final Integration & Ablation Prep). Phase 7 (Ablation Study & Evaluation) in progress — SABLE algorithm implemented with D-S evidence theory.
 
 ---
 
@@ -347,15 +347,21 @@ pip install -e ".[geo,pdf,dev]"
 - [x] E2E on real BCC data (2025-00841): pipeline runs, correctly reports insufficient evidence (2026-03-28)
 - [x] `attribute` field added to ExtractedEntity — LLM/VLM attribute names flow through to rule matching (2026-03-28)
 - [x] GeminiVisionAdapter created for free-tier VLM (OpenAI GPT-4o used for actual runs) (2026-03-28)
+- [x] SABLE algorithm implemented — D-S evidence theory with semantic relevance, ignorance mass, concordance (2026-03-29)
+- [x] SemanticSimilarity module — embedding-based attribute matching with sentence-transformers fallback (2026-03-29)
+- [x] PARTIALLY_ASSESSABLE third state added to assessability model (2026-03-29)
+- [x] 46 assessability tests (12 SABLE-specific + 6 semantic + 28 existing) all passing (2026-03-29)
+- [x] SABLE algorithm formal specification written (docs/SABLE_ALGORITHM.md) (2026-03-29)
 - [ ] Fix assessability step not firing in E2E mode
 - [ ] Fix rule_id "unknown" in verdict reports
 - [ ] Run E2E on more BCC application sets
 
-### Key Findings (2026-03-28)
+### Key Findings (2026-03-28/29)
 - Full system produces 0 false FAILs on compliant data (baselines produce 3-6)
 - Ablation D (no assessability) produces 5 false FAILs — demonstrates assessability engine value
 - Strong baseline (CoT) performs WORSE than naive — LLM confuses missing evidence with violations
 - Real BCC data runs through full pipeline — correctly identifies insufficient evidence
+- SABLE algorithm replaces ad-hoc if-else assessability logic with principled D-S evidence theory — belief/plausibility bounds enable richer analysis
 
 ### Project Statistics
 | Metric | Count |
@@ -363,7 +369,7 @@ pip install -e ".[geo,pdf,dev]"
 | Commits | 101 |
 | Source files | 106 |
 | Test files | 76 |
-| Tests passing | 728 |
+| Tests passing | 754 |
 | Pipeline steps | 11 |
 | Ablation configs | 7 |
 | Synthetic datasets | 15 |
@@ -376,6 +382,7 @@ pip install -e ".[geo,pdf,dev]"
 1. Fix assessability step wiring in E2E pipeline (critical gap)
 2. Fix rule_id "unknown" in verdict reports
 3. Re-run strong baseline after Groq rate limit resets
-4. Run E2E on additional BCC sets with application forms
-5. Qualitative error analysis for dissertation
-6. See `docs/GAPS_AND_IDEAS.md` for full gap tracking and future work
+4. Re-run ablation experiments with SABLE belief/plausibility metrics
+5. Run E2E on additional BCC sets with application forms
+6. Qualitative error analysis for dissertation
+7. See `docs/GAPS_AND_IDEAS.md` for full gap tracking and future work

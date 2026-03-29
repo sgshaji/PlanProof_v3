@@ -1,6 +1,6 @@
 # PlanProof — Known Gaps, Issues & Future Ideas
 
-> **Last updated**: 2026-03-28
+> **Last updated**: 2026-03-29
 > **Purpose**: Honest tracking of what's incomplete, what's working but limited, and ideas for improvement.
 
 ---
@@ -20,11 +20,10 @@
 **Fix:** Pass `rule_id` explicitly when calling evaluator.evaluate(), or inject it into params dict before calling.
 
 ### 3. Entity attribute extraction is inconsistent
-**Status:** Partially working
-**Impact:** High — determines whether extracted values match rule requirements.
+**Status:** RESOLVED — SABLE semantic relevance scoring (2026-03-29)
+**Impact:** Was High — now handled.
 **What works:** VLM spatial extractor returns `attribute` from GPT-4o (e.g., "building_height"). LLM entity extractor returns `attribute` from Groq.
-**What doesn't:** The returned attribute names may not exactly match rule requirement attribute names (e.g., LLM might return "height" instead of "building_height"). No normalisation of attribute names.
-**Idea:** Add an attribute name mapping/canonicalisation step, or fuzzy-match attribute names against rule requirements.
+**Resolution:** SABLE SemanticSimilarity module uses embedding-based cosine similarity to match extracted attribute names against rule requirement attributes. "height" ↔ "building_height" are now correctly associated via sentence-transformer embeddings without requiring exact string matches. Character n-gram Jaccard fallback covers the no-transformers case.
 
 ### 4. Groq daily rate limit (100k tokens/day)
 **Status:** Limitation
@@ -102,14 +101,26 @@
 
 ---
 
-## Project Statistics (2026-03-28)
+## Recent Improvements (2026-03-29)
+
+### SABLE Algorithm
+The ad-hoc if-else assessability checklist (`DefaultAssessabilityEvaluator`) has been replaced by the SABLE algorithm (Semantic Assessability via Belief-theoretic evidence Logic), grounded in Dempster-Shafer evidence theory. Key improvements:
+
+- **Principled uncertainty:** Three-valued mass functions with ignorance mass m(Θ) propagate epistemic uncertainty rather than forcing binary decisions on insufficient data.
+- **Semantic attribute matching:** `SemanticSimilarity` module computes cosine similarity between sentence-transformer embeddings of extracted attribute names and rule requirement names, resolving the attribute canonicalisation problem (Gap #3).
+- **Three-state assessability model:** `PARTIALLY_ASSESSABLE` added alongside `ASSESSABLE` and `NOT_ASSESSABLE` — fires when evidence is present but contested (belief above lower threshold, plausibility below upper threshold).
+- **D-S formal grounding:** Dempster's rule of combination aggregates independent source masses. Concordance adjustment from reconciliation output modulates ignorance mass m(Θ). Full formal specification in `docs/SABLE_ALGORITHM.md`.
+
+---
+
+## Project Statistics (2026-03-29)
 
 | Metric | Count |
 |--------|-------|
-| Total commits | 101 |
+| Total commits | ~107 |
 | Source files | 106 |
 | Test files | 76 |
-| Tests passing | 728 |
+| Tests passing | 754 |
 | Tests skipped | 14 |
 | Phases complete | 7 of 8 (Phase 7 in progress) |
 | Modules implemented | M1-M12 (all) |

@@ -272,6 +272,40 @@
 
 ---
 
+## 2026-03-29 — SABLE Algorithm Implementation
+
+### Architectural Review
+- Conducted full architectural review of Phase 4 assessability engine (rating: 8.5/10)
+- Identified that the DefaultAssessabilityEvaluator was an ad-hoc if-else checklist — not a principled probabilistic model
+- Decision: replace with SABLE (Semantic Assessability via Belief-theoretic evidence Logic)
+
+### SABLE Algorithm Design & Implementation
+- Designed SABLE grounded in Dempster-Shafer (D-S) evidence theory
+- **4-factor mass functions:** each evidence source contributes m(ASSESSABLE), m(NOT_ASSESSABLE), m(Θ) via:
+  1. Source relevance — does the source type match the rule's required sources?
+  2. Semantic relevance — cosine similarity between extracted attribute embedding and rule attribute embedding
+  3. Confidence calibration — extracted entity confidence mapped to belief mass
+  4. Concordance adjustment — reconciliation outcome (AGREED/CONFLICTING/SINGLE_SOURCE) modulates ignorance mass
+- **Three-valued mass functions:** explicit ignorance mass m(Θ) propagates epistemic uncertainty rather than forcing binary commitment
+- **PARTIALLY_ASSESSABLE third state:** added to `AssessabilityResult` — fires when Bel(ASSESSABLE) > threshold but Pl(ASSESSABLE) < upper threshold; signals "evidence present but contested"
+- **Dempster's rule of combination:** independent source masses combined via orthogonal sum
+
+### SemanticSimilarity Module
+- Implemented `SemanticSimilarity` using sentence-transformers (`all-MiniLM-L6-v2`)
+- Fallback to character n-gram Jaccard similarity when sentence-transformers not available
+- Resolves Gap #3 (attribute name inconsistency): "height" ↔ "building_height" now matched via cosine similarity
+- Embedding cache to avoid re-encoding repeated attribute strings
+
+### Formal Specification
+- Written `docs/SABLE_ALGORITHM.md` — full formal specification with notation, mass function definitions, combination rules, and worked example
+- Written `docs/RESEARCH_IDEAS.md` — documents embedding-based hybrid approach chosen over LLM micro-prompts and graph proximity alternatives
+
+### Metrics
+- 46 assessability tests: 12 SABLE-specific + 6 semantic similarity + 28 existing — all passing
+- 754 total tests passing (up from 728)
+
+---
+
 ## 2026-03-28 — Documentation & Review
 
 ### Documents Updated/Created
@@ -303,7 +337,7 @@
 | Commits | 102 |
 | Source files | 106 |
 | Test files | 76 |
-| Tests passing | 728 |
+| Tests passing | 754 |
 | Tests skipped | 14 |
 | Lines of code (src) | 14,233 |
 | Lines of code (tests) | 13,504 |
@@ -325,7 +359,7 @@
 ### Critical (affect dissertation quality)
 - [ ] Fix assessability step not firing in E2E pipeline
 - [ ] Fix rule_id "unknown" in verdict reports
-- [ ] Attribute name canonicalisation (LLM output → rule requirement names)
+- [x] Attribute name canonicalisation (LLM output → rule requirement names) — **DONE** (SABLE semantic relevance via embedding cosine similarity resolves this)
 
 ### Important (strengthen evaluation)
 - [ ] Re-run ablation experiments with real extraction (not GT bypass)

@@ -12,6 +12,16 @@ The ablation runner feeds ground-truth entities (confidence=1.0) directly into t
 **Answered:** "Given flawless evidence, does the architecture help?"
 **Not answered:** "Given realistic, noisy extraction, does the architecture help?"
 
+### SABLE Algorithm — Now Implemented (2026-03-29)
+
+The assessability engine has been upgraded from a heuristic if-else checklist to the **SABLE algorithm** (Semantic Assessability via Belief-theoretic evidence Logic), grounded in Dempster-Shafer evidence theory. This is no longer just a proposal.
+
+**Approach chosen:** Embedding-based hybrid — sentence-transformer cosine similarity for semantic attribute matching, D-S mass functions for uncertainty propagation. This was selected over two alternatives evaluated during design:
+- *LLM micro-prompts* (e.g. "does 'height' match 'building_height'?") — rejected: too slow per-attribute, adds latency and API cost to every assessability check.
+- *Graph proximity in SNKG* (synonym edges between attribute nodes) — rejected: requires upfront ontology curation effort and ties assessability quality to graph completeness.
+
+The embedding-based hybrid requires no manual ontology, runs offline, and generalises to unseen attribute name variations via semantic similarity.
+
 ---
 
 ## Tier 1: High Impact, Feasible Now
