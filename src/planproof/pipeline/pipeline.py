@@ -31,9 +31,14 @@ class Pipeline:
     # bootstrap.py control which steps are registered. No if-checks inside.
     """
 
-    def __init__(self, config: PipelineConfig) -> None:
+    def __init__(
+        self,
+        config: PipelineConfig,
+        rule_ids: list[str] | None = None,
+    ) -> None:
         self._steps: list[PipelineStep] = []
         self._config = config
+        self._rule_ids = rule_ids or []
 
     def register(self, step: PipelineStep) -> None:
         """Add a step to the end of the pipeline."""
@@ -57,7 +62,7 @@ class Pipeline:
             "entities": [],
             "verdicts": [],
             "assessability_results": [],
-            "metadata": {"input_dir": str(input_dir)},
+            "metadata": {"input_dir": str(input_dir), "rule_ids": self._rule_ids},
         }
 
         step_telemetry: list[StepTelemetry] = []

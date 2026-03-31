@@ -129,10 +129,16 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
         model=config.llm_model,
     )
 
+    # --- Load rules early so Pipeline receives rule_ids at construction ---
+    rules_dir = config.configs_dir / "rules"
+    rule_factory = _register_evaluators()
+    loaded_rule_pairs = rule_factory.load_rules(rules_dir)
+    rules_dict = {cfg.rule_id: cfg for cfg, _ in loaded_rule_pairs}
+
     # --- Build pipeline with conditional step registration ---
     # DESIGN: Ablation toggles are handled here via conditional registration.
     # Pipeline steps themselves are unaware that ablations exist.
-    pipeline = Pipeline(config=config)
+    pipeline = Pipeline(config=config, rule_ids=list(rules_dict.keys()))
 
     # Layer 1: Ingestion — always active
     classifier = _create_classifier(config)
@@ -157,12 +163,6 @@ def build_pipeline(config: PipelineConfig) -> Pipeline:
     # --- Reasoning layer components (constructed before pipeline registration) ---
     reconciler = _create_reconciler()
     confidence_gate = _create_confidence_gate(config)
-
-    # Load rules once — used by both AssessabilityStep and RuleEvaluationStep
-    rules_dir = config.configs_dir / "rules"
-    rule_factory = _register_evaluators()
-    loaded_rule_pairs = rule_factory.load_rules(rules_dir)
-    rules_dict = {cfg.rule_id: cfg for cfg, _ in loaded_rule_pairs}
 
     # Layer 2: Representation
     pipeline.register(NormalisationStep(normaliser=Normaliser()))

@@ -101,3 +101,41 @@ class TestPipeline:
         # Should not raise
         report = pipeline.run(input_dir=Path("."))
         assert report is not None
+
+    def test_rule_ids_flow_into_context_metadata(self) -> None:
+        """Pipeline constructed with rule_ids should inject them into context metadata."""
+        captured_metadata: dict[str, object] = {}
+
+        class _MetadataCapture:
+            @property
+            def name(self) -> str:
+                return "metadata_capture"
+
+            def execute(self, context: PipelineContext) -> StepResult:
+                captured_metadata.update(context.get("metadata", {}))
+                return {"success": True}
+
+        pipeline = Pipeline(config=_make_config(), rule_ids=["R001", "R002"])
+        pipeline.register(_MetadataCapture())
+        pipeline.run(input_dir=Path("."))
+
+        assert captured_metadata["rule_ids"] == ["R001", "R002"]
+
+    def test_rule_ids_defaults_to_empty_list(self) -> None:
+        """Pipeline without rule_ids should default to empty list in metadata."""
+        captured_metadata: dict[str, object] = {}
+
+        class _MetadataCapture:
+            @property
+            def name(self) -> str:
+                return "metadata_capture"
+
+            def execute(self, context: PipelineContext) -> StepResult:
+                captured_metadata.update(context.get("metadata", {}))
+                return {"success": True}
+
+        pipeline = Pipeline(config=_make_config())
+        pipeline.register(_MetadataCapture())
+        pipeline.run(input_dir=Path("."))
+
+        assert captured_metadata["rule_ids"] == []
