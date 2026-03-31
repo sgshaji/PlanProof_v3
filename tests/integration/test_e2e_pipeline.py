@@ -19,13 +19,10 @@ introducing a gap, reconciled_evidence is populated directly in the context
 keyed by rule_id — which is the contract that RuleEvaluationStep consumes.
 This correctly reflects how the pipeline is wired in bootstrap.py.
 
-Note on verdict rule_id: NumericThresholdEvaluator/RatioThresholdEvaluator
-read rule_id from their YAML parameters dict, which does not include a
-rule_id key.  As a result, verdicts produced via RuleEvaluationStep carry
-rule_id='unknown'.  Tests verify outcomes (PASS/FAIL/NOT_ASSESSABLE counts)
-and evaluated values rather than keying by rule_id.  Assessability results
-do carry the correct rule_id since they are produced by DefaultAssessabilityEvaluator
-which receives rule_id explicitly.
+Note on verdict rule_id: RuleFactory.load_rules() injects rule_id into the
+evaluator parameters dict, so verdicts now carry the correct rule_id.
+Assessability results also carry the correct rule_id since they are produced
+by DefaultAssessabilityEvaluator which receives rule_id explicitly.
 """
 from __future__ import annotations
 

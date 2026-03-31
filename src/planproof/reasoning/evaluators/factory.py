@@ -56,12 +56,15 @@ class RuleFactory:
                 for req in raw.get("required_evidence", [])
             ]
 
+            params = raw.get("parameters", {})
+            params["rule_id"] = raw["rule_id"]  # Inject so evaluators can report it
+
             config = RuleConfig(
                 rule_id=raw["rule_id"],
                 description=raw["description"],
                 policy_source=raw["policy_source"],
                 evaluation_type=raw["evaluation_type"],
-                parameters=raw.get("parameters", {}),
+                parameters=params,
                 required_evidence=evidence_reqs,
             )
 
