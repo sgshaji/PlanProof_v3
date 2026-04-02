@@ -104,6 +104,19 @@ class DatagenRuleConfig(BaseModel):
     compliant_range: ValueRange
     violation_types: list[ViolationType]
     evidence_locations: list[EvidenceLocation]
+    # Extended fields for multi-attribute and non-numeric rule support.
+    # All have defaults so existing R001/R002/R003 configs load without change.
+    # WHY: value_type drives dispatch in generate_values; extra_attributes lets
+    # R003 carry companion values (footprint_area, zone_category) without
+    # needing a separate rule config per companion; valid/invalid_values hold
+    # the categorical vocabulary; compliant/noncompliant_pairs hold string and
+    # numeric pair fixtures used for C002–C004.
+    value_type: str = "numeric"
+    extra_attributes: list[dict[str, Any]] = []
+    valid_values: list[str] = []
+    invalid_values: list[str] = []
+    compliant_pairs: list[dict[str, Any]] = []
+    noncompliant_pairs: list[dict[str, Any]] = []
 
 
 class DocumentComposition(BaseModel):

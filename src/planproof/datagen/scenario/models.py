@@ -40,6 +40,12 @@ class Value:
     # Human-readable text as it should appear in the generated document
     # (e.g. "7.5m", "750 sq m").  May differ from str(value) + unit.
     display_text: str
+    # Optional categorical or string value for non-numeric attributes (e.g.
+    # certificate type "A", address string).  None for purely numeric values.
+    # WHY: Keeping str_value as a separate optional field (rather than
+    # overloading display_text) ensures the evaluation layer always has a typed
+    # field to compare against, not a display artifact.
+    str_value: str | None = None
 
 
 @dataclass(frozen=True)

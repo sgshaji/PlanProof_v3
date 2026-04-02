@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from planproof.datagen.scenario.config_loader import (
     load_profiles,
     load_rule_configs,
@@ -60,6 +62,35 @@ class TestComputeVerdicts:
         values = generate_values(rules, "noncompliant", seed=42)
         verdicts = compute_verdicts(values, rules)
         assert any(v.outcome == "FAIL" for v in verdicts)
+
+
+class TestValueStringSupport:
+    def test_value_default_str_value_is_none(self) -> None:
+        from planproof.datagen.scenario.models import Value
+
+        v = Value(attribute="cert_type", value=0.0, unit="categorical", display_text="A")
+        assert v.str_value is None
+
+    def test_value_with_str_value(self) -> None:
+        from planproof.datagen.scenario.models import Value
+
+        v = Value(
+            attribute="cert_type",
+            value=0.0,
+            unit="categorical",
+            display_text="A",
+            str_value="A",
+        )
+        assert v.str_value == "A"
+
+    def test_value_is_frozen(self) -> None:
+        from dataclasses import FrozenInstanceError
+
+        from planproof.datagen.scenario.models import Value
+
+        v = Value(attribute="x", value=1.0, unit="m", display_text="1.0m", str_value="A")
+        with pytest.raises(FrozenInstanceError):
+            v.str_value = "B"  # type: ignore[misc]
 
 
 class TestBuildScenario:
