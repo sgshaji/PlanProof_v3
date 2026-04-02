@@ -987,6 +987,103 @@ WRITE-UP │ Dissertation      │ Chapters, figures, appendices
 
 ---
 
+## 6.4 Boundary Verification Pipeline (Three-Tier)
+
+> **Added**: 2026-03-31
+> **Status**: Design complete, implementation not started
+> **Motivation**: Real BCC (Birmingham) data analysis revealed that UK planning submissions use red-line boundaries on OS base maps — no lot/plan numbers, no survey coordinates, no cadastral identifiers. The boundary check must work with what's actually in the documents.
+
+### Problem Statement
+
+In UK householder planning applications, the applicant draws a **red line boundary** on an Ordnance Survey base map to define their site. The planning authority must verify this boundary is consistent with authoritative land records. If the red line extends beyond the property (encroachment) or includes highway land, the application has a fundamental problem.
+
+### Three-Tier Design
+
+#### Tier 1: VLM Visual Alignment Check (Primary — highest dissertation value)
+
+**What it does:** Asks the VLM to examine the location plan and detect discrepancies between the red line and the OS property boundaries underneath.
+
+| | Detail |
+|---|---|
+| **Input** | Location plan image (red line drawn on OS base map) |
+| **Output** | Alignment verdict: ALIGNED / MISALIGNED / UNCLEAR; specific issues list; confidence score |
+| **Method** | Structured VLM prompt asking: (1) Does red line follow OS property boundaries? (2) Does it include highway/road land? (3) Does it cut through neighbouring buildings? (4) Is enclosed area consistent with a single residential property? |
+| **External data** | None — the OS base map is already in the document |
+| **Novel contribution** | VLM-based replication of expert visual boundary verification on UK planning applications |
+
+**Implementation tasks:**
+- [ ] VLM prompt template: `configs/prompts/boundary_alignment.yaml`
+- [ ] `BoundaryAlignmentExtractor` class in `ingestion/vlm/`
+- [ ] `BoundaryAlignmentResult` schema (verdict, issues, confidence)
+- [ ] `BoundaryCheckStep` pipeline step
+- [ ] Unit tests with synthetic location plan images
+
+#### Tier 2: Scale-Bar Grounded Measurement (Quantitative cross-check)
+
+**What it does:** Uses the known scale (1:1250) and visible scale bar to estimate site dimensions, then compares against the declared site area on the application form.
+
+| | Detail |
+|---|---|
+| **Input** | Location plan image + scale bar + application form (declared site area in hectares) |
+| **Output** | Estimated frontage (m), depth (m), area (m²); discrepancy flag if >15% divergence from declared area |
+| **Method** | VLM estimates approximate site dimensions using scale bar as reference; compare against 1APP form site area field |
+| **External data** | None — uses submitted application form |
+
+**Implementation tasks:**
+- [ ] VLM prompt template: `configs/prompts/boundary_measurement.yaml`
+- [ ] `ScaleBarMeasurementExtractor` class in `ingestion/vlm/`
+- [ ] Area comparison logic in boundary check step
+- [ ] Extract declared site area from application form (M2 text extraction enhancement)
+
+#### Tier 3: Address Cross-Reference (Sanity check)
+
+**What it does:** Resolves the site address to a known property, pulls the INSPIRE index polygon from HM Land Registry, and compares the approximate area.
+
+| | Detail |
+|---|---|
+| **Input** | Site address + postcode (extracted from location plan or application form) |
+| **Output** | UPRN match confirmation; INSPIRE polygon area (m²); area ratio vs Tier 2 estimate; over-claiming flag if ratio >1.5x |
+| **Method** | Address → UPRN (OS Places API free tier) → INSPIRE index polygon (free bulk download from HMLR) → area comparison |
+| **External data** | OS Places API (free, 1000 tx/month); HMLR INSPIRE polygons (free bulk download) |
+
+**Implementation tasks:**
+- [ ] `AddressResolver` class in `infrastructure/` (OS Places API client)
+- [ ] `INSPIREPolygonLookup` class in `representation/` (HMLR data loader)
+- [ ] `BoundaryReferenceProvider` protocol in `interfaces/`
+- [ ] Area comparison and over-claiming detection logic
+- [ ] Fallback: if API unavailable, Tier 3 returns INSUFFICIENT_DATA (non-blocking)
+
+### Integration with SABLE
+
+The boundary verification produces evidence that feeds into SABLE:
+- **New rule**: `R004` (or `C3` enhancement) — site boundary consistency
+- **SABLE gates assessability**: Are Tier 1/2/3 results available and trustworthy enough to evaluate the boundary rule?
+- **New evidence requirement**: `site_boundary_alignment` with acceptable sources `[VLM_BOUNDARY, SCALE_MEASUREMENT, ADDRESS_CROSSREF]`
+- **Concordance**: If all three tiers agree → high concordance; if Tier 1 says ALIGNED but Tier 3 flags over-claiming → CONFLICTING
+
+### Key Design Decisions
+
+1. **Tier 1 is primary because the reference data is already in the document** — no external dependencies, no API costs, no data licences
+2. **VLM accuracy is sufficient** because planning officers also do a visual check — gross discrepancy detection is the actual requirement, not survey-grade precision
+3. **Tier 3 is optional/degradable** — if OS Places API is unavailable, the system still produces Tier 1 + Tier 2 results
+4. **UK-specific design** — this pipeline is designed for UK Planning Portal submissions with OS base maps. Australian (lot/plan) or US (plat map) systems would need different Tier 1 prompts and Tier 3 data sources
+
+### Limitations (honest framing for dissertation)
+
+- VLM catches gross discrepancies but not 1-2m marginal boundary offsets
+- Scan/photo quality and red-line colour fading affect Tier 1 reliability
+- Cannot detect cases where the OS base map is outdated relative to recent boundary changes
+- INSPIRE polygons are approximate ("general boundaries" under Land Registration Act 2002 s.60)
+- Tier 2 scale-bar measurement is approximate — VLM spatial reasoning is not pixel-accurate
+
+### Future Work (deferred)
+
+- **Multi-plan consistency**: Compare red line on location plan (1:1250) vs block plan (1:500) — should show same boundary
+- **Automated red-line segmentation**: Train a semantic segmentation model to extract precise red-line polygon coordinates from location plans
+- **OS MasterMap vector overlay**: If council-grade MasterMap access available, render authoritative boundary polygon on top of submitted plan for direct geometric comparison
+
+---
+
 ## 7. Descoping Strategy (if needed)
 
 If time pressure forces scope reduction, cut in this order (last item cut first):
@@ -995,7 +1092,7 @@ If time pressure forces scope reduction, cut in this order (last item cut first)
 2. **Keep**: R001–R003 + C1 + C2 (Tier 1 rules) — these are tractable and sufficient to demonstrate the system
 3. **Simplify**: Dashboard → CLI that outputs a Markdown compliance report
 4. **Simplify**: C4 (plan change detection) → attribute-level diff only (already the default in Phase 4 Tier 2 specification)
-5. **Simplify**: C3 (boundary validation) → area comparison only, no polygon extraction (already the default in Phase 4 Tier 2 specification)
+5. **Simplify**: Boundary Verification → Tier 1 (VLM visual alignment) only, drop Tier 2 (scale-bar measurement) and Tier 3 (address cross-reference) if time-constrained
 6. **Drop**: C4 entirely if attribute extraction from approved plans proves unreliable — the NOT_ASSESSABLE verdict for "approved plan lacks dimensions" is itself a valid result
 7. **Drop**: VLM Stage 3 (LoRA fine-tuning)
 8. **Drop**: Leaflet map visualisation

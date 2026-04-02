@@ -38,7 +38,7 @@ Planning Application          Pipeline                          Output
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/sgshaji/PlanProof_v3.git planproof && cd planproof
+git clone https://github.com/your-username/planproof.git planproof && cd planproof
 
 # 2. Install Python dependencies
 make install
