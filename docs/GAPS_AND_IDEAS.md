@@ -1,6 +1,6 @@
 # PlanProof — Known Gaps, Issues & Future Ideas
 
-> **Last updated**: 2026-03-29
+> **Last updated**: 2026-04-02
 > **Purpose**: Honest tracking of what's incomplete, what's working but limited, and ideas for improvement.
 
 ---
@@ -8,16 +8,16 @@
 ## Critical Gaps (affect dissertation quality)
 
 ### 1. Assessability step not firing in E2E pipeline
-**Status:** Bug
-**Impact:** High — rules go straight to evaluation even when evidence is missing, producing FAIL instead of NOT_ASSESSABLE.
-**Root cause:** The assessability step needs `rule_ids` from `context["metadata"]` but the pipeline doesn't populate them. The step silently produces 0 assessability results, so rule evaluation runs on all rules.
-**Fix:** Populate `context["metadata"]["rule_ids"]` in the pipeline, or have the assessability step load rules from the rules directory directly.
+**Status:** RESOLVED (2026-04-01, Phase 7b)
+**Impact:** Was High — now fixed.
+**Root cause:** The assessability step needs `rule_ids` from `context["metadata"]` but the pipeline didn't populate them. The step silently produced 0 assessability results, so rule evaluation ran on all rules.
+**Resolution:** Added `rule_ids` parameter to `Pipeline.__init__()`, injected into context metadata in `run()`. Bootstrap passes `list(rules_dict.keys())` at construction. Commit `8f27f88`.
 
 ### 2. rule_id shows "unknown" in verdicts
-**Status:** Bug
-**Impact:** Medium — report readability. Rules appear as "unknown" instead of "R001", "R002", etc.
-**Root cause:** The evaluator reads `rule_id` from `self._params` but the YAML params dict doesn't include `rule_id` — it's on the `RuleConfig` object, not inside `parameters`.
-**Fix:** Pass `rule_id` explicitly when calling evaluator.evaluate(), or inject it into params dict before calling.
+**Status:** RESOLVED (2026-04-01, Phase 7b)
+**Impact:** Was Medium — now fixed.
+**Root cause:** The evaluator read `rule_id` from `self._params` but the YAML params dict didn't include `rule_id` — it was on the `RuleConfig` object, not inside `parameters`.
+**Resolution:** `RuleFactory.load_rules()` now injects `rule_id` from the top-level YAML field into the evaluator parameters dict before creating evaluators. All 6 evaluator types benefit. Commit `3c6a3ca`.
 
 ### 3. Entity attribute extraction is inconsistent
 **Status:** RESOLVED — SABLE semantic relevance scoring (2026-03-29)
@@ -42,9 +42,9 @@
 **Fix:** Add shapely operations in load_reference_data(). Requires shapely (CI/WSL only, no ARM64 Windows wheels).
 
 ### 6. Synthetic data lacks some rule attributes
-**Status:** By design
-**Impact:** R003 (site coverage) always NOT_ASSESSABLE because synthetic ground truth doesn't include `building_footprint_area` and `total_site_area`. C-rules also lack required attributes.
-**Fix:** Enhance the datagen to produce these attributes in ground truth extractions.
+**Status:** RESOLVED (2026-04-02, Phase 8a)
+**Impact:** Was: R003 always NOT_ASSESSABLE; C001–C004 always NOT_ASSESSABLE — now fixed.
+**Resolution:** R003 enriched with `building_footprint_area`, `total_site_area`, and `zone_category`. Datagen extended to produce categorical, string_pair, and numeric_pair value types for C001–C004 rules. All 15 synthetic datasets regenerated with 18 attributes per set (7-rule enrichment). Commit batch in Phase 8a.
 
 ### 7. BCC anonymised data has no application forms
 **Status:** Data gap
@@ -86,12 +86,34 @@
 - **Generate richer synthetic data:** Add building_footprint_area, total_site_area, certificate_type to synthetic ground truth
 - **Fix assessability wiring:** Make the assessability step functional in E2E mode
 
+### Short-term (high value — new feature)
+- **Boundary Verification Pipeline (Three-Tier):** Verify that the applicant's red-line site boundary on the location plan is consistent with authoritative land records. Designed after analysis of real BCC (Birmingham) data — UK submissions use red-line boundaries drawn on OS base maps, not lot/plan numbers or survey coordinates.
+
+  | Tier | Input | Output | External data needed? |
+  |------|-------|--------|-----------------------|
+  | **Tier 1: VLM Visual Alignment** | Location plan image (red line on OS base map) | ALIGNED / MISALIGNED / UNCLEAR + specific issues (e.g., "extends into highway", "cuts through neighbour") + confidence | None — reference is already in the image |
+  | **Tier 2: Scale-Bar Measurement** | Location plan image + scale bar + application form (declared site area) | Estimated frontage, depth, area (m²); discrepancy flag if >15% vs declared area | None — uses application form |
+  | **Tier 3: Address Cross-Reference** | Site address + postcode | UPRN match, INSPIRE polygon area, over-claiming flag if area ratio >1.5x | OS Places API (free tier) + HMLR INSPIRE index polygons (free bulk download) |
+
+  **Combined output:** Boundary verification status — CONSISTENT / DISCREPANCY_DETECTED / INSUFFICIENT_DATA — feeds into SABLE as evidence for a boundary compliance rule.
+
+  **Key insight:** The OS base map is already baked into the location plan document. The VLM can see both the red line and the OS property boundaries in the same image — this replicates what a planning officer actually does. No expensive GIS pipeline or data licences needed.
+
+  **Limitations to acknowledge in dissertation:**
+  - VLM catches gross discrepancies, not survey-grade (1-2m) boundary precision
+  - Scan/photo quality affects reliability
+  - Cannot detect cases where OS base map itself is outdated
+  - Legal boundaries (Land Registry) are deliberately imprecise ("general boundaries" under Land Registration Act 2002 s.60)
+
+  **Architecture fit:** New rule type `spatial_boundary` in the rule engine; new VLM prompt templates for boundary analysis; Tier 3 adds an optional `BoundaryReferenceProvider` interface. SABLE assesses whether sufficient boundary evidence exists before evaluation.
+
 ### Medium-term (strengthens research)
 - **VLM fine-tuning (VLM_FINETUNED):** Fine-tune a vision model on architectural drawing annotations
 - **Shapely spatial predicates:** Wire real polygon containment checks for zone-based rules
 - **Label Studio annotation:** Systematic annotation of VLM extraction results on real drawings
 - **Confidence calibration:** Empirical threshold tuning with reliability diagrams
 - **Additional BCC data:** Obtain complete application sets (forms + drawings)
+- **Multi-plan boundary consistency:** Compare red-line boundary across location plan (1:1250) and block plan (1:500) for the same application — they should show the same boundary
 
 ### Long-term (beyond dissertation)
 - **Multi-council generalisation:** Test on applications from other UK local planning authorities
@@ -113,24 +135,29 @@ The ad-hoc if-else assessability checklist (`DefaultAssessabilityEvaluator`) has
 
 ---
 
-## Project Statistics (2026-03-29)
+## Project Statistics (2026-04-02)
 
 | Metric | Count |
 |--------|-------|
-| Total commits | ~107 |
+| Total commits | ~120+ |
 | Source files | 106 |
-| Test files | 76 |
-| Tests passing | 754 |
+| Test files | 78 |
+| Tests passing | ~790 |
 | Tests skipped | 14 |
-| Phases complete | 7 of 8 (Phase 7 in progress) |
+| Phases complete | 7 + 7b + 8a (Phase 8b next) |
 | Modules implemented | M1-M12 (all) |
 | Rules configured | 7 (R001-R003 + C001-C004) |
-| Synthetic datasets | 15 (5 compliant + 5 non-compliant + 5 edge-case) |
+| Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
 | Real BCC datasets | 10 (anonymised, drawings only) |
 | LLM providers supported | Groq, OpenAI, Ollama |
 | VLM providers supported | OpenAI GPT-4o, Gemini (adapter) |
 | Pipeline steps | 11 (classification → evidence requests) |
 | Ablation configurations | 7 (full + 4 ablations + 2 baselines) |
+| Ablation experiments run | 100 (700 rule evaluations) |
+| Dissertation visualisations | 7 (SABLE metrics, 300 DPI) |
+
+### Key Finding (Phase 8a)
+**full_system produces 0 false FAILs; ablation_d produces 100** — the assessability engine completely prevents false violations. This is the central quantitative result for the dissertation's evaluation chapter.
 
 ---
 

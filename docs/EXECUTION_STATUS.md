@@ -1,8 +1,8 @@
 # PlanProof — Execution Status
 
-> **Last updated**: 2026-03-29
-> **Current phase**: Phase 7 (Ablation Study & Evaluation)
-> **Overall status**: Phase 0 complete. **Phase 1 complete.** **Phase 2 complete** (M1 classifier + M2 text extraction + M3 VLM spatial). **Phase 3 complete** (M5 normalisation, Neo4jSNKG, FlatEvidenceProvider). **Phase 4 complete** (M6 reconciliation, M7 confidence gating, M8 assessability, M9 rule evaluation — all wired into bootstrap). **Phase 5 complete** (M10 scoring, M11 evidence requests, M12 report generation — all wired into bootstrap). **Phase 6 complete** (Final Integration & Ablation Prep). Phase 7 (Ablation Study & Evaluation) in progress — SABLE algorithm implemented with D-S evidence theory.
+> **Last updated**: 2026-04-02
+> **Current phase**: Phase 8b (Architectural Polish)
+> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). Phases 8b–8c (Architectural Polish & Extraction Evaluation) and Phase 9 (Boundary Verification Pipeline) pending.
 
 ---
 
@@ -18,7 +18,12 @@
 | **Phase 4** | Reasoning Layer (M6–M9) | **Complete** | 2026-03-28 | 2026-03-28 |
 | **Phase 5** | Output Layer (M10–M12) | **Complete** | 2026-03-28 | 2026-03-28 |
 | **Phase 6** | Final Integration & Ablation Prep | **Complete** | 2026-03-28 | 2026-03-28 |
-| Phase 7 | Ablation Study & Evaluation | **In Progress** | 2026-03-28 | — |
+| Phase 7 | Ablation Study & Evaluation | **Complete** | 2026-03-28 | 2026-03-29 |
+| Phase 7b | Critical Bug Fixes | **Complete** | 2026-04-01 | 2026-04-01 |
+| Phase 8a | Evaluation Enrichment (Reasoning) | **Complete** | 2026-04-02 | 2026-04-02 |
+| Phase 8b | Architectural Polish | Pending | — | — |
+| Phase 8c | Extraction Evaluation Track | Pending | — | — |
+| Phase 9 | Boundary Verification Pipeline | Pending | — | — |
 | Write-up | Dissertation | Not Started | — | — |
 
 ---
@@ -29,7 +34,7 @@
 - [x] Directory structure created (2026-03-25)
 - [x] All `__init__.py` files with module docstrings (2026-03-25)
 - [x] Package is importable as `planproof.*` (2026-03-25)
-- [x] GitHub repo: github.com/sgshaji/PlanProof_v3 (2026-03-25)
+- [x] GitHub repo: created (2026-03-25)
 
 ### 0.2 Tooling & Standards
 - [x] `pyproject.toml` with hatchling build, all dependencies declared (2026-03-25)
@@ -126,7 +131,7 @@ pip install -e ".[geo,pdf,dev]"
 | Date | Item | Status |
 |------|------|--------|
 | 2026-03-25 | `shapely` and `pymupdf` fail to build on ARM64 Windows | **Deferred** — moved to optional extras `[geo]` and `[pdf]`, not needed until Phase 2/3 |
-| 2026-03-25 | No git repo initialized yet | **Resolved** — pushed to github.com/sgshaji/PlanProof_v3 |
+| 2026-03-25 | No git repo initialized yet | **Resolved** — pushed to GitHub |
 | 2026-03-25 | Docker dev container approach | **Removed** — switched to local Python + cloud services (Neo4j Aura + Groq) |
 
 ---
@@ -352,8 +357,8 @@ pip install -e ".[geo,pdf,dev]"
 - [x] PARTIALLY_ASSESSABLE third state added to assessability model (2026-03-29)
 - [x] 46 assessability tests (12 SABLE-specific + 6 semantic + 28 existing) all passing (2026-03-29)
 - [x] SABLE algorithm formal specification written (docs/SABLE_ALGORITHM.md) (2026-03-29)
-- [ ] Fix assessability step not firing in E2E mode
-- [ ] Fix rule_id "unknown" in verdict reports
+- [x] Fix assessability step not firing in E2E mode — **RESOLVED Phase 7b** (2026-04-01)
+- [x] Fix rule_id "unknown" in verdict reports — **RESOLVED Phase 7b** (2026-04-01)
 - [ ] Run E2E on more BCC application sets
 
 ### Key Findings (2026-03-28/29)
@@ -363,26 +368,103 @@ pip install -e ".[geo,pdf,dev]"
 - Real BCC data runs through full pipeline — correctly identifies insufficient evidence
 - SABLE algorithm replaces ad-hoc if-else assessability logic with principled D-S evidence theory — belief/plausibility bounds enable richer analysis
 
-### Project Statistics
+### Project Statistics (2026-04-02)
 | Metric | Count |
 |--------|-------|
-| Commits | 101 |
+| Commits | ~120+ |
 | Source files | 106 |
-| Test files | 76 |
-| Tests passing | 754 |
+| Test files | 78 |
+| Tests passing | ~790 |
+| Tests skipped | 14 |
 | Pipeline steps | 11 |
 | Ablation configs | 7 |
-| Synthetic datasets | 15 |
+| Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
 | Real BCC datasets | 10 |
+
+---
+
+## Phase 7b: Critical Bug Fixes — Detailed Status
+
+### 7b.1 Fix assessability step not firing in E2E pipeline (Gap #1) — Complete
+- [x] Added `rule_ids: list[str] | None = None` parameter to `Pipeline.__init__()` (2026-04-01)
+- [x] Pipeline.run() injects `rule_ids` into `context["metadata"]["rule_ids"]` (2026-04-01)
+- [x] Moved rules loading above Pipeline construction in bootstrap so `rules_dict.keys()` is available (2026-04-01)
+- [x] Two unit tests — rule_ids flow into context, default empty list (2026-04-01)
+- [x] Commit: `8f27f88` (2026-04-01)
+
+### 7b.2 Fix rule_id "unknown" in verdict reports (Gap #2) — Complete
+- [x] Injected `rule_id` from top-level YAML into evaluator parameters dict in `RuleFactory.load_rules()` (2026-04-01)
+- [x] Three unit tests — numeric evaluator, ratio evaluator, overwrite-precedence (2026-04-01)
+- [x] Updated E2E test docstring (removed known-limitation comment) (2026-04-01)
+- [x] Commit: `3c6a3ca` (2026-04-01)
+
+---
+
+## Phase 8a: Evaluation Enrichment — Complete (2026-04-02)
+
+### Completed Tasks
+- [x] Extended RuleResult with SABLE fields (belief, plausibility, conflict_mass, blocking_reason, PARTIALLY_ASSESSABLE) (2026-04-02)
+- [x] Extended datagen for C001–C004 rules (categorical, string_pair, numeric_pair value types) (2026-04-02)
+- [x] Enriched R003 with `building_footprint_area`, `total_site_area`, `zone_category` attributes (2026-04-02)
+- [x] Updated ablation runner to capture SABLE metrics from AssessabilityResult (2026-04-02)
+- [x] Added metrics: `partially_assessable_rate`, `blocking_reason_distribution`, `belief_statistics`, `component_contribution` (2026-04-02)
+- [x] Regenerated 15 synthetic datasets with 7-rule enrichment (18 attributes per set) (2026-04-02)
+- [x] Re-run 5 pipeline ablation configs (100 experiments, 700 evaluations) (2026-04-02)
+- [x] Generated 7 dissertation-quality SABLE visualisations (300 DPI) (2026-04-02)
+- [x] Qualitative error analysis with 3 dissertation vignettes (2026-04-02)
+
+---
+
+## Phase 8b: Architectural Polish — Pending
+
+### Planned Tasks
+- [ ] P0: Add `@runtime_checkable` to all Protocol interfaces
+- [ ] P1: XML-wrap document text in LLM prompts for prompt injection defence
+- [ ] P2: Failed pipeline steps populate default context outputs for graceful degradation
+- [ ] Update `EXECUTION_STATUS.md` and `GAPS_AND_IDEAS.md` final state
+
+---
+
+## Phase 8c: Extraction Evaluation Track — Pending
+
+Measures extraction accuracy independently from reasoning accuracy. Feeds real (imperfect) extractions into reasoning to produce error attribution: when the system gets a verdict wrong, was it extraction or reasoning that failed?
+
+Depends on Phase 8a (needs enriched data + oracle ablation baseline).
+
+### Planned Tasks
+- [ ] Extraction accuracy metrics infrastructure (precision, recall, value accuracy per attribute)
+- [ ] Run extraction v1 baseline on synthetic PDFs, compare against GT
+- [ ] Analyse extraction failures — categorise by prompt, attribute, failure mode
+- [ ] Improve prompts based on failure analysis + add post-extraction validation
+- [ ] Re-run extraction v2, measure improvement delta (key dissertation figure)
+- [ ] Real extraction ablation — feed improved extractions into full reasoning pipeline
+- [ ] Error attribution analysis — extraction vs reasoning failure decomposition (key dissertation finding)
+- [ ] Run extraction evaluation on real BCC data (qualitative, no GT)
+
+---
+
+## Phase 9: Boundary Verification Pipeline — Pending
+
+Three-tier boundary verification: verify that the applicant's red-line site boundary is consistent with authoritative land records. Replaces the simplified C003 placeholder.
+
+### Planned Tasks
+- [ ] Tier 1: VLM visual alignment — red-line boundary vs OS base map in the same image
+- [ ] Tier 2: Scale-bar measurement — estimate site dimensions, flag >15% area discrepancy vs declared
+- [ ] Tier 3: HMLR INSPIRE address cross-reference — UPRN lookup + polygon area comparison, flag over-claiming >1.5×
+- [ ] Combined `BoundaryVerificationStep` wired into pipeline, replaces simplified C003
+- [ ] Synthetic location plan generation with red-line boundaries + E2E test
+- [ ] Dissertation limitations documentation for boundary verification
 
 ---
 
 ## Next Steps
 
-1. Fix assessability step wiring in E2E pipeline (critical gap)
-2. Fix rule_id "unknown" in verdict reports
-3. Re-run strong baseline after Groq rate limit resets
-4. Re-run ablation experiments with SABLE belief/plausibility metrics
-5. Run E2E on additional BCC sets with application forms
-6. Qualitative error analysis for dissertation
-7. See `docs/GAPS_AND_IDEAS.md` for full gap tracking and future work
+1. ~~Fix assessability step wiring in E2E pipeline~~ — **DONE** (Phase 7b)
+2. ~~Fix rule_id "unknown" in verdict reports~~ — **DONE** (Phase 7b)
+3. ~~**Phase 8a:** Enrich R003 synthetic data, re-run ablation suite with SABLE metrics, error analysis (reasoning track)~~ — **DONE** (2026-04-02)
+4. **Phase 8b:** Architectural polish (P0–P2 from code review)
+5. **Phase 8c:** Extraction evaluation — accuracy metrics, real extraction ablation, error attribution (extraction track)
+6. **Phase 9:** Three-tier boundary verification pipeline with HMLR INSPIRE land data
+7. **Write-up:** Dissertation chapters
+8. See `docs/GAPS_AND_IDEAS.md` for full gap tracking and future work
+9. See `docs/superpowers/plans/2026-04-01-phase-7b-8-completion-and-polish.md` for detailed execution plan
