@@ -348,11 +348,11 @@ def _run_pipeline_config(
     ablation_yaml: dict[str, Any],
     configs_dir: Path,
     test_set_dir: Path | None = None,
-) -> list[Any]:
+) -> tuple[list[Any], list[Any]]:
     """Run the reasoning pipeline steps against ground-truth entities.
 
-    Returns a list of RuleVerdict objects (may be empty for ablation_a which
-    has use_rule_engine=False).
+    Returns a tuple of (verdicts, assessability_results).  verdicts may be
+    empty for ablation_a which has use_rule_engine=False.
     """
     from planproof.reasoning.assessability import DefaultAssessabilityEvaluator
     from planproof.reasoning.confidence import ThresholdConfidenceGate
@@ -451,7 +451,7 @@ def _run_pipeline_config(
 
     if not ablation_yaml.get("use_rule_engine", True):
         # ablation_a: no rule engine, return empty verdicts
-        return verdicts
+        return verdicts, assessability_results
 
     fallback_missing = ReconciledEvidence(
         attribute="__fallback__",
@@ -479,7 +479,7 @@ def _run_pipeline_config(
         verdict = evaluator.evaluate(evidence, params_with_id)
         verdicts.append(verdict)
 
-    return verdicts
+    return verdicts, assessability_results
 
 
 # ---------------------------------------------------------------------------
@@ -759,12 +759,13 @@ def run_experiment(
 
         # --- Dispatch to the correct runner ---
         if config_name in PIPELINE_CONFIGS:
-            verdicts = _run_pipeline_config(
+            verdicts, assessability_results = _run_pipeline_config(
                 config_name, ground_truth, ablation_yaml, configs_dir,
                 test_set_dir=test_set_dir,
             )
         else:
             verdicts = _run_baseline(config_name, ground_truth, configs_dir, ablation_yaml)
+            assessability_results = []
 
         # --- Build RuleResult list ---
         evaluated_rule_ids = {v.rule_id for v in verdicts}
@@ -776,6 +777,11 @@ def run_experiment(
             for v in ground_truth.get("rule_verdicts", [])
         }
 
+        # Build lookup from assessability results for SABLE metric extraction
+        assessability_map: dict[str, Any] = {
+            ar.rule_id: ar for ar in assessability_results
+        }
+
         for rule_id in all_rule_ids:
             gt_outcome = gt_verdicts.get(rule_id, "PASS")
             if rule_id in evaluated_rule_ids:
@@ -784,6 +790,17 @@ def run_experiment(
             else:
                 predicted = "NOT_ASSESSABLE"
 
+            # Extract SABLE metrics from assessability result
+            ar = assessability_map.get(rule_id)
+            belief = ar.belief if ar else None
+            plausibility = ar.plausibility if ar else None
+            conflict_mass_val = ar.conflict_mass if ar else None
+            blocking_reason_val = str(ar.blocking_reason) if ar else None
+
+            # Map PARTIALLY_ASSESSABLE through
+            if ar and ar.status == "PARTIALLY_ASSESSABLE" and predicted == "NOT_ASSESSABLE":
+                predicted = "PARTIALLY_ASSESSABLE"
+
             rule_results.append(
                 RuleResult(
                     rule_id=rule_id,
@@ -791,13 +808,17 @@ def run_experiment(
                     predicted_outcome=predicted,  # type: ignore[arg-type]
                     config_name=config_name,
                     set_id=set_id,
+                    belief=belief,
+                    plausibility=plausibility,
+                    conflict_mass=conflict_mass_val,
+                    blocking_reason=blocking_reason_val,
                 )
             )
 
         # --- Counts for summary ---
         n_pass = sum(1 for r in rule_results if r.predicted_outcome == "PASS")
         n_fail = sum(1 for r in rule_results if r.predicted_outcome == "FAIL")
-        n_na = sum(1 for r in rule_results if r.predicted_outcome == "NOT_ASSESSABLE")
+        n_na = sum(1 for r in rule_results if r.predicted_outcome in ("NOT_ASSESSABLE", "PARTIALLY_ASSESSABLE"))
 
         # --- Build and save ExperimentResult ---
         exp_result = ExperimentResult(
