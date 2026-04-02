@@ -20,9 +20,13 @@ class RuleResult(BaseModel):
 
     rule_id: str
     ground_truth_outcome: Literal["PASS", "FAIL"]
-    predicted_outcome: Literal["PASS", "FAIL", "NOT_ASSESSABLE"]
+    predicted_outcome: Literal["PASS", "FAIL", "NOT_ASSESSABLE", "PARTIALLY_ASSESSABLE"]
     config_name: str
     set_id: str
+    belief: float | None = None
+    plausibility: float | None = None
+    conflict_mass: float | None = None
+    blocking_reason: str | None = None
 
 
 class ExperimentResult(BaseModel):

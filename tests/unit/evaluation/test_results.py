@@ -230,3 +230,61 @@ class TestLoadAllResults:
         save_result(_experiment_result(config_name="cfg-b", set_id="s2"), tmp_path)
         results = load_all_results(tmp_path)
         assert all(isinstance(r, ExperimentResult) for r in results)
+
+
+# ---------------------------------------------------------------------------
+# RuleResult — SABLE fields
+# ---------------------------------------------------------------------------
+
+
+class TestRuleResultSableFields:
+    def test_partially_assessable_accepted(self) -> None:
+        r = _rule_result(predicted="PARTIALLY_ASSESSABLE")
+        assert r.predicted_outcome == "PARTIALLY_ASSESSABLE"
+
+    def test_sable_fields_default_none(self) -> None:
+        r = _rule_result()
+        assert r.belief is None
+        assert r.plausibility is None
+        assert r.conflict_mass is None
+        assert r.blocking_reason is None
+
+    def test_sable_fields_stored(self) -> None:
+        r = RuleResult(
+            rule_id="R001",
+            ground_truth_outcome="PASS",
+            predicted_outcome="PARTIALLY_ASSESSABLE",
+            config_name="cfg-a",
+            set_id="set-01",
+            belief=0.85,
+            plausibility=0.95,
+            conflict_mass=0.02,
+            blocking_reason="NONE",
+        )
+        assert r.belief == 0.85
+        assert r.plausibility == 0.95
+        assert r.conflict_mass == 0.02
+        assert r.blocking_reason == "NONE"
+
+    def test_sable_fields_round_trip(self, tmp_path: Path) -> None:
+        rr = RuleResult(
+            rule_id="R010",
+            ground_truth_outcome="FAIL",
+            predicted_outcome="PARTIALLY_ASSESSABLE",
+            config_name="cfg-sable",
+            set_id="set-rt",
+            belief=0.7,
+            plausibility=0.9,
+            conflict_mass=0.05,
+            blocking_reason="LOW_EVIDENCE",
+        )
+        original = _experiment_result(config_name="cfg-sable", set_id="set-rt", rule_results=[rr])
+        save_result(original, tmp_path)
+        loaded = load_result(tmp_path / "cfg-sable" / "set-rt.json")
+
+        lr = loaded.rule_results[0]
+        assert lr.predicted_outcome == "PARTIALLY_ASSESSABLE"
+        assert lr.belief == 0.7
+        assert lr.plausibility == 0.9
+        assert lr.conflict_mass == 0.05
+        assert lr.blocking_reason == "LOW_EVIDENCE"
