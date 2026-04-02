@@ -1,0 +1,391 @@
+{
+  "set_id": "SET_COMPLIANT_42000",
+  "category": "compliant",
+  "seed": 42000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "certificate_type",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "D"
+    },
+    {
+      "attribute": "ownership_declaration",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "other"
+    },
+    {
+      "attribute": "form_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "9 Church Lane, Harborne, B17 0BD"
+    },
+    {
+      "attribute": "drawing_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "9 Church Ln, Harborne, B17 0BD"
+    },
+    {
+      "attribute": "stated_site_area",
+      "value": 400.0,
+      "unit": "m²",
+      "display_text": "400.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 420.0,
+      "unit": "m²",
+      "display_text": "420.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_building_height",
+      "value": 5.0,
+      "unit": "metres",
+      "display_text": "5.0m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 5.1,
+      "unit": "metres",
+      "display_text": "5.1m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 80.0,
+      "unit": "metres",
+      "display_text": "80.0m"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 82.0,
+      "unit": "metres",
+      "display_text": "82.0m"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 1.0,
+      "unit": "metres",
+      "display_text": "1.0m"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 1.0,
+      "unit": "metres",
+      "display_text": "1.0m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 0.0,
+      "unit": "metres",
+      "display_text": "0.0m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 0.0,
+      "unit": "count",
+      "display_text": "0.0 count"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 0.0,
+      "unit": "count",
+      "display_text": "0.0 count"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.01,
+      "unit": "metres",
+      "display_text": "4.0m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 22.7,
+      "unit": "metres",
+      "display_text": "22.7m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 35.61,
+      "unit": "percent",
+      "display_text": "35.6%"
+    },
+    {
+      "attribute": "building_footprint_area",
+      "value": 54.0,
+      "unit": "m²",
+      "display_text": "54.0m²"
+    },
+    {
+      "attribute": "total_site_area",
+      "value": 857.99,
+      "unit": "m²",
+      "display_text": "858.0m²"
+    },
+    {
+      "attribute": "zone_category",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "suburban_residential"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "C001",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C002",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C003",
+      "outcome": "PASS",
+      "evaluated_value": 400.0,
+      "threshold": 1000.0
+    },
+    {
+      "rule_id": "C004",
+      "outcome": "PASS",
+      "evaluated_value": 5.0,
+      "threshold": 15.0
+    },
+    {
+      "rule_id": "R001",
+      "outcome": "PASS",
+      "evaluated_value": 4.01,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "PASS",
+      "evaluated_value": 22.7,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 35.61,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_COMPLIANT_42000_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "192 Birchwood Close, Leeds, LE1 7GH",
+          "text_rendered": "192 Birchwood Close, Leeds, LE1 7GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 4.01,
+          "text_rendered": "4.0m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 35.61,
+          "text_rendered": "35.6%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "192 Birchwood Close, Leeds, LE1 7GH",
+          "text_rendered": "192 Birchwood Close, Leeds, LE1 7GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 4.01,
+          "text_rendered": "4.0m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 35.61,
+          "text_rendered": "35.6%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_COMPLIANT_42000_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_COMPLIANT_42000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_COMPLIANT_42000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 4.01,
+          "text_rendered": "4.0m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1945.0,
+            "y": 2896.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 4.01,
+          "text_rendered": "4.0m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1945.0,
+            "y": 2896.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_COMPLIANT_42000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 4.01,
+          "text_rendered": "4.0m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2078.0,
+            "y": 2832.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 4.01,
+          "text_rendered": "4.0m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2078.0,
+            "y": 2832.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_COMPLIANT_42000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 42000
+  },
+  "edge_case_strategy": null
+}

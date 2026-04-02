@@ -1,0 +1,98 @@
+{
+  "config_name": "ablation_c",
+  "set_id": "SET_EDGECASE_42002",
+  "rule_results": [
+    {
+      "rule_id": "C001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_c",
+      "set_id": "SET_EDGECASE_42002",
+      "belief": 0.21,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "C002",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_c",
+      "set_id": "SET_EDGECASE_42002",
+      "belief": 0.21,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "C003",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_c",
+      "set_id": "SET_EDGECASE_42002",
+      "belief": 0.21,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "C004",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_c",
+      "set_id": "SET_EDGECASE_42002",
+      "belief": 0.21,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "R001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_c",
+      "set_id": "SET_EDGECASE_42002",
+      "belief": 0.21,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "R002",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_c",
+      "set_id": "SET_EDGECASE_42002",
+      "belief": 0.21,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "R003",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_c",
+      "set_id": "SET_EDGECASE_42002",
+      "belief": 0.21,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    }
+  ],
+  "metadata": {
+    "ablation_config": {
+      "use_snkg": true,
+      "use_rule_engine": true,
+      "use_confidence_gating": false,
+      "use_assessability_engine": true,
+      "use_evidence_reconciliation": true,
+      "use_vlm": true
+    },
+    "category": "edgecase",
+    "difficulty": "high",
+    "seed": 42002,
+    "n_documents": 6
+  },
+  "timestamp": "2026-04-02T15:33:48.113220Z"
+}
