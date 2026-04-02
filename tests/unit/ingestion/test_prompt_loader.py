@@ -59,3 +59,43 @@ def test_template_has_output_schema(prompts_dir: Path) -> None:
     template = loader.load("form_extraction")
     assert template.output_schema is not None
     assert template.output_schema["type"] == "object"
+
+
+# ---------------------------------------------------------------------------
+# Prompt injection defence: XML wrapping
+# ---------------------------------------------------------------------------
+
+REAL_PROMPTS_DIR = (
+    Path(__file__).parent.parent.parent.parent
+    / "configs"
+    / "prompts"
+)
+
+TEXT_BEARING_TEMPLATES = [
+    "form_extraction",
+    "report_extraction",
+    "certificate_extraction",
+    "drawing_extraction",
+]
+
+
+@pytest.mark.parametrize("template_name", TEXT_BEARING_TEMPLATES)
+def test_prompt_wraps_document_text_in_xml(template_name: str) -> None:
+    """Prompt template wraps document text in <document> tags."""
+    loader = PromptLoader(REAL_PROMPTS_DIR)
+    template = loader.load(template_name)
+
+    rendered = template.render(text="SENTINEL_CONTENT")
+
+    assert "<document>" in rendered, (
+        f"{template_name}: rendered prompt must contain <document> opening tag"
+    )
+    assert "</document>" in rendered, (
+        f"{template_name}: rendered prompt must contain </document> closing tag"
+    )
+    # The user-supplied text must appear inside the tags, not outside
+    doc_start = rendered.index("<document>")
+    doc_end = rendered.index("</document>")
+    assert doc_start < rendered.index("SENTINEL_CONTENT") < doc_end, (
+        f"{template_name}: user-supplied text must be inside <document> tags"
+    )

@@ -13,7 +13,9 @@ user_message_template: |
   - OWNERSHIP: owner names, notice recipients
 
   Text to extract from:
+  <document>
   {text}
+  </document>
 
 output_schema:
   type: object

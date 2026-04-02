@@ -12,7 +12,9 @@ user_message_template: |
     floor areas, site area, coverage ratios, scale annotations
   - BOUNDARY: property boundary dimensions, setback distances from boundaries
 
+  <document>
   {text}
+  </document>
 
 output_schema:
   type: object

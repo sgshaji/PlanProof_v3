@@ -15,7 +15,9 @@ user_message_template: |
   - ZONE: planning zone, conservation area, listed building references
 
   Text to extract from:
+  <document>
   {text}
+  </document>
 
 output_schema:
   type: object
