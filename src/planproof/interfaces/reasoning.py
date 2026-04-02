@@ -5,7 +5,7 @@ and rule-level compliance verdicts.
 """
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.entities import ExtractedEntity
@@ -13,6 +13,7 @@ from planproof.schemas.reconciliation import ReconciledEvidence
 from planproof.schemas.rules import RuleVerdict
 
 
+@runtime_checkable
 class Reconciler(Protocol):
     """Contract: resolve conflicting extractions for a single attribute.
 
@@ -26,6 +27,7 @@ class Reconciler(Protocol):
     ) -> ReconciledEvidence: ...
 
 
+@runtime_checkable
 class ConfidenceGate(Protocol):
     """Contract: filter entities that fall below a trustworthiness threshold.
 
@@ -40,6 +42,7 @@ class ConfidenceGate(Protocol):
     ) -> list[ExtractedEntity]: ...
 
 
+@runtime_checkable
 class AssessabilityEvaluator(Protocol):
     """Contract: determine whether a rule *can* be assessed given available evidence.
 
@@ -61,6 +64,7 @@ class AssessabilityEvaluator(Protocol):
     def evaluate(self, rule_id: str) -> AssessabilityResult: ...
 
 
+@runtime_checkable
 class RuleEvaluator(Protocol):
     """Contract: evaluate a single compliance rule against reconciled evidence.
 

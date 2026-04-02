@@ -5,13 +5,14 @@ rules that could not be assessed.
 """
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.pipeline import ComplianceReport, EvidenceRequest
 from planproof.schemas.rules import RuleVerdict
 
 
+@runtime_checkable
 class ReportGenerator(Protocol):
     """Contract: assemble verdicts and assessability results into a report."""
 
@@ -22,6 +23,7 @@ class ReportGenerator(Protocol):
     ) -> ComplianceReport: ...
 
 
+@runtime_checkable
 class EvidenceRequestGenerator(Protocol):
     """Contract: produce actionable requests for missing evidence.
 

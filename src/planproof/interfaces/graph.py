@@ -17,12 +17,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from planproof.schemas.entities import ExtractedEntity
 from planproof.schemas.rules import RuleConfig
 
 
+@runtime_checkable
 class EntityPopulator(Protocol):
     """Write-side: push extracted entities into the knowledge graph.
 
@@ -32,6 +33,7 @@ class EntityPopulator(Protocol):
     def populate_from_entities(self, entities: list[ExtractedEntity]) -> None: ...
 
 
+@runtime_checkable
 class ReferenceDataLoader(Protocol):
     """Write-side: load council-supplied reference data (parcels, zones).
 
@@ -42,6 +44,7 @@ class ReferenceDataLoader(Protocol):
     def load_reference_data(self, parcels_dir: Path, zones_dir: Path) -> None: ...
 
 
+@runtime_checkable
 class EvidenceProvider(Protocol):
     """Read-side: retrieve evidence needed by rule evaluators.
 
@@ -56,6 +59,7 @@ class EvidenceProvider(Protocol):
     ) -> list[tuple[ExtractedEntity, ExtractedEntity]]: ...
 
 
+@runtime_checkable
 class RuleProvider(Protocol):
     """Read-side: look up which rules apply to a given zone.
 

@@ -5,7 +5,7 @@ state between steps.
 """
 from __future__ import annotations
 
-from typing import Any, Protocol, TypedDict
+from typing import Any, Protocol, TypedDict, runtime_checkable
 
 from planproof.schemas.assessability import AssessabilityResult
 from planproof.schemas.entities import ClassifiedDocument, ExtractedEntity
@@ -36,6 +36,7 @@ class StepResult(TypedDict, total=False):
     artifacts: dict[str, Any]
 
 
+@runtime_checkable
 class PipelineStep(Protocol):
     """Contract: a single composable unit of work in the pipeline."""
 
