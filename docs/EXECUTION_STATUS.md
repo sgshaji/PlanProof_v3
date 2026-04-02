@@ -1,8 +1,8 @@
-# PlanProof — Execution Status
+commit all the c# PlanProof — Execution Status
 
 > **Last updated**: 2026-04-02
-> **Current phase**: Phase 8b (Architectural Polish)
-> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). Phases 8b–8c (Architectural Polish & Extraction Evaluation) and Phase 9 (Boundary Verification Pipeline) pending.
+> **Current phase**: Phase 8c (Extraction Evaluation Track)
+> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). **Phase 8b complete** (Architectural Polish — @runtime_checkable, XML prompt wrapping, graceful degradation). Phase 8c (Extraction Evaluation) and Phase 9 (Boundary Verification Pipeline) pending.
 
 ---
 
@@ -21,7 +21,7 @@
 | Phase 7 | Ablation Study & Evaluation | **Complete** | 2026-03-28 | 2026-03-29 |
 | Phase 7b | Critical Bug Fixes | **Complete** | 2026-04-01 | 2026-04-01 |
 | Phase 8a | Evaluation Enrichment (Reasoning) | **Complete** | 2026-04-02 | 2026-04-02 |
-| Phase 8b | Architectural Polish | Pending | — | — |
+| Phase 8b | Architectural Polish | **Complete** | 2026-04-02 | 2026-04-02 |
 | Phase 8c | Extraction Evaluation Track | Pending | — | — |
 | Phase 9 | Boundary Verification Pipeline | Pending | — | — |
 | Write-up | Dissertation | Not Started | — | — |
@@ -415,13 +415,13 @@ pip install -e ".[geo,pdf,dev]"
 
 ---
 
-## Phase 8b: Architectural Polish — Pending
+## Phase 8b: Architectural Polish — Complete (2026-04-02)
 
-### Planned Tasks
-- [ ] P0: Add `@runtime_checkable` to all Protocol interfaces
-- [ ] P1: XML-wrap document text in LLM prompts for prompt injection defence
-- [ ] P2: Failed pipeline steps populate default context outputs for graceful degradation
-- [ ] Update `EXECUTION_STATUS.md` and `GAPS_AND_IDEAS.md` final state
+### Completed Tasks
+- [x] P0: Add `@runtime_checkable` to all 17 Protocol interfaces in `interfaces/` (2026-04-02)
+- [x] P1: XML-wrap document text in `<document>` tags in 4 LLM prompt templates for prompt injection defence (2026-04-02)
+- [x] P2: Failed pipeline steps populate default context keys (`entities`, `reconciled_evidence`, `assessability_results`, `verdicts`) for graceful degradation (2026-04-02)
+- [x] Update `EXECUTION_STATUS.md` and `GAPS_AND_IDEAS.md` (2026-04-02)
 
 ---
 
@@ -462,7 +462,7 @@ Three-tier boundary verification: verify that the applicant's red-line site boun
 1. ~~Fix assessability step wiring in E2E pipeline~~ — **DONE** (Phase 7b)
 2. ~~Fix rule_id "unknown" in verdict reports~~ — **DONE** (Phase 7b)
 3. ~~**Phase 8a:** Enrich R003 synthetic data, re-run ablation suite with SABLE metrics, error analysis (reasoning track)~~ — **DONE** (2026-04-02)
-4. **Phase 8b:** Architectural polish (P0–P2 from code review)
+4. ~~**Phase 8b:** Architectural polish (P0–P2 from code review)~~ — **DONE** (2026-04-02)
 5. **Phase 8c:** Extraction evaluation — accuracy metrics, real extraction ablation, error attribution (extraction track)
 6. **Phase 9:** Three-tier boundary verification pipeline with HMLR INSPIRE land data
 7. **Write-up:** Dissertation chapters
