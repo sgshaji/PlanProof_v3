@@ -265,6 +265,7 @@ def _build_entities_from_ground_truth(
                     entities.append(
                         ExtractedEntity(
                             entity_type=EntityType.ZONE,
+                            attribute="zone_category",
                             value=zone_code,
                             # Store "attr:zone_category" in unit so the ablation
                             # runner can group this entity correctly for
@@ -281,6 +282,69 @@ def _build_entities_from_ground_truth(
                     )
             except Exception as exc:  # noqa: BLE001
                 _log.warning("Could not load zone reference data from %s: %s", zone_path, exc)
+
+    # --- Synthetic entities from values[] for attributes not in document extractions ---
+    # The datagen generates values for all rules (R001-R003 + C001-C004) but the
+    # document renderers only embed R001-R003 primary attributes in extractions.
+    # For the ablation study, we create entities from values[] to ensure C-rule
+    # attributes and extra attributes are available for assessability evaluation.
+    existing_attrs = {e.attribute for e in entities if e.attribute is not None}
+
+    # zone_category is already handled by the zone.json injection above (attribute=None,
+    # source=EXTERNAL_DATA_zone.json).  Adding it again from values[] would create a
+    # second entity with a different value (display_text vs zone_code) causing a
+    # CONFLICTING_EVIDENCE block in the reconciler.  Skip it entirely here.
+    _values_skip_attrs = {"zone_category"}
+
+    # C-rule attributes that should appear in FORM documents
+    form_attrs = {
+        "certificate_type", "ownership_declaration", "form_address",
+        "stated_site_area", "total_site_area",
+    }
+    # R-rule measurement attributes that must come from DRAWING (per rule configs)
+    drawing_attrs = {
+        "drawing_address", "proposed_building_height", "approved_building_height",
+        "proposed_building_footprint_area", "approved_building_footprint_area",
+        "proposed_storeys", "approved_storeys",
+        # R001: building_height required from DRAWING; R002: rear_garden_depth from DRAWING
+        # R003: building_footprint_area from DRAWING
+        "building_height", "rear_garden_depth", "building_footprint_area",
+    }
+    # External data attributes
+    external_attrs = {"reference_parcel_area"}
+
+    for val in ground_truth.get("values", []):
+        attr = val.get("attribute")
+        if attr is None or attr in existing_attrs or attr in _values_skip_attrs:
+            continue  # Skip if already extracted from documents or intentionally excluded
+
+        if attr in form_attrs:
+            source_doc = "FORM_synthetic_form.pdf"
+        elif attr in drawing_attrs:
+            source_doc = "DRAWING_synthetic_drawing.pdf"
+        elif attr in external_attrs:
+            source_doc = "EXTERNAL_DATA_reference.json"
+        else:
+            source_doc = "FORM_synthetic_form.pdf"  # default to FORM
+
+        # Use str_value if present (categorical/string), else display_text, else numeric value
+        entity_value = val.get("str_value") or val.get("display_text") or val.get("value")
+
+        entities.append(
+            ExtractedEntity(
+                entity_type=EntityType.MEASUREMENT,
+                attribute=attr,
+                value=entity_value,
+                unit=val.get("unit"),
+                confidence=1.0,
+                source_document=source_doc,
+                source_page=None,
+                source_region=None,
+                extraction_method=ExtractionMethod.MANUAL,
+                timestamp=extraction_ts,
+            )
+        )
+        existing_attrs.add(attr)
 
     return entities
 
