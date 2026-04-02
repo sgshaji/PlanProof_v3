@@ -327,8 +327,14 @@ def _build_entities_from_ground_truth(
         else:
             source_doc = "FORM_synthetic_form.pdf"  # default to FORM
 
-        # Use str_value if present (categorical/string), else display_text, else numeric value
-        entity_value = val.get("str_value") or val.get("display_text") or val.get("value")
+        # For categorical/string values, use str_value or display_text.
+        # For numeric values, use the raw float value to avoid crash on strings like "22.7m".
+        str_val = val.get("str_value")
+        if str_val is not None:
+            entity_value = str_val
+        else:
+            raw_value = val.get("value")
+            entity_value = raw_value if raw_value is not None else val.get("display_text")
 
         entities.append(
             ExtractedEntity(
