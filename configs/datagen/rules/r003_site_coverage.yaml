@@ -12,6 +12,7 @@
 rule_id: R003
 attribute: site_coverage
 unit: percent
+value_type: numeric
 
 compliant_range:
   min: 10.0
@@ -25,6 +26,21 @@ violation_types:
   - name: extreme_exceed
     range: { min: 70.0, max: 95.0 }
 
+extra_attributes:
+  - attribute: building_footprint_area
+    unit: m²
+    type: derived
+    compliant_range: { min: 40.0, max: 200.0 }
+  - attribute: total_site_area
+    unit: m²
+    type: derived
+    compliant_range: { min: 200.0, max: 1000.0 }
+  - attribute: zone_category
+    unit: categorical
+    type: companion
+    valid_values: ["residential", "suburban_residential"]
+    invalid_values: ["industrial", "commercial"]
+
 # WHY: Site coverage is calculated from the site plan drawing (annotated
 # areas) and declared on the form.  Both locations are needed to support
 # multi-source extraction and cross-document consistency checks.
@@ -34,3 +50,7 @@ evidence_locations:
   - doc_type: DRAWING
     drawing_type: site_plan
     annotation: area_annotation
+  - doc_type: FORM
+    field: building_footprint_area
+  - doc_type: FORM
+    field: total_site_area

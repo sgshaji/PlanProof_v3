@@ -1,0 +1,33 @@
+rule_id: C002
+attribute: form_address
+unit: string_pair
+value_type: string_pair
+compliant_range:
+  min: 0.0
+  max: 0.0
+violation_types:
+  - name: address_mismatch
+    range: { min: 0.0, max: 0.0 }
+compliant_pairs:
+  - form_address: "123 Example Street, Birmingham, B1 1AA"
+    drawing_address: "123 Example St, Birmingham, B1 1AA"
+  - form_address: "45 Park Road, Edgbaston, B15 2TT"
+    drawing_address: "45 Park Rd, Edgbaston, B15 2TT"
+  - form_address: "78 High Street, Moseley, B13 8HG"
+    drawing_address: "78 High St, Moseley, B13 8HG"
+  - form_address: "12 Station Avenue, Kings Heath, B14 7QR"
+    drawing_address: "12 Station Ave, Kings Heath, B14 7QR"
+  - form_address: "9 Church Lane, Harborne, B17 0BD"
+    drawing_address: "9 Church Ln, Harborne, B17 0BD"
+noncompliant_pairs:
+  - form_address: "123 Example Street, Birmingham, B1 1AA"
+    drawing_address: "456 Other Road, London, E1 2BB"
+  - form_address: "45 Park Road, Edgbaston, B15 2TT"
+    drawing_address: "99 Victoria Road, Moseley, B13 9PL"
+  - form_address: "78 High Street, Moseley, B13 8HG"
+    drawing_address: "22 Low Lane, Selly Oak, B29 6NA"
+evidence_locations:
+  - doc_type: FORM
+    field: form_address
+  - doc_type: DRAWING
+    annotation: drawing_address

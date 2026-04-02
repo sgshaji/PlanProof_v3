@@ -1,0 +1,37 @@
+rule_id: C003
+attribute: stated_site_area
+unit: m²
+value_type: numeric_pair
+compliant_range:
+  min: 200.0
+  max: 1000.0
+violation_types:
+  - name: area_discrepancy
+    range: { min: 0.0, max: 0.0 }
+extra_attributes:
+  - attribute: reference_parcel_area
+    unit: m²
+    type: reference
+compliant_pairs:
+  - stated_site_area: 500.0
+    reference_parcel_area: 510.0
+  - stated_site_area: 300.0
+    reference_parcel_area: 290.0
+  - stated_site_area: 750.0
+    reference_parcel_area: 720.0
+  - stated_site_area: 400.0
+    reference_parcel_area: 420.0
+  - stated_site_area: 600.0
+    reference_parcel_area: 580.0
+noncompliant_pairs:
+  - stated_site_area: 500.0
+    reference_parcel_area: 300.0
+  - stated_site_area: 300.0
+    reference_parcel_area: 500.0
+  - stated_site_area: 750.0
+    reference_parcel_area: 400.0
+evidence_locations:
+  - doc_type: FORM
+    field: stated_site_area
+  - doc_type: EXTERNAL_DATA
+    field: reference_parcel_area

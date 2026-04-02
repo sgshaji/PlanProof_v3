@@ -1,0 +1,65 @@
+rule_id: C004
+attribute: proposed_building_height
+unit: metres
+value_type: numeric_pair
+compliant_range:
+  min: 3.0
+  max: 15.0
+violation_types:
+  - name: material_change
+    range: { min: 0.0, max: 0.0 }
+extra_attributes:
+  - attribute: approved_building_height
+    unit: metres
+    type: reference
+  - attribute: proposed_building_footprint_area
+    unit: m²
+    type: primary
+  - attribute: approved_building_footprint_area
+    unit: m²
+    type: reference
+  - attribute: proposed_storeys
+    unit: count
+    type: primary
+  - attribute: approved_storeys
+    unit: count
+    type: reference
+compliant_pairs:
+  - proposed_building_height: 7.5
+    approved_building_height: 7.5
+    proposed_building_footprint_area: 120.0
+    approved_building_footprint_area: 118.0
+    proposed_storeys: 2
+    approved_storeys: 2
+  - proposed_building_height: 5.0
+    approved_building_height: 5.1
+    proposed_building_footprint_area: 80.0
+    approved_building_footprint_area: 82.0
+    proposed_storeys: 1
+    approved_storeys: 1
+noncompliant_pairs:
+  - proposed_building_height: 9.0
+    approved_building_height: 7.0
+    proposed_building_footprint_area: 200.0
+    approved_building_footprint_area: 120.0
+    proposed_storeys: 3
+    approved_storeys: 2
+  - proposed_building_height: 6.0
+    approved_building_height: 4.0
+    proposed_building_footprint_area: 150.0
+    approved_building_footprint_area: 80.0
+    proposed_storeys: 2
+    approved_storeys: 1
+evidence_locations:
+  - doc_type: DRAWING
+    drawing_type: elevation
+    annotation: proposed_building_height
+  - doc_type: DRAWING
+    drawing_type: elevation
+    annotation: approved_building_height
+  - doc_type: DRAWING
+    drawing_type: site_plan
+    annotation: proposed_building_footprint_area
+  - doc_type: DRAWING
+    drawing_type: site_plan
+    annotation: approved_building_footprint_area

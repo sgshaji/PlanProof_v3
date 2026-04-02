@@ -18,9 +18,10 @@ CONFIGS_DIR = Path("configs/datagen")
 class TestRuleConfigLoading:
     def test_load_all_rule_configs(self) -> None:
         rules = load_rule_configs(CONFIGS_DIR / "rules")
-        assert len(rules) == 3
+        # Now 7 rules: R001, R002, R003 + C001, C002, C003, C004
+        assert len(rules) == 7
         rule_ids = {r.rule_id for r in rules}
-        assert rule_ids == {"R001", "R002", "R003"}
+        assert {"R001", "R002", "R003"}.issubset(rule_ids)
 
     def test_rule_has_compliant_range(self) -> None:
         rules = load_rule_configs(CONFIGS_DIR / "rules")
@@ -51,6 +52,13 @@ class TestProfileLoading:
         profiles = load_profiles(CONFIGS_DIR / "profiles")
         std = next(p for p in profiles if p.profile_id == "standard_3file")
         assert len(std.document_composition) >= 2
+
+
+class TestAllRuleConfigsLoad:
+    def test_seven_configs_load(self) -> None:
+        configs = load_rule_configs(Path("configs/datagen/rules"))
+        rule_ids = {c.rule_id for c in configs}
+        assert rule_ids == {"R001", "R002", "R003", "C001", "C002", "C003", "C004"}
 
 
 class TestMultiAttributeConfig:

@@ -1,0 +1,23 @@
+rule_id: C001
+attribute: certificate_type
+unit: categorical
+value_type: categorical
+compliant_range:
+  min: 0.0
+  max: 0.0
+violation_types:
+  - name: invalid_certificate
+    range: { min: 0.0, max: 0.0 }
+valid_values: ["A", "B", "C", "D"]
+invalid_values: ["X", "E", "NONE"]
+extra_attributes:
+  - attribute: ownership_declaration
+    unit: categorical
+    type: companion
+    valid_values: ["sole_owner", "part_owner", "other"]
+    invalid_values: ["missing", "invalid"]
+evidence_locations:
+  - doc_type: FORM
+    field: certificate_type
+  - doc_type: FORM
+    field: ownership_declaration
