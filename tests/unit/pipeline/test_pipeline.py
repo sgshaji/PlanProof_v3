@@ -121,6 +121,53 @@ class TestPipeline:
 
         assert captured_metadata["rule_ids"] == ["R001", "R002"]
 
+    def test_failed_step_populates_default_context_keys(self) -> None:
+        """A failing step should leave safe defaults so downstream steps don't KeyError."""
+
+        class _FailingStepWithNoOutputs:
+            @property
+            def name(self) -> str:
+                return "failing_no_output"
+
+            def execute(self, context: PipelineContext) -> StepResult:
+                msg = "boom"
+                raise RuntimeError(msg)
+
+        downstream_context_snapshot: dict[str, object] = {}
+
+        class _DownstreamStep:
+            @property
+            def name(self) -> str:
+                return "downstream"
+
+            def execute(self, context: PipelineContext) -> StepResult:
+                # Must not raise KeyError — all common keys should be present
+                downstream_context_snapshot["reconciled_evidence"] = context.get(
+                    "reconciled_evidence", "__missing__"
+                )
+                downstream_context_snapshot["assessability_results"] = context.get(
+                    "assessability_results", "__missing__"
+                )
+                downstream_context_snapshot["verdicts"] = context.get(
+                    "verdicts", "__missing__"
+                )
+                downstream_context_snapshot["entities"] = context.get(
+                    "entities", "__missing__"
+                )
+                return {"success": True, "message": "ok", "artifacts": {}}
+
+        pipeline = Pipeline(config=_make_config())
+        pipeline.register(_FailingStepWithNoOutputs())
+        pipeline.register(_DownstreamStep())
+        report = pipeline.run(input_dir=Path("/tmp/fake"))
+
+        assert report is not None
+        # Downstream step ran and saw safe defaults (not "__missing__")
+        assert downstream_context_snapshot["reconciled_evidence"] == {}
+        assert downstream_context_snapshot["assessability_results"] == []
+        assert downstream_context_snapshot["verdicts"] == []
+        assert downstream_context_snapshot["entities"] == []
+
     def test_rule_ids_defaults_to_empty_list(self) -> None:
         """Pipeline without rule_ids should default to empty list in metadata."""
         captured_metadata: dict[str, object] = {}

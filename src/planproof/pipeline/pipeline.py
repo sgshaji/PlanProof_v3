@@ -95,6 +95,13 @@ class Pipeline:
                 elapsed_ms = (time.perf_counter() - start) * 1000
                 error_msg = f"{type(exc).__name__}: {exc}"
 
+                # Ensure downstream steps have safe defaults for common context keys
+                # so they do not KeyError if this step was responsible for populating them.
+                context.setdefault("entities", [])
+                context.setdefault("reconciled_evidence", {})
+                context.setdefault("assessability_results", [])
+                context.setdefault("verdicts", [])
+
                 step_telemetry.append(
                     StepTelemetry(
                         step_name=step.name,
