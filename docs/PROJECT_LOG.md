@@ -330,7 +330,7 @@
 - P3: Error-path tests
 - P4: Cache versioning
 
-### Final Project Statistics (2026-03-28)
+### Project Statistics (2026-03-28, pre-Phase 7b)
 
 | Metric | Count |
 |--------|-------|
@@ -354,26 +354,129 @@
 
 ---
 
-## Outstanding Items (as of 2026-03-29)
+## 2026-04-01 — Phase 7b: Critical Bug Fixes
+
+### Bug Fix 1: Assessability Step Not Firing in E2E Pipeline (Gap #1)
+
+**Problem:** `AssessabilityStep.execute()` reads `context["metadata"]["rule_ids"]` but the pipeline only populated `{"input_dir": ...}` in context metadata. The for-loop never executed — 0 assessability results produced, all rules went straight to evaluation, producing false FAILs instead of NOT_ASSESSABLE.
+
+**Fix (3 changes):**
+1. Added `rule_ids: list[str] | None = None` parameter to `Pipeline.__init__()`
+2. `Pipeline.run()` injects `self._rule_ids` into `context["metadata"]["rule_ids"]`
+3. Bootstrap moves rules loading above Pipeline construction, passes `list(rules_dict.keys())` to constructor
+
+**Impact:** Assessability engine (SABLE) now fires correctly in E2E mode. Rules without sufficient evidence are properly classified as NOT_ASSESSABLE instead of receiving false FAIL verdicts.
+
+**Commit:** `8f27f88`
+
+### Bug Fix 2: rule_id "unknown" in Verdict Reports (Gap #2)
+
+**Problem:** `NumericThresholdEvaluator.evaluate()` reads `rule_id` from `self._params` (the YAML `parameters:` dict), but `rule_id` is a top-level field on the YAML rule config, not inside `parameters:`. All evaluators fell back to `"unknown"`.
+
+**Fix (1 change):**
+1. `RuleFactory.load_rules()` injects `rule_id` from the top-level YAML field into the parameters dict before creating evaluators: `params["rule_id"] = raw["rule_id"]`
+
+**Impact:** All 6 evaluator types now produce verdicts with correct rule IDs (R001, R002, R003, C001–C004). Report readability restored.
+
+**Commit:** `3c6a3ca`
+
+### Code Reviews
+- Both fixes passed spec compliance review (all requirements met, nothing extra)
+- Both fixes passed code quality review (0 critical issues; 1 important note per task: integration-level tests deferred to Phase 8a ablation re-run)
+
+### Metrics
+- 759 tests passing (was 754), 14 skipped
+- 5 new tests added (2 pipeline + 3 factory)
+- ~111 total commits
+
+---
+
+## 2026-04-02 — Phase 8a: SABLE-Centred Evaluation Enrichment
+
+### Development
+- Extended `RuleResult` model with SABLE fields (belief, plausibility, conflict_mass, blocking_reason) and PARTIALLY_ASSESSABLE outcome
+- Extended datagen system: `Value` dataclass gains `str_value`, `DatagenRuleConfig` gains 6 new fields for multi-attribute/categorical/pair rules
+- Created 4 C-rule datagen configs (C001 certificate type, C002 address consistency, C003 boundary validation, C004 plan change detection)
+- Enriched R003 with `building_footprint_area`, `total_site_area`, `zone_category` extra attributes
+- Refactored `generate_values()` to dispatch by value_type; `compute_verdicts()` now uses attribute-keyed value map instead of positional zip
+- Updated ablation runner to extract SABLE metrics from `AssessabilityResult` into result JSONs
+- Fixed entity construction from `values[]` (C-rule attributes were missing from ground truth extractions)
+- Added 4 new metrics functions: `partially_assessable_rate`, `blocking_reason_distribution`, `belief_statistics`, `compute_component_contribution`
+
+### Evaluation
+- Regenerated 15 synthetic datasets (5 compliant + 5 non-compliant + 5 edge-case) with 18 attributes and 7 verdicts per set
+- Re-run 5 pipeline ablation configs: 100 experiments, 700 rule evaluations
+- Generated 7 dissertation-quality visualisations at 300 DPI
+- Qualitative error analysis: 100 misclassifications identified, all false FAILs in ablation_d
+
+### Key Findings
+- **full_system: 0 false FAILs; ablation_d: 100 false FAILs** — assessability engine completely prevents false violations
+- Belief scores at 0.10–0.21 with oracle evidence — SABLE correctly identifies single-source limitation
+- ablation_a (no VLM) is most restrictive; ablation_b/c identical to full_system in this corpus
+- Component contribution table: Assessability (SABLE) is the only component with non-zero deltas (McNemar p < 0.001)
+
+### Metrics
+- 790 tests passing, 14 skipped
+- ~120+ total commits
+- 14 Phase 8a commits
+
+---
+
+## Outstanding Items (as of 2026-04-02)
 
 ### Critical (affect dissertation quality)
-- [ ] Fix assessability step not firing in E2E pipeline
-- [ ] Fix rule_id "unknown" in verdict reports
-- [x] Attribute name canonicalisation (LLM output → rule requirement names) — **DONE** (SABLE semantic relevance via embedding cosine similarity resolves this)
+- [x] Fix assessability step not firing in E2E pipeline — **DONE** Phase 7b (2026-04-01)
+- [x] Fix rule_id "unknown" in verdict reports — **DONE** Phase 7b (2026-04-01)
+- [x] Attribute name canonicalisation — **DONE** SABLE semantic relevance (2026-03-29)
+- [x] SABLE evaluation enrichment — **DONE** Phase 8a (2026-04-02)
 
-### Important (strengthen evaluation)
-- [ ] Re-run ablation experiments with real extraction (not GT bypass)
-- [ ] Complete strong baseline runs (Groq rate limit)
-- [ ] Enrich synthetic data (add footprint_area, site_area, certificate_type)
-- [ ] Qualitative error analysis (per-misclassification narrative)
+### Phase 8a — SABLE-Centred Evaluation Enrichment (complete, 2026-04-02)
+- [x] Extended `RuleResult` with SABLE fields: belief, plausibility, conflict_mass, blocking_reason, PARTIALLY_ASSESSABLE
+- [x] Extended datagen for C001–C004 (categorical, string_pair, numeric_pair value types) + R003 extra_attributes
+- [x] Created 4 new C-rule datagen YAML configs (certificate type, address consistency, boundary validation, plan change detection)
+- [x] Updated ablation runner to extract SABLE metrics from AssessabilityResult into result JSONs
+- [x] Added metrics: partially_assessable_rate, blocking_reason_distribution, belief_statistics, compute_component_contribution (with McNemar + Cohen's h)
+- [x] Regenerated 15 synthetic datasets with 7-rule enrichment (18 attributes per set, 7 verdicts per set)
+- [x] Re-run 5 pipeline ablation configs (100 experiments, 700 rule evaluations)
+- [x] Generated 7 dissertation-quality SABLE visualisations (300 DPI): belief violin, three-state bar, belief-vs-plausibility scatter, blocking reasons, false-FAIL prevention, component contribution table, concordance heatmap
+- [x] Qualitative error analysis with 3 dissertation vignettes (docs/ERROR_ANALYSIS.md)
+- [x] Updated EXECUTION_STATUS.md and GAPS_AND_IDEAS.md
 
-### Nice-to-have
-- [ ] Confidence threshold calibration
-- [ ] Run E2E on more BCC sets
-- [ ] Apply P0-P4 architectural improvements
+#### Key Findings
+- **full_system: 0 false FAILs** — SABLE assessability engine completely prevents false violation verdicts
+- **ablation_d (no assessability): 100 false FAILs** — forced binary verdicts on insufficient evidence produce systematic over-flagging
+- Belief scores uniformly low (0.10–0.21) with single-source oracle evidence — SABLE correctly identifies limited evidence even when values are perfect
+- R-rules (R001–R003) achieve belief=0.21; C-rules (C001–C004) achieve belief=0.11 — reflects multi-requirement evidence structure
+- ablation_a (no VLM) is most restrictive: all 140 evaluations NOT_ASSESSABLE
+- ablation_b (no SNKG) and ablation_c (no gating) produce identical results to full_system in this corpus
+
+### Phase 8b — Architectural Polish (pending)
+- [ ] P0: Add `@runtime_checkable` to all Protocol interfaces
+- [ ] P1: XML-wrap document text in LLM prompts (prompt injection defence)
+- [ ] P2: Failed pipeline steps populate default context outputs
+
+### Phase 8c — Extraction Evaluation Track (pending)
+- [ ] Extraction accuracy metrics infrastructure (precision, recall, value accuracy)
+- [ ] Run extraction v1 baseline on synthetic PDFs, compare against ground truth
+- [ ] Analyse extraction failures — categorise by prompt, attribute, failure mode
+- [ ] Improve prompts based on failure analysis + post-extraction validation (range checks)
+- [ ] Re-run extraction v2, measure improvement delta (before/after prompt tuning figure)
+- [ ] Real extraction ablation — feed improved extractions into reasoning pipeline
+- [ ] Error attribution analysis — when verdict is wrong, was it extraction or reasoning? (key finding)
+- [ ] Qualitative extraction evaluation on real BCC data (no GT, manual inspection)
+
+### Phase 9 — Boundary Verification Pipeline (pending)
+- [ ] Tier 1: VLM visual alignment (red-line boundary vs OS base map)
+- [ ] Tier 2: Scale-bar measurement + area discrepancy detection
+- [ ] Tier 3: HMLR INSPIRE address cross-reference (UPRN + polygon area)
+- [ ] Combined BoundaryVerificationStep replacing simplified C003
+- [ ] Synthetic location plan generation + E2E test
+- [ ] Dissertation limitations documentation
 
 ### Known Deferred
 - [ ] Shapely spatial predicates (stored but not computed)
 - [ ] VLM fine-tuning (VLM_FINETUNED)
-- [ ] Label Studio annotation tooling
+- [ ] Complete strong baseline runs (Groq rate limit)
+- [ ] Confidence threshold calibration
+- [ ] Run E2E on more BCC sets
 - [ ] Web dashboard (M12 — CLI sufficient for dissertation)
