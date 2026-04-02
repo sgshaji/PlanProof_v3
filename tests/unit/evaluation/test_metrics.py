@@ -6,14 +6,18 @@ import math
 import pytest
 
 from planproof.evaluation.metrics import (
+    belief_statistics,
+    blocking_reason_distribution,
     bootstrap_ci,
     cohens_h,
     compute_automation_rate,
+    compute_component_contribution,
     compute_confusion_matrix,
     compute_f2_score,
     compute_precision,
     compute_recall,
     mcnemar_test,
+    partially_assessable_rate,
 )
 from planproof.evaluation.results import RuleResult
 
@@ -349,3 +353,175 @@ class TestCohensH:
     def test_antisymmetric(self) -> None:
         """cohens_h(p1, p2) == -cohens_h(p2, p1)."""
         assert cohens_h(0.7, 0.4) == pytest.approx(-cohens_h(0.4, 0.7))
+
+
+# ---------------------------------------------------------------------------
+# partially_assessable_rate
+# ---------------------------------------------------------------------------
+
+
+class TestPartiallyAssessableRate:
+    def test_no_partially_assessable(self) -> None:
+        results = [_result("PASS", "PASS"), _result("FAIL", "FAIL")]
+        assert partially_assessable_rate(results) == pytest.approx(0.0)
+
+    def test_some_partially_assessable(self) -> None:
+        results = [
+            _result("PASS", "PASS"),
+            RuleResult(
+                rule_id="R002",
+                ground_truth_outcome="FAIL",
+                predicted_outcome="PARTIALLY_ASSESSABLE",
+                config_name="cfg",
+                set_id="s1",
+            ),
+        ]
+        assert partially_assessable_rate(results) == pytest.approx(0.5)
+
+    def test_empty_returns_zero(self) -> None:
+        assert partially_assessable_rate([]) == pytest.approx(0.0)
+
+
+# ---------------------------------------------------------------------------
+# blocking_reason_distribution
+# ---------------------------------------------------------------------------
+
+
+class TestBlockingReasonDistribution:
+    def test_counts_each_reason(self) -> None:
+        results = [
+            RuleResult(
+                rule_id="R001",
+                ground_truth_outcome="PASS",
+                predicted_outcome="NOT_ASSESSABLE",
+                config_name="cfg",
+                set_id="s1",
+                blocking_reason="MISSING_EVIDENCE",
+            ),
+            RuleResult(
+                rule_id="R002",
+                ground_truth_outcome="PASS",
+                predicted_outcome="NOT_ASSESSABLE",
+                config_name="cfg",
+                set_id="s1",
+                blocking_reason="MISSING_EVIDENCE",
+            ),
+            RuleResult(
+                rule_id="R003",
+                ground_truth_outcome="PASS",
+                predicted_outcome="PASS",
+                config_name="cfg",
+                set_id="s1",
+                blocking_reason="NONE",
+            ),
+        ]
+        dist = blocking_reason_distribution(results)
+        assert dist["MISSING_EVIDENCE"] == 2
+        assert dist["NONE"] == 1
+
+    def test_none_blocking_reason_counted(self) -> None:
+        results = [_result("PASS", "PASS")]  # blocking_reason defaults to None
+        dist = blocking_reason_distribution(results)
+        assert dist.get("null", 0) == 1
+
+
+# ---------------------------------------------------------------------------
+# belief_statistics
+# ---------------------------------------------------------------------------
+
+
+class TestBeliefStatistics:
+    def test_basic_stats(self) -> None:
+        results = [
+            RuleResult(
+                rule_id=f"R{i:03d}",
+                ground_truth_outcome="PASS",
+                predicted_outcome="PASS",
+                config_name="cfg",
+                set_id="s1",
+                belief=v,
+            )
+            for i, v in enumerate([0.2, 0.4, 0.6, 0.8])
+        ]
+        stats = belief_statistics(results)
+        assert stats["mean"] == pytest.approx(0.5)
+        assert stats["min"] == pytest.approx(0.2)
+        assert stats["max"] == pytest.approx(0.8)
+        assert "std" in stats
+        assert "median" in stats
+
+    def test_skips_none_beliefs(self) -> None:
+        results = [
+            RuleResult(
+                rule_id="R001",
+                ground_truth_outcome="PASS",
+                predicted_outcome="PASS",
+                config_name="cfg",
+                set_id="s1",
+                belief=0.5,
+            ),
+            _result("PASS", "PASS"),  # belief=None
+        ]
+        stats = belief_statistics(results)
+        assert stats["mean"] == pytest.approx(0.5)
+        assert stats["count"] == 1
+
+    def test_empty_results(self) -> None:
+        stats = belief_statistics([])
+        assert stats["count"] == 0
+        assert stats["mean"] == pytest.approx(0.0)
+
+
+# ---------------------------------------------------------------------------
+# compute_component_contribution
+# ---------------------------------------------------------------------------
+
+
+class TestComponentContribution:
+    def test_returns_rows_for_each_ablation(self) -> None:
+        full = [
+            RuleResult(
+                rule_id="R001",
+                ground_truth_outcome="FAIL",
+                predicted_outcome="FAIL",
+                config_name="full_system",
+                set_id="s1",
+            ),
+        ]
+        abl_d = [
+            RuleResult(
+                rule_id="R001",
+                ground_truth_outcome="FAIL",
+                predicted_outcome="PASS",
+                config_name="ablation_d",
+                set_id="s1",
+            ),
+        ]
+        all_results = {"full_system": full, "ablation_d": abl_d}
+        rows = compute_component_contribution(all_results)
+        assert len(rows) >= 1
+        row_d = next(r for r in rows if r["config_name"] == "ablation_d")
+        assert "recall_delta" in row_d
+        assert "mcnemar_p" in row_d
+        assert "cohens_h" in row_d
+
+
+# ---------------------------------------------------------------------------
+# compute_confusion_matrix — PARTIALLY_ASSESSABLE
+# ---------------------------------------------------------------------------
+
+
+class TestConfusionMatrixPartiallyAssessable:
+    def test_partially_assessable_counted_like_not_assessable(self) -> None:
+        results = [
+            RuleResult(
+                rule_id="R001",
+                ground_truth_outcome="FAIL",
+                predicted_outcome="PARTIALLY_ASSESSABLE",
+                config_name="cfg",
+                set_id="s1",
+            ),
+        ]
+        cm = compute_confusion_matrix(results)
+        assert cm["fn"] == 1
+        assert cm["not_assessable"] == 1
