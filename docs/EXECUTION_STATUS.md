@@ -448,7 +448,7 @@ Measured extraction accuracy independently from reasoning accuracy. Fed real (im
 - [x] Re-run extraction v2: precision improved from 0.299 → 0.715 (+41.6pp), recall stable at 0.886 (2026-04-03)
 - [x] Real extraction ablation: fed v2 extractions into full reasoning pipeline (2026-04-03)
 - [x] Error attribution: 71.4% reasoning failure, 23.8% end-to-end success, 4.8% extraction failure (2026-04-03)
-- [x] 2×2 False-FAIL Matrix: full_system=0 false FAILs (oracle+real); ablation_d=100 (oracle), 26 (real) (2026-04-03)
+- [x] 2×2 False-FAIL Matrix: full_system=0 false FAILs (oracle+real); ablation_d=43 (oracle, corrected), 26 (real) (2026-04-03)
 - [x] SABLE belief comparison: oracle avg=0.150, real avg=0.170 (delta bounded at +0.020) (2026-04-03)
 - [x] 4 dissertation figures generated at 300 DPI (E1–E4) (2026-04-03)
 - [x] EXTRACTION_ERROR_ATTRIBUTION.md written with 3 dissertation vignettes (2026-04-03)
