@@ -1,0 +1,13 @@
+rule_id: C005
+description: "Site boundary must be consistent with authoritative land records"
+policy_source: "BCC Validation Checklist — boundary and location plan requirements"
+evaluation_type: boundary_verification
+parameters:
+  visual_alignment_required: true
+  max_area_discrepancy_pct: 0.15
+  max_over_claiming_ratio: 1.5
+required_evidence:
+  - attribute: boundary_verification_status
+    acceptable_sources: ["BOUNDARY_VERIFICATION"]
+    min_confidence: 0.60
+    spatial_grounding: null

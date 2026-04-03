@@ -38,6 +38,7 @@ from planproof.pipeline.steps.vlm_extraction import VLMExtractionStep
 from planproof.reasoning.assessability import DefaultAssessabilityEvaluator
 from planproof.reasoning.confidence import ThresholdConfidenceGate
 from planproof.reasoning.evaluators.attribute_diff import AttributeDiffEvaluator
+from planproof.reasoning.evaluators.boundary_verification import BoundaryVerificationEvaluator
 from planproof.reasoning.evaluators.enum_check import EnumCheckEvaluator
 from planproof.reasoning.evaluators.factory import RuleFactory
 from planproof.reasoning.evaluators.fuzzy_match import FuzzyMatchEvaluator
@@ -97,6 +98,7 @@ def _register_evaluators() -> RuleFactory:
     RuleFactory.register_evaluator("fuzzy_string_match", FuzzyMatchEvaluator)
     RuleFactory.register_evaluator("numeric_tolerance", NumericToleranceEvaluator)
     RuleFactory.register_evaluator("attribute_diff", AttributeDiffEvaluator)
+    RuleFactory.register_evaluator("boundary_verification", BoundaryVerificationEvaluator)
     return factory
 
 
