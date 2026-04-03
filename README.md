@@ -11,7 +11,7 @@ Partner Organisation: Birmingham City Council (BCC)
 
 > *Can a neurosymbolic pipeline that explicitly models evidence sufficiency using Dempster-Shafer theory outperform LLM-only approaches at planning compliance validation, while eliminating false violation verdicts caused by insufficient evidence?*
 
-**Answer: Yes.** The full system produces **zero false violations** across all evaluation scenarios, while the best LLM-only baseline produces 100. The key mechanism is the SABLE algorithm -- a novel assessability engine grounded in Dempster-Shafer evidence theory that determines whether sufficient trustworthy evidence exists before any rule is evaluated.
+**Answer: Yes.** The full system produces **zero false violations** across all evaluation scenarios, while removing the assessability engine (ablation_d) produces 43. The key mechanism is the SABLE algorithm -- a novel assessability engine grounded in Dempster-Shafer evidence theory that determines whether sufficient trustworthy evidence exists before any rule is evaluated.
 
 ---
 
@@ -70,22 +70,23 @@ Documents ──> Classify ──> Extract (LLM/VLM) ──> Normalise ──> S
 
 Each component's contribution is validated through systematic ablation:
 
-| Component Removed | False FAILs | Effect |
-|---|---|---|
-| None (full system) | 0 | Baseline |
-| VLM extraction | 0 | Most conservative (all NOT_ASSESSABLE) |
-| SNKG graph | 0 | Flat matching equivalent |
-| Confidence gating | 0 | No effect with oracle data |
-| **Assessability (SABLE)** | **100** | **Forced binary = systematic over-flagging** |
+| Component Removed | False FAILs | PASS | Effect |
+|---|---|---|---|
+| None (full system) | 0 | 43 | Baseline — confident verdicts + zero false violations |
+| VLM extraction | 0 | 0 | All NOT_ASSESSABLE (no evidence without VLM) |
+| SNKG graph | 0 | 43 | Identical to full system — SNKG not exercised by current corpus |
+| Confidence gating | 0 | 43 | Identical to full system — oracle evidence has no low-confidence noise |
+| **Assessability (SABLE)** | **43** | 73 | **Forced binary = 43 false violations on compliant cases** |
 
 ---
 
 ## Key Results
 
-### Ablation Study (Phase 8a)
-- **Full system: 0 false FAILs** across 700 rule evaluations (20 test sets x 5 configs x 7 rules)
-- **Ablation D (no assessability): 100 false FAILs** -- SABLE completely prevents false violations
-- SABLE belief scores correctly respond to evidence quality (R-rules: 0.21, C-rules: 0.11)
+### Ablation Study (corrected 2026-04-03)
+- **Full system: 0 false FAILs, 43 PASS, 2 true FAILs** across 120 rule evaluations (15 test sets × 8 rules)
+- **Ablation D (no assessability): 43 false FAILs** -- SABLE prevents all 43 by converting to PARTIALLY_ASSESSABLE
+- **Belief two-cluster structure:** 0.56 (SINGLE_SOURCE concordance) and 0.96 (DUAL_SOURCE) — direct Dempster combination confirmation
+- **ablation_b (no SNKG) = full_system** — SNKG structural queries not exercised by current 7-rule corpus
 
 ### Extraction Evaluation (Phase 8c)
 - **Prompt tuning: precision 0.299 -> 0.715 (+139%)** by narrowing from broad entity types to 7 target attributes
@@ -94,14 +95,14 @@ Each component's contribution is validated through systematic ablation:
 
 |  | Full System | No Assessability |
 |---|---|---|
-| **Oracle extraction** | 0 | 100 |
-| **Real extraction** | 0 | 26 |
+| **Oracle extraction** | 0 | 43 |
+| **Real extraction** | 0 | ~26 |
 
 The architecture is resilient: SABLE produces zero false FAILs regardless of extraction quality.
 
 ### Error Attribution
-- 71.4% of errors are reasoning failures (missing assessability), not extraction failures (4.8%)
-- The dominant failure mode is architectural, not data quality
+- The dominant failure mode is architectural (removing SABLE), not data quality or extraction quality
+- Removing SABLE produces 43 false FAILs; imperfect extraction alone produces 0
 
 ---
 

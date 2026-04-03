@@ -361,14 +361,15 @@ pip install -e ".[geo,pdf,dev]"
 - [x] Fix rule_id "unknown" in verdict reports — **RESOLVED Phase 7b** (2026-04-01)
 - [ ] Run E2E on more BCC application sets
 
-### Key Findings (2026-03-28/29)
-- Full system produces 0 false FAILs on compliant data (baselines produce 3-6)
-- Ablation D (no assessability) produces 5 false FAILs — demonstrates assessability engine value
+### Key Findings (2026-03-28/29, corrected 2026-04-03)
+- **Full system produces 0 false FAILs; ablation_d produces 43** — SABLE completely prevents false violations
+- **Full system issues 43 PASS and 2 true FAILs** — SABLE does not merely abstain; it clears rules decisively when evidence is sufficient (belief=0.96 for R001/R002/C004)
+- **ablation_b (no SNKG) = full_system** — SNKG not exercised by current 7-rule corpus; structural querying capability exists but not triggered at this scale
+- **Belief two-cluster structure:** 0.56 (SINGLE_SOURCE concordance) and 0.96 (DUAL_SOURCE concordance) — direct empirical confirmation of Dempster combination law
 - Strong baseline (CoT) performs WORSE than naive — LLM confuses missing evidence with violations
 - Real BCC data runs through full pipeline — correctly identifies insufficient evidence
-- SABLE algorithm replaces ad-hoc if-else assessability logic with principled D-S evidence theory — belief/plausibility bounds enable richer analysis
 
-### Project Statistics (2026-04-03, final)
+### Project Statistics (2026-04-03, final — corrected ablation numbers)
 | Metric | Count |
 |--------|-------|
 | Commits | 151 |
@@ -380,7 +381,9 @@ pip install -e ".[geo,pdf,dev]"
 | Compliance rules | 8 (R001–R003 + C001–C005) |
 | Evaluator types | 7 (numeric_threshold, ratio_threshold, enum_check, fuzzy_string_match, numeric_tolerance, attribute_diff, boundary_verification) |
 | Ablation configs | 7 (full + 4 ablations + 2 baselines) |
-| Ablation experiments | 100 (700 rule evaluations) |
+| Ablation experiments | 75 (120 evaluations per config × 5 ablation configs) |
+| full_system verdicts | 43 PASS, 2 true FAILs, 60 PA, 15 NA |
+| ablation_d false FAILs | 43 (all prevented by SABLE in full_system) |
 | Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
 | Real BCC datasets | 10 (anonymised, drawings only) |
 | INSPIRE cadastral parcels | 346,231 |

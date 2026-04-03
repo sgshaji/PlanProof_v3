@@ -41,6 +41,11 @@
 **When it matters:** Real BCC data with overlapping zones would need runtime spatial resolution.
 **Fix:** Add shapely operations in load_reference_data(). Requires shapely (CI/WSL only, no ARM64 Windows wheels).
 
+### 5a. SNKG ablation result (ablation_b = full_system)
+**Status:** Confirmed empirical finding — honest framing required in dissertation
+**Finding:** ablation_b (SNKG removed) produces identical results to full_system on this corpus: 43 PASS, 2 true FAILs, 60 PA, 15 NA, 0 false FAILs. The knowledge graph provides structural querying capability that is not exercised by the current 7-rule evaluation set but would be necessary at scale (e.g., spatial containment queries for zone-based rules, multi-hop relationship traversal for ownership chains). The ablation result does not mean the SNKG is valueless — it means the evaluation corpus is not rich enough to exercise it.
+**Dissertation framing:** "ablation_b (SNKG removed) produces identical results to full_system on this corpus. The knowledge graph provides structural querying capability that is not exercised by the current 7-rule evaluation set but would be necessary at scale (e.g., spatial containment queries for zone-based rules, multi-hop relationship traversal for ownership chains)."
+
 ### 6. Synthetic data lacks some rule attributes
 **Status:** RESOLVED (2026-04-02, Phase 8a)
 **Impact:** Was: R003 always NOT_ASSESSABLE; C001–C004 always NOT_ASSESSABLE — now fixed.
@@ -141,9 +146,11 @@ The ad-hoc if-else assessability checklist (`DefaultAssessabilityEvaluator`) has
 | Dissertation figures | 11 (7 SABLE + 4 extraction, 300 DPI) |
 
 ### Key Findings
-- **full_system produces 0 false FAILs; ablation_d produces 100** — the assessability engine completely prevents false violations (Phase 8a)
+- **full_system produces 0 false FAILs; ablation_d produces 43** — the assessability engine completely prevents false violations (Phase 8a, corrected 2026-04-03)
+- **full_system issues 43 PASS and 2 true FAILs** — SABLE does not merely abstain; it clears rules when evidence is genuinely sufficient (belief=0.96 for R001/R002/C004)
+- **ablation_b (no SNKG) = full_system** — SNKG not exercised by current 7-rule corpus; capability exists but not tested at scale
+- **Belief two-cluster structure:** 0.56 (SINGLE_SOURCE concordance) and 0.96 (DUAL_SOURCE concordance) — direct confirmation of Dempster combination law
 - **Prompt tuning: precision 0.299 -> 0.715 (+139%)** with zero recall loss (Phase 8c)
-- **Error attribution: 71.4% reasoning failure, 4.8% extraction failure** — architecture matters more than extraction quality (Phase 8c)
 - **Three-tier boundary verification** with pure Python INSPIRE parsing and VLM visual alignment (Phase 9)
 
 ---
