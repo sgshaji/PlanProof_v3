@@ -1,0 +1,351 @@
+{
+  "level": 0,
+  "level_label": "Oracle",
+  "config_name": "ablation_d",
+  "degradation": {
+    "value_noise_pct": 0.0,
+    "entity_dropout_pct": 0.0,
+    "confidence_noise_std": 0.0,
+    "attribute_swap_pct": 0.0
+  },
+  "counts": {
+    "PASS": 151,
+    "FAIL_true": 20,
+    "FAIL_false": 93,
+    "NOT_ASSESSABLE": 0,
+    "PARTIALLY_ASSESSABLE": 0
+  },
+  "per_set": [
+    {
+      "set_id": "SET_COMPLIANT_42000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_COMPLIANT_42001",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_COMPLIANT_42002",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_COMPLIANT_42003",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_COMPLIANT_42004",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_101000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 1,
+        "FAIL_false": 2,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_103000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 1,
+        "FAIL_false": 2,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_105000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_106000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_118000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_120000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 1,
+        "FAIL_false": 2,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_122000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_126000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_129000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_135000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 1,
+        "FAIL_false": 2,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_42000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_42001",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_42002",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 1,
+        "FAIL_false": 2,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_42003",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_42004",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 1,
+        "FAIL_false": 2,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_54000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_62000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_68000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_70000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_73000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_82000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_NONCOMPLIANT_83000",
+      "counts": {
+        "PASS": 4,
+        "FAIL_true": 1,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_EDGECASE_42000",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_EDGECASE_42001",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_EDGECASE_42002",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_EDGECASE_42003",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    },
+    {
+      "set_id": "SET_EDGECASE_42004",
+      "counts": {
+        "PASS": 5,
+        "FAIL_true": 0,
+        "FAIL_false": 3,
+        "NOT_ASSESSABLE": 0,
+        "PARTIALLY_ASSESSABLE": 0
+      }
+    }
+  ],
+  "timestamp": "2026-04-03T13:19:15.433088+00:00"
+}
