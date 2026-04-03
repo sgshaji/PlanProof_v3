@@ -1,0 +1,110 @@
+{
+  "config_name": "strong_baseline",
+  "set_id": "SET_COMPLIANT_42000",
+  "rule_results": [
+    {
+      "rule_id": "C001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_COMPLIANT_42000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
+      "rule_id": "C002",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_COMPLIANT_42000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
+      "rule_id": "C003",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_COMPLIANT_42000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
+      "rule_id": "C004",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_COMPLIANT_42000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
+      "rule_id": "C005",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_COMPLIANT_42000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
+      "rule_id": "R001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_COMPLIANT_42000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
+      "rule_id": "R002",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_COMPLIANT_42000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
+      "rule_id": "R003",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_COMPLIANT_42000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    }
+  ],
+  "metadata": {
+    "ablation_config": {
+      "evaluation_strategy": "strong_llm",
+      "use_snkg": false,
+      "use_rule_engine": false,
+      "use_confidence_gating": false,
+      "use_assessability_engine": false,
+      "use_evidence_reconciliation": false,
+      "use_vlm": false
+    },
+    "category": "compliant",
+    "difficulty": "high",
+    "seed": 42000,
+    "n_documents": 6
+  },
+  "timestamp": "2026-04-03T10:06:39.222707Z"
+}

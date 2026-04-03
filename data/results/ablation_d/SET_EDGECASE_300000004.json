@@ -47,6 +47,17 @@
       "blocking_reason": null
     },
     {
+      "rule_id": "C005",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "FAIL",
+      "config_name": "ablation_d",
+      "set_id": "SET_EDGECASE_300000004",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
       "rule_id": "R001",
       "ground_truth_outcome": "PASS",
       "predicted_outcome": "PASS",
@@ -94,5 +105,5 @@
     "seed": 300000004,
     "n_documents": 6
   },
-  "timestamp": "2026-04-02T15:33:52.701903Z"
+  "timestamp": "2026-04-03T10:07:17.414540Z"
 }

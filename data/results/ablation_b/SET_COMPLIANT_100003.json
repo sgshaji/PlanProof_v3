@@ -47,12 +47,23 @@
       "blocking_reason": "MISSING_EVIDENCE"
     },
     {
-      "rule_id": "R001",
+      "rule_id": "C005",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_100003",
-      "belief": 0.21,
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "R001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PASS",
+      "config_name": "ablation_b",
+      "set_id": "SET_COMPLIANT_100003",
+      "belief": 0.96,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
@@ -60,10 +71,10 @@
     {
       "rule_id": "R002",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "predicted_outcome": "PASS",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_100003",
-      "belief": 0.21,
+      "belief": 0.96,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
@@ -74,7 +85,7 @@
       "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_100003",
-      "belief": 0.21,
+      "belief": 0.9774999999999998,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "MISSING_EVIDENCE"
@@ -94,5 +105,5 @@
     "seed": 100003,
     "n_documents": 6
   },
-  "timestamp": "2026-04-02T15:33:38.709575Z"
+  "timestamp": "2026-04-03T10:06:53.028378Z"
 }

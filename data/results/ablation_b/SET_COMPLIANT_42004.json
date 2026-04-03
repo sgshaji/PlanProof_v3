@@ -8,7 +8,7 @@
       "predicted_outcome": "PARTIALLY_ASSESSABLE",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_42004",
-      "belief": 0.21,
+      "belief": 0.5599999999999999,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
@@ -19,7 +19,7 @@
       "predicted_outcome": "PARTIALLY_ASSESSABLE",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_42004",
-      "belief": 0.21,
+      "belief": 0.5599999999999999,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
@@ -30,7 +30,7 @@
       "predicted_outcome": "PARTIALLY_ASSESSABLE",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_42004",
-      "belief": 0.21,
+      "belief": 0.5599999999999999,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
@@ -38,21 +38,32 @@
     {
       "rule_id": "C004",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "predicted_outcome": "FAIL",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_42004",
-      "belief": 0.21,
+      "belief": 0.96,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
     },
     {
-      "rule_id": "R001",
+      "rule_id": "C005",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_42004",
-      "belief": 0.21,
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "R001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PASS",
+      "config_name": "ablation_b",
+      "set_id": "SET_COMPLIANT_42004",
+      "belief": 0.96,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
@@ -60,10 +71,10 @@
     {
       "rule_id": "R002",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "predicted_outcome": "PASS",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_42004",
-      "belief": 0.21,
+      "belief": 0.96,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
@@ -74,7 +85,7 @@
       "predicted_outcome": "PARTIALLY_ASSESSABLE",
       "config_name": "ablation_b",
       "set_id": "SET_COMPLIANT_42004",
-      "belief": 0.21,
+      "belief": 0.5599999999999999,
       "plausibility": 1.0,
       "conflict_mass": 0.0,
       "blocking_reason": "NONE"
@@ -94,5 +105,5 @@
     "seed": 42004,
     "n_documents": 6
   },
-  "timestamp": "2026-04-02T15:33:39.703928Z"
+  "timestamp": "2026-04-03T10:06:55.579088Z"
 }
