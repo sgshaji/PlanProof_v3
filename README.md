@@ -1,28 +1,149 @@
 # PlanProof
 
-**Assessability-Aware Multimodal Planning Compliance Validation**
+**Assessability-Aware Multimodal Planning Compliance Validation Using Neurosymbolic AI and Dempster-Shafer Evidence Theory**
 
-MSc Dissertation — Data Science with Work Placement, 2025–2026
-Partner Organisation: Bristol City Council
+MSc Dissertation -- Data Science with Work Placement, 2025-2026
+Partner Organisation: Birmingham City Council (BCC)
 
 ---
 
-## What Is This?
+## Research Question
 
-PlanProof is an AI system that validates UK planning applications against regulatory rules. Unlike existing tools that force binary PASS/FAIL verdicts, PlanProof asks a harder question: **is there enough trustworthy evidence to even evaluate this rule?**
+> *Can a neurosymbolic pipeline that explicitly models evidence sufficiency using Dempster-Shafer theory outperform LLM-only approaches at planning compliance validation, while eliminating false violation verdicts caused by insufficient evidence?*
 
-When evidence is insufficient or contradictory, the system returns **NOT_ASSESSABLE** with a minimum evidence request — telling the applicant exactly what's missing. This mirrors how planning officers actually work.
+**Answer: Yes.** The full system produces **zero false violations** across all evaluation scenarios, while the best LLM-only baseline produces 100. The key mechanism is the SABLE algorithm -- a novel assessability engine grounded in Dempster-Shafer evidence theory that determines whether sufficient trustworthy evidence exists before any rule is evaluated.
 
-### Core Architecture
+---
+
+## What Is PlanProof?
+
+PlanProof is an AI system that validates UK householder planning applications against regulatory rules. Unlike existing tools that force binary PASS/FAIL verdicts on every rule regardless of available evidence, PlanProof asks a harder question: **is there enough trustworthy evidence to even evaluate this rule?**
+
+When evidence is insufficient or contradictory, the system returns **NOT_ASSESSABLE** with a minimum evidence request -- telling the applicant exactly what's missing. When evidence is present but contested, it returns **PARTIALLY_ASSESSABLE** with belief/plausibility bounds. This mirrors how planning officers actually work: they don't guess when evidence is missing -- they request more information.
+
+### Why This Matters
+
+UK local planning authorities process ~460,000 householder applications per year. Each must be validated against a checklist of regulatory requirements before it can be assessed on planning merit. This validation is:
+- **Manual** -- planning officers visually inspect submitted documents
+- **Error-prone** -- missing evidence is often confused with non-compliance
+- **Time-consuming** -- validation alone takes 30-60 minutes per application
+
+False rejection of valid applications wastes applicant time and council resources. False approval of invalid applications creates legal risk. PlanProof addresses both failure modes.
+
+---
+
+## Novel Contributions
+
+### 1. SABLE Algorithm (Semantic Assessability via Belief-theoretic evidence Logic)
+
+The core research contribution. SABLE replaces ad-hoc if-else assessability logic with a principled framework grounded in Dempster-Shafer evidence theory:
+
+- **Three-valued mass functions** with ignorance mass m(Theta) propagate epistemic uncertainty rather than forcing binary decisions on insufficient data
+- **Semantic attribute matching** via sentence-transformer embeddings resolves the attribute canonicalisation problem (e.g., "height" matches "building_height")
+- **Concordance adjustment** from reconciliation output modulates ignorance mass based on cross-document agreement
+- **Three-state assessability model**: ASSESSABLE / PARTIALLY_ASSESSABLE / NOT_ASSESSABLE
+
+Formal specification: [docs/SABLE_ALGORITHM.md](docs/SABLE_ALGORITHM.md)
+
+### 2. Three-Tier Boundary Verification Pipeline
+
+A novel approach to verifying that an applicant's red-line site boundary is consistent with authoritative land records:
+
+| Tier | Method | What It Catches |
+|------|--------|----------------|
+| **Tier 1** | VLM visual alignment (GPT-4o) | Red line in wrong place -- extends into highway, cuts through neighbour |
+| **Tier 2** | Scale-bar measurement (GPT-4o) | Area inflation -- drawing shows 300m but form claims 500m |
+| **Tier 3** | INSPIRE polygon cross-reference | Land grab -- declared area 1.5x larger than Land Registry record |
+
+**Key insight:** The OS base map is already embedded in UK location plan documents. The VLM can see both the red line and property boundaries in the same image -- no expensive GIS pipeline needed.
+
+### 3. Neurosymbolic Architecture with Ablation-Validated Component Contribution
+
+A 12-step pipeline where neural methods (LLMs, VLMs) extract facts and symbolic methods (knowledge graph, deterministic rules) evaluate compliance:
 
 ```
-Planning Application          Pipeline                          Output
-  ├─ Forms (PDF)         ───► Classify → Extract → Graph ───►  PASS / FAIL verdicts
-  ├─ Drawings (images)   ───► Reconcile → Gate → Assess    ──► NOT_ASSESSABLE verdicts
-  └─ Reports (PDF)             → Evaluate rules             ──► Min Evidence Requests
+Documents ──> Classify ──> Extract (LLM/VLM) ──> Normalise ──> SNKG Graph
+                                                                    |
+             Compliance  <── Evaluate  <── Assess (SABLE)  <── Reconcile
+              Report         Rules          Evidence            Sources
 ```
 
-**Neurosymbolic approach**: neural methods (LLMs, VLMs) extract facts from documents; symbolic methods (knowledge graph, deterministic rules) evaluate compliance; a confidence-gating layer mediates between them.
+Each component's contribution is validated through systematic ablation:
+
+| Component Removed | False FAILs | Effect |
+|---|---|---|
+| None (full system) | 0 | Baseline |
+| VLM extraction | 0 | Most conservative (all NOT_ASSESSABLE) |
+| SNKG graph | 0 | Flat matching equivalent |
+| Confidence gating | 0 | No effect with oracle data |
+| **Assessability (SABLE)** | **100** | **Forced binary = systematic over-flagging** |
+
+---
+
+## Key Results
+
+### Ablation Study (Phase 8a)
+- **Full system: 0 false FAILs** across 700 rule evaluations (20 test sets x 5 configs x 7 rules)
+- **Ablation D (no assessability): 100 false FAILs** -- SABLE completely prevents false violations
+- SABLE belief scores correctly respond to evidence quality (R-rules: 0.21, C-rules: 0.11)
+
+### Extraction Evaluation (Phase 8c)
+- **Prompt tuning: precision 0.299 -> 0.715 (+139%)** by narrowing from broad entity types to 7 target attributes
+- Recall (0.886) and value accuracy (0.857) unchanged
+- **2x2 False-FAIL Matrix:**
+
+|  | Full System | No Assessability |
+|---|---|---|
+| **Oracle extraction** | 0 | 100 |
+| **Real extraction** | 0 | 26 |
+
+The architecture is resilient: SABLE produces zero false FAILs regardless of extraction quality.
+
+### Error Attribution
+- 71.4% of errors are reasoning failures (missing assessability), not extraction failures (4.8%)
+- The dominant failure mode is architectural, not data quality
+
+---
+
+## Architecture
+
+### Pipeline Steps (12)
+
+| # | Step | Module | Purpose |
+|---|------|--------|---------|
+| 1 | Classification | M1 | Rule-based document type detection |
+| 2 | Text Extraction | M2 | PdfPlumber + LLM structured extraction |
+| 3 | VLM Extraction | M3 | GPT-4o spatial attribute extraction from drawings |
+| 4 | Boundary Verification | M3b | Three-tier boundary consistency check |
+| 5 | Normalisation | M5 | Unit conversion + address canonicalisation |
+| 6 | Graph Population | M5 | Neo4j SNKG entity/relationship creation |
+| 7 | Reconciliation | M6 | Pairwise cross-document evidence agreement |
+| 8 | Confidence Gating | M7 | Per-method, per-type threshold filtering |
+| 9 | Assessability (SABLE) | M8 | D-S evidence sufficiency evaluation |
+| 10 | Rule Evaluation | M9 | 7 evaluator types (numeric, ratio, enum, fuzzy, tolerance, diff, boundary) |
+| 11 | Compliance Scoring | M10 | Aggregate verdicts into report |
+| 12 | Evidence Requests | M11 | Generate minimum evidence requests for NOT_ASSESSABLE rules |
+
+### Compliance Rules (8)
+
+| Rule | Description | Type |
+|------|-------------|------|
+| R001 | Max building height <= 8m | Numeric threshold |
+| R002 | Min rear garden depth >= 10m | Numeric threshold |
+| R003 | Max site coverage <= 50% | Ratio threshold |
+| C001 | Certificate type validity (A/B/C/D) | Enum check |
+| C002 | Address consistency (form vs drawing) | Fuzzy string match |
+| C003 | Boundary area validation (stated vs reference) | Numeric tolerance |
+| C004 | Plan change detection (proposed vs approved) | Attribute diff |
+| C005 | Three-tier boundary verification | Boundary verification |
+
+### Design Principles
+
+- **Protocol-based interfaces** -- 17 `@runtime_checkable` Protocol classes, no inheritance hierarchies
+- **Composition root** -- single `bootstrap.py` wires all dependencies; business logic never imports concrete types
+- **Immutable data** -- frozen dataclasses with tuple collections throughout
+- **Seed deterministic** -- same seed always produces identical output
+- **Plugin extensible** -- new rules = YAML config, new doc types = one generator class
 
 ---
 
@@ -30,122 +151,168 @@ Planning Application          Pipeline                          Output
 
 ### Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- [VS Code](https://code.visualstudio.com/) with the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension (recommended)
-- An OpenAI API key (for GPT-4o extraction)
+- Python 3.12+
+- Groq API key (free: https://console.groq.com) for LLM extraction
+- OpenAI API key for GPT-4o VLM extraction and boundary verification
 
-### Option A: VS Code Dev Container (recommended)
+### Installation
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/your-username/planproof.git planproof && cd planproof
+# Clone
+git clone https://github.com/sgshaji/PlanProof_v3.git planproof && cd planproof
 
-# 2. Install Python dependencies
-make install
+# Install
+pip install -e ".[dev]"
 
-# 3. Copy environment config and add your credentials
+# Configure
 cp .env.example .env
-# Edit .env:
-#   - Add your Groq API key (free: https://console.groq.com)
-#   - Add your Neo4j Aura credentials (free: https://aura.neo4j.io)
+# Edit .env with your API keys
 
-# 4. Verify setup
-make lint        # Check code quality
-make typecheck   # Run mypy strict
-make test        # Run pytest
+# Verify
+make lint        # ruff
+make typecheck   # mypy --strict
+make test        # pytest (~893 tests)
 ```
 
-> **No Docker required.** LLM runs via Groq cloud, Neo4j runs via Aura cloud.
+### Running the Pipeline
+
+```bash
+# Run on synthetic data
+python -m planproof.pipeline.runner --input data/synthetic_diverse/compliant/SET_COMPLIANT_42000
+
+# Run ablation experiments
+python scripts/run_ablation.py --config full_system --data-dir data/synthetic_diverse
+
+# Run extraction evaluation
+source .env && python scripts/run_extraction_eval.py --version v1
+```
 
 ---
 
-## Configuration
+## Evaluation Infrastructure
 
-All configuration is documented in [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+### Synthetic Data Generator
+- 15 synthetic planning application sets (5 compliant + 5 non-compliant + 5 edge-case)
+- 18 attributes per set across 7 rules
+- Deterministic generation from YAML configs with seed-based reproducibility
+- 8 degradation transforms (scan simulation, rotation, noise, blur)
 
-Quick reference:
+### Ablation Configurations (7)
+| Config | What's Disabled |
+|--------|----------------|
+| full_system | Nothing (all components) |
+| ablation_a | VLM extraction |
+| ablation_b | SNKG graph |
+| ablation_c | Confidence gating |
+| ablation_d | Assessability (SABLE) |
+| naive_baseline | Everything except single LLM call |
+| strong_baseline | Everything except per-rule CoT LLM |
 
-| What | File | Purpose |
-|------|------|---------|
-| Secrets & API keys | `.env` | Groq/OpenAI key, Neo4j Aura credentials (never committed) |
-| Pipeline defaults | `configs/default.yaml` | Confidence thresholds, ablation toggles, paths |
-| Compliance rules | `configs/rules/*.yaml` | One YAML per rule — add rules without code changes |
-| Ablation configs | `configs/ablation/*.yaml` | One YAML per experimental configuration |
-| Prompt templates | `configs/prompts/*.yaml` | LLM/VLM prompt templates (versioned) |
+### Metrics
+- Confusion matrix (TP/FP/FN/TN/NOT_ASSESSABLE)
+- Recall, Precision, F2 (recall-weighted)
+- Automation rate
+- Bootstrap confidence intervals
+- McNemar's test + Cohen's h effect sizes
+- SABLE-specific: belief statistics, blocking reason distribution, component contribution
+
+### Dissertation Figures (11)
+All at 300 DPI in `figures/`:
+1. Belief distribution violin plot
+2. Three-state stacked bar chart
+3. Belief vs plausibility scatter
+4. Blocking reason distribution
+5. False-FAIL prevention bar chart
+6. Component contribution table (with McNemar p-values)
+7. Concordance heatmap (rule x config)
+8. Extraction accuracy (v1 vs v2)
+9. Extraction improvement delta
+10. 2x2 False-FAIL matrix
+11. SABLE oracle vs real extraction comparison
 
 ---
 
-## Project Structure
+## Project Statistics
 
-```
-planproof/
-├── src/planproof/           # Source code
-│   ├── interfaces/          # Protocol definitions (contracts between layers)
-│   ├── schemas/             # Pydantic data models
-│   ├── ingestion/           # Document classification + extraction (Layer 1)
-│   ├── representation/      # Knowledge graph + normalisation (Layer 2)
-│   ├── reasoning/           # Reconciliation, gating, assessability, rules (Layer 3)
-│   ├── output/              # Reports, evidence requests, API (Layer 4)
-│   ├── evaluation/          # Ablation study infrastructure (Layer 5)
-│   ├── infrastructure/      # LLM cache, API clients, logging
-│   ├── pipeline/            # Step registry orchestrator
-│   └── bootstrap.py         # Composition root (dependency wiring)
-├── configs/                 # YAML configuration files
-├── data/                    # Datasets, cache, results (mostly gitignored)
-├── tests/                   # Unit + integration tests
-└── docs/                    # Architecture, ADRs, implementation plan
-```
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full component diagram and design rationale.
+| Metric | Count |
+|--------|-------|
+| Total commits | ~150+ |
+| Source files | ~110 |
+| Test files | ~85 |
+| Tests passing | 893 |
+| Pipeline steps | 12 |
+| Compliance rules | 8 |
+| Evaluator types | 7 |
+| Ablation configurations | 7 |
+| Synthetic datasets | 15 |
+| Real BCC datasets | 10 (anonymised, drawings only) |
+| INSPIRE cadastral parcels | 346,231 |
+| Dissertation figures | 11 |
 
 ---
 
 ## Documentation
 
-| Document | What it covers |
+| Document | What It Covers |
 |----------|---------------|
-| [IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | Phased build plan, module specs, risk analysis |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Component diagram, interface boundaries, data flow |
-| [CONFIGURATION.md](docs/CONFIGURATION.md) | Every config file explained with examples |
-| [EXECUTION_STATUS.md](docs/EXECUTION_STATUS.md) | Current progress tracker (updated per phase) |
+| [SABLE_ALGORITHM.md](docs/SABLE_ALGORITHM.md) | Formal specification of the SABLE assessability algorithm |
+| [EXECUTION_STATUS.md](docs/EXECUTION_STATUS.md) | Phase-by-phase progress tracker |
+| [PROJECT_LOG.md](docs/PROJECT_LOG.md) | Chronological development log for dissertation traceability |
+| [GAPS_AND_IDEAS.md](docs/GAPS_AND_IDEAS.md) | Known limitations and future work |
+| [ERROR_ANALYSIS.md](docs/ERROR_ANALYSIS.md) | Qualitative error analysis with dissertation vignettes |
+| [EXTRACTION_ERROR_ATTRIBUTION.md](docs/EXTRACTION_ERROR_ATTRIBUTION.md) | Extraction vs reasoning failure decomposition |
 | [docs/adr/](docs/adr/) | Architecture Decision Records |
 
 ---
 
-## Development
+## Tech Stack
 
-### Make Targets
-
-| Target | What it does |
-|--------|-------------|
-| `make lint` | Run ruff linter |
-| `make typecheck` | Run mypy in strict mode |
-| `make test` | Run pytest with coverage |
-| `make test-reasoning` | Run reasoning tests with 90% coverage gate |
-| `make all` | lint + typecheck + test |
-| `make install` | Install project locally in editable mode |
-
-### Adding a New Compliance Rule
-
-1. Create `configs/rules/r004_your_rule.yaml` with the rule definition
-2. If the `evaluation_type` matches an existing one (e.g., `numeric_threshold`), you're done
-3. If you need new evaluation logic, create a class in `src/planproof/reasoning/evaluators/` and register it in `bootstrap.py`
-
-See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for the full YAML schema.
+| Component | Technology |
+|-----------|-----------|
+| Language | Python 3.12 |
+| Type checking | mypy --strict |
+| Linting | ruff |
+| Testing | pytest |
+| Schemas | pydantic + frozen dataclasses |
+| LLM | Groq (llama-3.3-70b-versatile) |
+| VLM | OpenAI GPT-4o |
+| Knowledge graph | Neo4j Aura (free cloud) |
+| Semantic similarity | sentence-transformers |
+| GML parsing | xml.etree.ElementTree (pure Python) |
+| Geocoding | postcodes.io (free, no API key) |
+| Logging | structlog (JSON) |
+| CI | GitHub Actions |
 
 ---
 
-## Compliance Checks In Scope
+## Development Phases
 
-| Rule | Description | Type |
-|------|-------------|------|
-| R001 | Max building height ≤ 8m | Numeric threshold |
-| R002 | Min rear garden depth ≥ 10m | Numeric threshold |
-| R003 | Max site coverage ≤ 50% | Ratio threshold |
-| C1 | Certificate type validity | Enum check |
-| C2 | Address consistency (form vs drawing) | Fuzzy string match |
-| C3 | Boundary validation (stated vs Land Registry area) | Numeric tolerance |
-| C4 | Plan change detection (proposed vs approved) | Attribute diff |
+| Phase | Name | Status |
+|-------|------|--------|
+| 0 | Project Foundation | Complete |
+| 1 | Synthetic Data Pipeline | Complete |
+| 2 | Ingestion Layer (M1-M3) | Complete |
+| 3 | Representation Layer (M5) | Complete |
+| 4 | Reasoning Layer (M6-M9) | Complete |
+| 5 | Output Layer (M10-M12) | Complete |
+| 6 | Integration & Ablation Prep | Complete |
+| 7 | Ablation Study & SABLE | Complete |
+| 8a | SABLE Evaluation Enrichment | Complete |
+| 8b | Architectural Polish | Complete |
+| 8c | Extraction Evaluation & Error Attribution | Complete |
+| 9 | Three-Tier Boundary Verification | Complete |
+| -- | Dissertation Write-up | In Progress |
+
+---
+
+## Adding a New Compliance Rule
+
+1. Create `configs/rules/r004_your_rule.yaml` with rule definition
+2. If the `evaluation_type` matches an existing one (e.g., `numeric_threshold`), you're done
+3. If you need new evaluation logic, create a class in `src/planproof/reasoning/evaluators/` and register it in `bootstrap.py`
+4. Add a datagen config in `configs/datagen/rules/` to generate test data
+5. Run `python scripts/run_ablation.py` to evaluate
 
 ---
 
