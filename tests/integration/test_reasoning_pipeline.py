@@ -109,6 +109,8 @@ def _make_factory() -> RuleFactory:
     RuleFactory.register_evaluator("attribute_diff", AttributeDiffEvaluator)
     from planproof.reasoning.evaluators.boundary_verification import BoundaryVerificationEvaluator
     RuleFactory.register_evaluator("boundary_verification", BoundaryVerificationEvaluator)
+    from planproof.reasoning.evaluators.spatial_containment import SpatialContainmentEvaluator
+    RuleFactory.register_evaluator("spatial_containment", SpatialContainmentEvaluator)
     return factory
 
 

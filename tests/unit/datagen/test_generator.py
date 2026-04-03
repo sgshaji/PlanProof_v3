@@ -116,17 +116,17 @@ class TestGenerateValuesExtended:
 
     def test_seven_rules_generate_values(self) -> None:
         rules = load_rule_configs(RULES_DIR)
-        assert len(rules) == 7
+        assert len(rules) == 8
         values = generate_values(rules, "compliant", seed=42)
-        # Should have at least 7 values (one primary per rule), but likely more
-        assert len(values) >= 7
+        # Should have at least 8 values (one primary per rule), but likely more
+        assert len(values) >= 8
 
     def test_compute_verdicts_all_pass_compliant(self) -> None:
         rules = load_rule_configs(RULES_DIR)
         values = generate_values(rules, "compliant", seed=42)
         verdicts = compute_verdicts(values, rules)
-        # All 7 rules should have verdicts
-        assert len(verdicts) == 7
+        # All 8 rules should have verdicts
+        assert len(verdicts) == 8
         assert all(v.outcome == "PASS" for v in verdicts)
 
     def test_compute_verdicts_noncompliant_has_fail(self) -> None:

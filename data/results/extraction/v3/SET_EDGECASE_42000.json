@@ -1,0 +1,146 @@
+{
+  "set_id": "SET_EDGECASE_42000",
+  "version": "v3",
+  "timestamp": "2026-04-03T13:27:35.083957+00:00",
+  "gt_entity_count": 5,
+  "predicted_entity_count": 6,
+  "recall": 1.0,
+  "precision": 0.8333,
+  "value_accuracy": 1.0,
+  "per_attribute": {
+    "site_address": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 1.0
+    },
+    "building_height": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 1.0
+    },
+    "site_coverage": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 1.0
+    },
+    "certificate_type": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    }
+  },
+  "gt_entities": [
+    {
+      "attribute": "site_address",
+      "value": "192 Birchwood Close, Leeds, LE1 7GH",
+      "doc_type": "FORM",
+      "source_document": "SET_EDGECASE_42000_form.pdf"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.01,
+      "doc_type": "FORM",
+      "source_document": "SET_EDGECASE_42000_form.pdf"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 35.61,
+      "doc_type": "FORM",
+      "source_document": "SET_EDGECASE_42000_form.pdf"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.01,
+      "doc_type": "DRAWING",
+      "source_document": "SET_EDGECASE_42000_elevation.png"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.01,
+      "doc_type": "DRAWING",
+      "source_document": "SET_EDGECASE_42000_elevation.png"
+    }
+  ],
+  "predicted_entities": [
+    {
+      "attribute": "building_height",
+      "value": 4.0,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\edge_case\\SET_EDGECASE_42000\\SET_EDGECASE_42000-edgecase-ELEVATION_3.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.0,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\edge_case\\SET_EDGECASE_42000\\SET_EDGECASE_42000-edgecase-ELEVATION_4.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "site_address",
+      "value": "192 Birchwood Close, Leeds, LE1 7GH",
+      "doc_type": "ADDRESS",
+      "source_document": "data\\synthetic_diverse\\edge_case\\SET_EDGECASE_42000\\SET_EDGECASE_42000-edgecase-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.0,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\edge_case\\SET_EDGECASE_42000\\SET_EDGECASE_42000-edgecase-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 35.6,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\edge_case\\SET_EDGECASE_42000\\SET_EDGECASE_42000-edgecase-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "certificate_type",
+      "value": "A",
+      "doc_type": "CERTIFICATE",
+      "source_document": "data\\synthetic_diverse\\edge_case\\SET_EDGECASE_42000\\SET_EDGECASE_42000-edgecase-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    }
+  ],
+  "matches": [
+    {
+      "gt_attribute": "site_address",
+      "predicted_attribute": "site_address",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "site_coverage",
+      "predicted_attribute": "site_coverage",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "certificate_type",
+      "matched": false,
+      "value_correct": false
+    }
+  ]
+}

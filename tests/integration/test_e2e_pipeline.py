@@ -45,6 +45,7 @@ from planproof.reasoning.confidence import ThresholdConfidenceGate
 from planproof.reasoning.evaluators.attribute_diff import AttributeDiffEvaluator
 from planproof.reasoning.evaluators.boundary_verification import BoundaryVerificationEvaluator
 from planproof.reasoning.evaluators.enum_check import EnumCheckEvaluator
+from planproof.reasoning.evaluators.spatial_containment import SpatialContainmentEvaluator
 from planproof.reasoning.evaluators.factory import RuleFactory
 from planproof.reasoning.evaluators.fuzzy_match import FuzzyMatchEvaluator
 from planproof.reasoning.evaluators.numeric_threshold import NumericThresholdEvaluator
@@ -119,6 +120,7 @@ def _make_factory() -> RuleFactory:
     RuleFactory.register_evaluator("numeric_tolerance", NumericToleranceEvaluator)
     RuleFactory.register_evaluator("attribute_diff", AttributeDiffEvaluator)
     RuleFactory.register_evaluator("boundary_verification", BoundaryVerificationEvaluator)
+    RuleFactory.register_evaluator("spatial_containment", SpatialContainmentEvaluator)
     return factory
 
 

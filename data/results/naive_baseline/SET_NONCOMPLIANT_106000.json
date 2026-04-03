@@ -5,7 +5,7 @@
     {
       "rule_id": "C001",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "naive_baseline",
       "set_id": "SET_NONCOMPLIANT_106000",
       "belief": null,
@@ -16,7 +16,7 @@
     {
       "rule_id": "C002",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "naive_baseline",
       "set_id": "SET_NONCOMPLIANT_106000",
       "belief": null,
@@ -27,7 +27,7 @@
     {
       "rule_id": "C003",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "naive_baseline",
       "set_id": "SET_NONCOMPLIANT_106000",
       "belief": null,
@@ -38,7 +38,7 @@
     {
       "rule_id": "C004",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "naive_baseline",
       "set_id": "SET_NONCOMPLIANT_106000",
       "belief": null,
@@ -49,7 +49,18 @@
     {
       "rule_id": "C005",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "naive_baseline",
+      "set_id": "SET_NONCOMPLIANT_106000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
+      "rule_id": "C006",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "naive_baseline",
       "set_id": "SET_NONCOMPLIANT_106000",
       "belief": null,
@@ -60,7 +71,7 @@
     {
       "rule_id": "R001",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "naive_baseline",
       "set_id": "SET_NONCOMPLIANT_106000",
       "belief": null,
@@ -71,7 +82,7 @@
     {
       "rule_id": "R002",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "naive_baseline",
       "set_id": "SET_NONCOMPLIANT_106000",
       "belief": null,
@@ -82,7 +93,7 @@
     {
       "rule_id": "R003",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
       "config_name": "naive_baseline",
       "set_id": "SET_NONCOMPLIANT_106000",
       "belief": null,
@@ -106,5 +117,5 @@
     "seed": 106000,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T13:44:43.499640Z"
+  "timestamp": "2026-04-03T19:22:35.316516Z"
 }

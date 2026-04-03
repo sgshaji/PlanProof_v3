@@ -58,6 +58,17 @@
       "blocking_reason": "MISSING_EVIDENCE"
     },
     {
+      "rule_id": "C006",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PASS",
+      "config_name": "ablation_c",
+      "set_id": "SET_NONCOMPLIANT_129000",
+      "belief": 0.96,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
       "rule_id": "R001",
       "ground_truth_outcome": "PASS",
       "predicted_outcome": "PASS",
@@ -105,5 +116,5 @@
     "seed": 129000,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T13:04:26.399326Z"
+  "timestamp": "2026-04-03T19:23:22.099394Z"
 }

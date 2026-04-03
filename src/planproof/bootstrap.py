@@ -45,6 +45,7 @@ from planproof.reasoning.evaluators.fuzzy_match import FuzzyMatchEvaluator
 from planproof.reasoning.evaluators.numeric_threshold import NumericThresholdEvaluator
 from planproof.reasoning.evaluators.numeric_tolerance import NumericToleranceEvaluator
 from planproof.reasoning.evaluators.ratio_threshold import RatioThresholdEvaluator
+from planproof.reasoning.evaluators.spatial_containment import SpatialContainmentEvaluator
 from planproof.reasoning.reconciliation import PairwiseReconciler
 from planproof.reasoning.semantic_similarity import SemanticSimilarity
 from planproof.representation.flat_evidence import FlatEvidenceProvider
@@ -99,6 +100,7 @@ def _register_evaluators() -> RuleFactory:
     RuleFactory.register_evaluator("numeric_tolerance", NumericToleranceEvaluator)
     RuleFactory.register_evaluator("attribute_diff", AttributeDiffEvaluator)
     RuleFactory.register_evaluator("boundary_verification", BoundaryVerificationEvaluator)
+    RuleFactory.register_evaluator("spatial_containment", SpatialContainmentEvaluator)
     return factory
 
 

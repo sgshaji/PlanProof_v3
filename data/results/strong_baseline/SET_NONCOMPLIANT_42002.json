@@ -58,6 +58,17 @@
       "blocking_reason": null
     },
     {
+      "rule_id": "C006",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "strong_baseline",
+      "set_id": "SET_NONCOMPLIANT_42002",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
       "rule_id": "R001",
       "ground_truth_outcome": "PASS",
       "predicted_outcome": "NOT_ASSESSABLE",
@@ -106,5 +117,5 @@
     "seed": 42002,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T10:39:48.919575Z"
+  "timestamp": "2026-04-03T19:22:46.225103Z"
 }

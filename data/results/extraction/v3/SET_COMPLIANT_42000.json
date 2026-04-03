@@ -1,0 +1,303 @@
+{
+  "set_id": "SET_COMPLIANT_42000",
+  "version": "v3",
+  "timestamp": "2026-04-03T13:26:28.001193+00:00",
+  "gt_entity_count": 5,
+  "predicted_entity_count": 15,
+  "recall": 1.0,
+  "precision": 0.3333,
+  "value_accuracy": 1.0,
+  "per_attribute": {
+    "boundary_length_south": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "boundary_length_east": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "rear_garden_depth": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "setback_distance_front": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "boundary_length_west": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "boundary_length_north": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "building_height": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 1.0
+    },
+    "certificate_type": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "site_address": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 1.0
+    },
+    "setback_distance_side": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "site_coverage": {
+      "recall": 1.0,
+      "precision": 0.5,
+      "value_accuracy": 1.0
+    },
+    "site_area": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    }
+  },
+  "gt_entities": [
+    {
+      "attribute": "site_address",
+      "value": "192 Birchwood Close, Leeds, LE1 7GH",
+      "doc_type": "FORM",
+      "source_document": "SET_COMPLIANT_42000_form.pdf"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.01,
+      "doc_type": "FORM",
+      "source_document": "SET_COMPLIANT_42000_form.pdf"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 35.61,
+      "doc_type": "FORM",
+      "source_document": "SET_COMPLIANT_42000_form.pdf"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.01,
+      "doc_type": "DRAWING",
+      "source_document": "SET_COMPLIANT_42000_elevation.png"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.01,
+      "doc_type": "DRAWING",
+      "source_document": "SET_COMPLIANT_42000_elevation.png"
+    }
+  ],
+  "predicted_entities": [
+    {
+      "attribute": "building_height",
+      "value": 4.0,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-ELEVATION_3.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.0,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-ELEVATION_4.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "site_address",
+      "value": "192 Birchwood Close, Leeds, LE1 7GH",
+      "doc_type": "ADDRESS",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.0,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 35.6,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "certificate_type",
+      "value": "A",
+      "doc_type": "CERTIFICATE",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 10,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 40,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "setback_distance_front",
+      "value": 5,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "setback_distance_side",
+      "value": 3,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "site_area",
+      "value": 500,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "boundary_length_north",
+      "value": 20,
+      "doc_type": "BOUNDARY",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "boundary_length_south",
+      "value": 20,
+      "doc_type": "BOUNDARY",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "boundary_length_east",
+      "value": 25,
+      "doc_type": "BOUNDARY",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "boundary_length_west",
+      "value": 25,
+      "doc_type": "BOUNDARY",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_42000\\SET_COMPLIANT_42000-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    }
+  ],
+  "matches": [
+    {
+      "gt_attribute": "site_address",
+      "predicted_attribute": "site_address",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "site_coverage",
+      "predicted_attribute": "site_coverage",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "certificate_type",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "rear_garden_depth",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "site_coverage",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "setback_distance_front",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "setback_distance_side",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "site_area",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "boundary_length_north",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "boundary_length_south",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "boundary_length_east",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "boundary_length_west",
+      "matched": false,
+      "value_correct": false
+    }
+  ]
+}

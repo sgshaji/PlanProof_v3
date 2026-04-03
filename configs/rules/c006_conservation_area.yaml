@@ -1,0 +1,18 @@
+rule_id: C006
+description: "Property must not be in a Conservation Area without explicit heritage assessment"
+policy_source: "BCC Local Plan Policy TP12 — Conservation Areas"
+evaluation_type: spatial_containment
+parameters:
+  entity_attribute: site_location
+  zone_attribute: conservation_area_status
+  zone_type: CONSERVATION_AREA
+  required_status: false
+required_evidence:
+  - attribute: site_location
+    acceptable_sources: ["FORM", "EXTERNAL_DATA"]
+    min_confidence: 0.80
+    spatial_grounding: null
+  - attribute: conservation_area_status
+    acceptable_sources: ["SNKG", "EXTERNAL_DATA"]
+    min_confidence: 0.90
+    spatial_grounding: LOCATED_WITHIN

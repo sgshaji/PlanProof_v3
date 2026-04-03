@@ -18,8 +18,8 @@ CONFIGS_DIR = Path("configs/datagen")
 class TestRuleConfigLoading:
     def test_load_all_rule_configs(self) -> None:
         rules = load_rule_configs(CONFIGS_DIR / "rules")
-        # Now 7 rules: R001, R002, R003 + C001, C002, C003, C004
-        assert len(rules) == 7
+        # Now 8 rules: R001, R002, R003 + C001, C002, C003, C004, C006
+        assert len(rules) == 8
         rule_ids = {r.rule_id for r in rules}
         assert {"R001", "R002", "R003"}.issubset(rule_ids)
 
@@ -58,7 +58,7 @@ class TestAllRuleConfigsLoad:
     def test_seven_configs_load(self) -> None:
         configs = load_rule_configs(Path("configs/datagen/rules"))
         rule_ids = {c.rule_id for c in configs}
-        assert rule_ids == {"R001", "R002", "R003", "C001", "C002", "C003", "C004"}
+        assert rule_ids == {"R001", "R002", "R003", "C001", "C002", "C003", "C004", "C006"}
 
 
 class TestMultiAttributeConfig:

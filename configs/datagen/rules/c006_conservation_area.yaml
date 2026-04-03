@@ -1,0 +1,15 @@
+rule_id: C006
+attribute: conservation_area_status
+unit: boolean
+value_type: categorical
+compliant_range:
+  min: 0.0
+  max: 0.0
+violation_types:
+  - name: in_conservation_area
+    range: { min: 0.0, max: 0.0 }
+valid_values: ["false"]
+invalid_values: ["true"]
+evidence_locations:
+  - doc_type: EXTERNAL_DATA
+    field: conservation_area_status

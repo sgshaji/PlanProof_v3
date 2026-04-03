@@ -58,6 +58,17 @@
       "blocking_reason": null
     },
     {
+      "rule_id": "C006",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "ablation_a",
+      "set_id": "SET_NONCOMPLIANT_103000",
+      "belief": null,
+      "plausibility": null,
+      "conflict_mass": null,
+      "blocking_reason": null
+    },
+    {
       "rule_id": "R001",
       "ground_truth_outcome": "PASS",
       "predicted_outcome": "NOT_ASSESSABLE",
@@ -105,5 +116,5 @@
     "seed": 103000,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T13:04:05.384791Z"
+  "timestamp": "2026-04-03T19:22:55.412733Z"
 }
