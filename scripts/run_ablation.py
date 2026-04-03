@@ -626,9 +626,19 @@ def _run_pipeline_config(
         # (stored in parameters["attribute"] for single-attribute rules, or
         # parameters["numerator_attribute"] for ratio rules).  Fall back to
         # rule_id if no attribute key is found (should not happen in practice).
+        # Different rule types store the primary attribute under different keys:
+        # - numeric_threshold, enum_check: "attribute"
+        # - ratio_threshold: "numerator_attribute"
+        # - fuzzy_string_match: "attribute_a"
+        # - numeric_tolerance: "attribute_a"
+        # - attribute_diff: "attributes" (list) — use "proposed_{first}"
+        # - boundary_verification: no attribute (uses context directly)
+        attrs_list = config.parameters.get("attributes", [])
         primary_attr = (
             config.parameters.get("attribute")
             or config.parameters.get("numerator_attribute")
+            or config.parameters.get("attribute_a")
+            or (f"proposed_{attrs_list[0]}" if attrs_list else None)
             or config.rule_id
         )
         evidence = reconciled_evidence.get(primary_attr, fallback_missing)

@@ -38,7 +38,7 @@
     {
       "rule_id": "C004",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "PASS",
       "config_name": "full_system",
       "set_id": "SET_COMPLIANT_42004",
       "belief": 0.96,
@@ -105,5 +105,5 @@
     "seed": 42004,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T10:07:22.355156Z"
+  "timestamp": "2026-04-03T10:40:09.601757Z"
 }

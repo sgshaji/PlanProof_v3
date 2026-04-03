@@ -38,7 +38,7 @@
     {
       "rule_id": "C004",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "PASS",
       "config_name": "ablation_c",
       "set_id": "SET_NONCOMPLIANT_42002",
       "belief": 0.96,
@@ -105,5 +105,5 @@
     "seed": 42002,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T10:07:06.635271Z"
+  "timestamp": "2026-04-03T10:40:04.193258Z"
 }

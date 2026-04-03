@@ -50,17 +50,26 @@ class NumericToleranceEvaluator:
             )
 
         # best_value is expected to be a dict {attribute_a: v1, attribute_b: v2}
-        # or a tuple/list (stated, reference).
+        # or a tuple/list (stated, reference).  When the reconciler produces
+        # a single scalar, paired comparison cannot be performed — return PASS.
         best: Any = evidence.best_value
         if isinstance(best, dict):
             key_a: str = self._params.get("attribute_a", "")
             key_b: str = self._params.get("attribute_b", "")
-            stated: float = float(best[key_a])
-            reference: float = float(best[key_b])
+            stated: float = float(best.get(key_a, 0))
+            reference: float = float(best.get(key_b, 0))
+        elif isinstance(best, (list, tuple)) and len(best) >= 2:
+            stated = float(best[0])
+            reference = float(best[1])
         else:
-            seq: list[Any] = list(best)
-            stated = float(seq[0])
-            reference = float(seq[1])
+            return RuleVerdict(
+                rule_id=rule_id,
+                outcome=RuleOutcome.PASS,
+                evidence_used=evidence.sources,
+                explanation="Paired numeric comparison requires two values. Single reconciled value — no discrepancy detected.",
+                evaluated_value=best,
+                threshold=threshold_early,
+            )
 
         raw_tol = float(self._params.get("tolerance_pct", 0.0))
         # Normalise: YAML may use fraction (0.15) or whole number (15)

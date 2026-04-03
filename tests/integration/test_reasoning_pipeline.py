@@ -107,6 +107,8 @@ def _make_factory() -> RuleFactory:
     RuleFactory.register_evaluator("fuzzy_string_match", FuzzyMatchEvaluator)
     RuleFactory.register_evaluator("numeric_tolerance", NumericToleranceEvaluator)
     RuleFactory.register_evaluator("attribute_diff", AttributeDiffEvaluator)
+    from planproof.reasoning.evaluators.boundary_verification import BoundaryVerificationEvaluator
+    RuleFactory.register_evaluator("boundary_verification", BoundaryVerificationEvaluator)
     return factory
 
 

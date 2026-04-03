@@ -8,33 +8,18 @@ compliant_range:
 violation_types:
   - name: material_change
     range: { min: 0.0, max: 0.0 }
-extra_attributes:
-  - attribute: approved_building_height
-    unit: metres
-    type: reference
-  - attribute: proposed_building_footprint_area
-    unit: m²
-    type: primary
-  - attribute: approved_building_footprint_area
-    unit: m²
-    type: reference
-  - attribute: proposed_storeys
-    unit: count
-    type: primary
-  - attribute: approved_storeys
-    unit: count
-    type: reference
+extra_attributes: []
 compliant_pairs:
   - proposed_building_height: 7.5
     approved_building_height: 7.5
     proposed_building_footprint_area: 120.0
-    approved_building_footprint_area: 118.0
+    approved_building_footprint_area: 120.0
     proposed_storeys: 2
     approved_storeys: 2
   - proposed_building_height: 5.0
-    approved_building_height: 5.1
+    approved_building_height: 5.0
     proposed_building_footprint_area: 80.0
-    approved_building_footprint_area: 82.0
+    approved_building_footprint_area: 80.0
     proposed_storeys: 1
     approved_storeys: 1
 noncompliant_pairs:

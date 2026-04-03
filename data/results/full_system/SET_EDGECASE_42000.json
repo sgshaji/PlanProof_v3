@@ -38,7 +38,7 @@
     {
       "rule_id": "C004",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "PASS",
       "config_name": "full_system",
       "set_id": "SET_EDGECASE_42000",
       "belief": 0.96,
@@ -105,5 +105,5 @@
     "seed": 42000,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T10:07:27.071371Z"
+  "timestamp": "2026-04-03T10:40:11.342089Z"
 }

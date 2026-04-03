@@ -16,7 +16,7 @@
     {
       "rule_id": "C002",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "PASS",
       "config_name": "ablation_d",
       "set_id": "SET_EDGECASE_42002",
       "belief": null,
@@ -27,7 +27,7 @@
     {
       "rule_id": "C003",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "PASS",
       "config_name": "ablation_d",
       "set_id": "SET_EDGECASE_42002",
       "belief": null,
@@ -38,7 +38,7 @@
     {
       "rule_id": "C004",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "FAIL",
+      "predicted_outcome": "PASS",
       "config_name": "ablation_d",
       "set_id": "SET_EDGECASE_42002",
       "belief": null,
@@ -105,5 +105,5 @@
     "seed": 42002,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T10:07:18.603565Z"
+  "timestamp": "2026-04-03T10:41:06.969538Z"
 }

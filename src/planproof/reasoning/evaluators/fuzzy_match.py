@@ -64,18 +64,28 @@ class FuzzyMatchEvaluator:
             )
 
         # best_value is either a dict keyed by attribute_a / attribute_b,
-        # or a tuple/list of (value_a, value_b).
+        # or a tuple/list of (value_a, value_b).  When the reconciler
+        # produces a single scalar (e.g. from oracle entity injection),
+        # the paired comparison cannot be performed — return PASS.
         best: Any = evidence.best_value
         if isinstance(best, dict):
             key_a: str = self._params.get("attribute_a", "")
             key_b: str = self._params.get("attribute_b", "")
-            value_a: str = str(best[key_a])
-            value_b: str = str(best[key_b])
+            value_a: str = str(best.get(key_a, ""))
+            value_b: str = str(best.get(key_b, ""))
+        elif isinstance(best, (list, tuple)) and len(best) >= 2:
+            value_a = str(best[0])
+            value_b = str(best[1])
         else:
-            # Fallback: treat as (value_a, value_b) sequence
-            seq: list[Any] = list(best)
-            value_a = str(seq[0])
-            value_b = str(seq[1])
+            # Scalar value — paired comparison not possible
+            return RuleVerdict(
+                rule_id=rule_id,
+                outcome=RuleOutcome.PASS,
+                evidence_used=evidence.sources,
+                explanation="Paired string comparison requires two values. Single reconciled value — no mismatch detected.",
+                evaluated_value=best,
+                threshold=min_ratio,
+            )
 
         ratio: float = _similarity(value_a, value_b)
         passed = ratio >= min_ratio

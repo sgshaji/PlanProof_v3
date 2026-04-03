@@ -66,9 +66,9 @@
     },
     {
       "attribute": "approved_building_footprint_area",
-      "value": 118.0,
+      "value": 120.0,
       "unit": "metres",
-      "display_text": "118.0m"
+      "display_text": "120.0m"
     },
     {
       "attribute": "proposed_storeys",
@@ -81,36 +81,6 @@
       "value": 2.0,
       "unit": "metres",
       "display_text": "2.0m"
-    },
-    {
-      "attribute": "approved_building_height",
-      "value": 0.0,
-      "unit": "metres",
-      "display_text": "0.0m"
-    },
-    {
-      "attribute": "proposed_building_footprint_area",
-      "value": 0.0,
-      "unit": "m²",
-      "display_text": "0.0m²"
-    },
-    {
-      "attribute": "approved_building_footprint_area",
-      "value": 0.0,
-      "unit": "m²",
-      "display_text": "0.0m²"
-    },
-    {
-      "attribute": "proposed_storeys",
-      "value": 0.0,
-      "unit": "count",
-      "display_text": "0.0 count"
-    },
-    {
-      "attribute": "approved_storeys",
-      "value": 0.0,
-      "unit": "count",
-      "display_text": "0.0 count"
     },
     {
       "attribute": "building_height",
@@ -312,8 +282,8 @@
           "text_rendered": "5.3m",
           "page": 1,
           "bounding_box": {
-            "x": 1933.0,
-            "y": 2771.0,
+            "x": 1996.0,
+            "y": 2802.0,
             "width": 115.0,
             "height": 37.0,
             "page": 1
@@ -328,8 +298,8 @@
           "text_rendered": "5.3m",
           "page": 1,
           "bounding_box": {
-            "x": 1933.0,
-            "y": 2771.0,
+            "x": 1996.0,
+            "y": 2802.0,
             "width": 115.0,
             "height": 37.0,
             "page": 1
@@ -349,8 +319,8 @@
           "text_rendered": "5.3m",
           "page": 1,
           "bounding_box": {
-            "x": 1936.0,
-            "y": 2819.0,
+            "x": 1958.0,
+            "y": 2841.0,
             "width": 115.0,
             "height": 37.0,
             "page": 1
@@ -365,8 +335,8 @@
           "text_rendered": "5.3m",
           "page": 1,
           "bounding_box": {
-            "x": 1936.0,
-            "y": 2819.0,
+            "x": 1958.0,
+            "y": 2841.0,
             "width": 115.0,
             "height": 37.0,
             "page": 1
