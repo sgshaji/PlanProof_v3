@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-04-03 — Phase 9: Boundary Verification Design Decision — VLM Precision Limitations
+
+### Decision: VLM boundary verification targets gross discrepancy detection, not survey-grade precision
+
+**Context:** Phase 9 implements three-tier boundary verification using GPT-4o to analyse location plan images where the applicant's red-line boundary is drawn on an OS base map. The VLM can see both the red line and OS property boundaries in the same image — replicating what a planning officer does visually.
+
+**What VLM can detect:**
+- Red line extending into highway or public land
+- Red line cutting through neighbouring property
+- Red line significantly larger/smaller than visible OS parcel
+- Missing or incomplete red-line boundary
+- Red line not matching the described property at all
+
+**What VLM cannot detect (and what would be needed):**
+- **Sub-metre boundary precision** — would require georeferenced location plans (GeoTIFF with coordinate metadata, not flat PDF scans), which aren't part of standard UK planning submissions
+- **Exact legal boundary positions** — UK law deliberately uses "general boundaries" (Land Registration Act 2002 s.60); the Land Registry register does not define precise boundary lines. Formal boundary determination requires a separate HMLR application (~£90, rarely done)
+- **Building-to-boundary distances** — would require OS MasterMap Topography Layer (paid, ~£thousands/year) with sub-metre building outlines, fences, walls; the free INSPIRE data gives only indicative extent
+- **Height-accurate boundary features** — would require LiDAR point cloud data (Environment Agency publishes free 1m-resolution LiDAR for England, but integrating 3D data with 2D boundary analysis is research-grade work)
+- **Professional survey-grade accuracy (±10mm)** — requires RICS-compliant land survey reports with differential GPS coordinates, which exist but aren't part of planning application submissions
+
+**Dissertation framing:** "The VLM-based approach detects gross boundary discrepancies that account for the majority of boundary-related planning validation failures (red line in wrong location, over-claiming land). Survey-grade precision is neither achievable with current submission formats nor required for the validation use case — planning officers themselves perform visual boundary checks, not surveyed measurements."
+
+**Data available for Tier 3 (INSPIRE):** 346,231 cadastral parcels in GML format (EPSG:27700 British National Grid), parseable with pure Python XML. No address data in INSPIRE — requires geocoding to match parcels by proximity.
+
+---
+
 ## 2026-04-03 — Phase 8c: Extraction Evaluation Track
 
 ### Development
