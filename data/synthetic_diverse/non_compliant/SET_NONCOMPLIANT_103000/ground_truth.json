@@ -1,0 +1,361 @@
+{
+  "set_id": "SET_NONCOMPLIANT_103000",
+  "category": "noncompliant",
+  "seed": 103000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "certificate_type",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "E"
+    },
+    {
+      "attribute": "ownership_declaration",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "part_owner"
+    },
+    {
+      "attribute": "form_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "45 Park Road, Edgbaston, B15 2TT"
+    },
+    {
+      "attribute": "drawing_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "45 Park Rd, Edgbaston, B15 2TT"
+    },
+    {
+      "attribute": "stated_site_area",
+      "value": 750.0,
+      "unit": "m²",
+      "display_text": "750.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 720.0,
+      "unit": "m²",
+      "display_text": "720.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_building_height",
+      "value": 7.5,
+      "unit": "metres",
+      "display_text": "7.5m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 7.5,
+      "unit": "metres",
+      "display_text": "7.5m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "building_height",
+      "value": 6.76,
+      "unit": "metres",
+      "display_text": "6.8m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 25.31,
+      "unit": "metres",
+      "display_text": "25.3m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 44.32,
+      "unit": "percent",
+      "display_text": "44.3%"
+    },
+    {
+      "attribute": "building_footprint_area",
+      "value": 131.15,
+      "unit": "m²",
+      "display_text": "131.2m²"
+    },
+    {
+      "attribute": "total_site_area",
+      "value": 578.71,
+      "unit": "m²",
+      "display_text": "578.7m²"
+    },
+    {
+      "attribute": "zone_category",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "suburban_residential"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "C001",
+      "outcome": "FAIL",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C002",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C003",
+      "outcome": "PASS",
+      "evaluated_value": 750.0,
+      "threshold": 1000.0
+    },
+    {
+      "rule_id": "C004",
+      "outcome": "PASS",
+      "evaluated_value": 7.5,
+      "threshold": 15.0
+    },
+    {
+      "rule_id": "R001",
+      "outcome": "PASS",
+      "evaluated_value": 6.76,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "PASS",
+      "evaluated_value": 25.31,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 44.32,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_103000_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "199 Acacia Avenue, Sheffield, LS2 7AB",
+          "text_rendered": "199 Acacia Avenue, Sheffield, LS2 7AB",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 6.76,
+          "text_rendered": "6.8m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 44.32,
+          "text_rendered": "44.3%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "199 Acacia Avenue, Sheffield, LS2 7AB",
+          "text_rendered": "199 Acacia Avenue, Sheffield, LS2 7AB",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 6.76,
+          "text_rendered": "6.8m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 44.32,
+          "text_rendered": "44.3%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_103000_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_103000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_103000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 6.76,
+          "text_rendered": "6.8m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2117.0,
+            "y": 2771.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 6.76,
+          "text_rendered": "6.8m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2117.0,
+            "y": 2771.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_103000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 6.76,
+          "text_rendered": "6.8m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1970.0,
+            "y": 2765.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 6.76,
+          "text_rendered": "6.8m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1970.0,
+            "y": 2765.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_103000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 103000
+  },
+  "edge_case_strategy": null
+}

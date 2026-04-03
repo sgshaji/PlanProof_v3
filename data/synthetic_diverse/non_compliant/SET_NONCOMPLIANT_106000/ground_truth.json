@@ -1,0 +1,361 @@
+{
+  "set_id": "SET_NONCOMPLIANT_106000",
+  "category": "noncompliant",
+  "seed": 106000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "certificate_type",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "B"
+    },
+    {
+      "attribute": "ownership_declaration",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "sole_owner"
+    },
+    {
+      "attribute": "form_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "123 Example Street, Birmingham, B1 1AA"
+    },
+    {
+      "attribute": "drawing_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "123 Example St, Birmingham, B1 1AA"
+    },
+    {
+      "attribute": "stated_site_area",
+      "value": 600.0,
+      "unit": "m²",
+      "display_text": "600.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 580.0,
+      "unit": "m²",
+      "display_text": "580.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_building_height",
+      "value": 9.0,
+      "unit": "metres",
+      "display_text": "9.0m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 7.0,
+      "unit": "metres",
+      "display_text": "7.0m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 200.0,
+      "unit": "metres",
+      "display_text": "200.0m"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 3.0,
+      "unit": "metres",
+      "display_text": "3.0m"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "building_height",
+      "value": 5.32,
+      "unit": "metres",
+      "display_text": "5.3m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 18.56,
+      "unit": "metres",
+      "display_text": "18.6m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 43.44,
+      "unit": "percent",
+      "display_text": "43.4%"
+    },
+    {
+      "attribute": "building_footprint_area",
+      "value": 62.33,
+      "unit": "m²",
+      "display_text": "62.3m²"
+    },
+    {
+      "attribute": "total_site_area",
+      "value": 758.47,
+      "unit": "m²",
+      "display_text": "758.5m²"
+    },
+    {
+      "attribute": "zone_category",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "residential"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "C001",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C002",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C003",
+      "outcome": "PASS",
+      "evaluated_value": 600.0,
+      "threshold": 1000.0
+    },
+    {
+      "rule_id": "C004",
+      "outcome": "PASS",
+      "evaluated_value": 9.0,
+      "threshold": 15.0
+    },
+    {
+      "rule_id": "R001",
+      "outcome": "PASS",
+      "evaluated_value": 5.32,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "PASS",
+      "evaluated_value": 18.56,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 43.44,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_106000_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "2 Daffodil Lane, Bristol, LE1 7GH",
+          "text_rendered": "2 Daffodil Lane, Bristol, LE1 7GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 5.32,
+          "text_rendered": "5.3m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 769.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 43.44,
+          "text_rendered": "43.4%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 1019.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "2 Daffodil Lane, Bristol, LE1 7GH",
+          "text_rendered": "2 Daffodil Lane, Bristol, LE1 7GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 5.32,
+          "text_rendered": "5.3m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 769.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 43.44,
+          "text_rendered": "43.4%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 1019.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_106000_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_106000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_106000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.32,
+          "text_rendered": "5.3m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1986.0,
+            "y": 2774.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.32,
+          "text_rendered": "5.3m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1986.0,
+            "y": 2774.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_106000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.32,
+          "text_rendered": "5.3m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2052.0,
+            "y": 2815.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.32,
+          "text_rendered": "5.3m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2052.0,
+            "y": 2815.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_106000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 106000
+  },
+  "edge_case_strategy": null
+}

@@ -1,0 +1,109 @@
+{
+  "config_name": "ablation_b",
+  "set_id": "SET_NONCOMPLIANT_60000",
+  "rule_results": [
+    {
+      "rule_id": "C001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_b",
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "belief": 0.5599999999999999,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "C002",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_b",
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "belief": 0.5599999999999999,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "C003",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_b",
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "belief": 0.5599999999999999,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "C004",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PASS",
+      "config_name": "ablation_b",
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "belief": 0.96,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "C005",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "ablation_b",
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "R001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PASS",
+      "config_name": "ablation_b",
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "belief": 0.96,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "R002",
+      "ground_truth_outcome": "FAIL",
+      "predicted_outcome": "FAIL",
+      "config_name": "ablation_b",
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "belief": 0.96,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    },
+    {
+      "rule_id": "R003",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "PARTIALLY_ASSESSABLE",
+      "config_name": "ablation_b",
+      "set_id": "SET_NONCOMPLIANT_60000",
+      "belief": 0.5599999999999999,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "NONE"
+    }
+  ],
+  "metadata": {
+    "ablation_config": {
+      "use_snkg": false,
+      "use_rule_engine": true,
+      "use_confidence_gating": true,
+      "use_assessability_engine": true,
+      "use_evidence_reconciliation": true,
+      "use_vlm": true
+    },
+    "category": "noncompliant",
+    "difficulty": "high",
+    "seed": 60000,
+    "n_documents": 6
+  },
+  "timestamp": "2026-04-03T13:04:17.796147Z"
+}

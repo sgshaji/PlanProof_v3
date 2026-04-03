@@ -1,0 +1,361 @@
+{
+  "set_id": "SET_NONCOMPLIANT_120000",
+  "category": "noncompliant",
+  "seed": 120000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "certificate_type",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "E"
+    },
+    {
+      "attribute": "ownership_declaration",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "sole_owner"
+    },
+    {
+      "attribute": "form_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "78 High Street, Moseley, B13 8HG"
+    },
+    {
+      "attribute": "drawing_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "78 High St, Moseley, B13 8HG"
+    },
+    {
+      "attribute": "stated_site_area",
+      "value": 750.0,
+      "unit": "m²",
+      "display_text": "750.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 720.0,
+      "unit": "m²",
+      "display_text": "720.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_building_height",
+      "value": 7.5,
+      "unit": "metres",
+      "display_text": "7.5m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 7.5,
+      "unit": "metres",
+      "display_text": "7.5m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "building_height",
+      "value": 5.49,
+      "unit": "metres",
+      "display_text": "5.5m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 18.41,
+      "unit": "metres",
+      "display_text": "18.4m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 14.55,
+      "unit": "percent",
+      "display_text": "14.6%"
+    },
+    {
+      "attribute": "building_footprint_area",
+      "value": 160.25,
+      "unit": "m²",
+      "display_text": "160.2m²"
+    },
+    {
+      "attribute": "total_site_area",
+      "value": 424.77,
+      "unit": "m²",
+      "display_text": "424.8m²"
+    },
+    {
+      "attribute": "zone_category",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "suburban_residential"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "C001",
+      "outcome": "FAIL",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C002",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C003",
+      "outcome": "PASS",
+      "evaluated_value": 750.0,
+      "threshold": 1000.0
+    },
+    {
+      "rule_id": "C004",
+      "outcome": "PASS",
+      "evaluated_value": 7.5,
+      "threshold": 15.0
+    },
+    {
+      "rule_id": "R001",
+      "outcome": "PASS",
+      "evaluated_value": 5.49,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "PASS",
+      "evaluated_value": 18.41,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 14.55,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_120000_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "80 Juniper Mews, Oxford, CB2 1TN",
+          "text_rendered": "80 Juniper Mews, Oxford, CB2 1TN",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 5.49,
+          "text_rendered": "5.5m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 14.55,
+          "text_rendered": "14.6%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "80 Juniper Mews, Oxford, CB2 1TN",
+          "text_rendered": "80 Juniper Mews, Oxford, CB2 1TN",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 5.49,
+          "text_rendered": "5.5m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 14.55,
+          "text_rendered": "14.6%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_120000_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_120000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_120000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.49,
+          "text_rendered": "5.5m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1964.0,
+            "y": 2806.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.49,
+          "text_rendered": "5.5m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1964.0,
+            "y": 2806.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_120000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.49,
+          "text_rendered": "5.5m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1914.0,
+            "y": 2816.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.49,
+          "text_rendered": "5.5m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1914.0,
+            "y": 2816.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_120000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 120000
+  },
+  "edge_case_strategy": null
+}

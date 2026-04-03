@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              151.0,
+              -33.87
+            ],
+            [
+              151.000127,
+              -33.87
+            ],
+            [
+              151.000127,
+              -33.8698141
+            ],
+            [
+              151.0,
+              -33.8698141
+            ],
+            [
+              151.0,
+              -33.87
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "SET_NONCOMPLIANT_120000",
+        "set_id": "SET_NONCOMPLIANT_120000"
+      }
+    }
+  ]
+}

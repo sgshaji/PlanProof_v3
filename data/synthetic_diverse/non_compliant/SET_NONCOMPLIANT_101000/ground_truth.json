@@ -1,0 +1,361 @@
+{
+  "set_id": "SET_NONCOMPLIANT_101000",
+  "category": "noncompliant",
+  "seed": 101000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "certificate_type",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "E"
+    },
+    {
+      "attribute": "ownership_declaration",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "sole_owner"
+    },
+    {
+      "attribute": "form_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "12 Station Avenue, Kings Heath, B14 7QR"
+    },
+    {
+      "attribute": "drawing_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "12 Station Ave, Kings Heath, B14 7QR"
+    },
+    {
+      "attribute": "stated_site_area",
+      "value": 600.0,
+      "unit": "m²",
+      "display_text": "600.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 580.0,
+      "unit": "m²",
+      "display_text": "580.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_building_height",
+      "value": 7.5,
+      "unit": "metres",
+      "display_text": "7.5m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 7.5,
+      "unit": "metres",
+      "display_text": "7.5m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "building_height",
+      "value": 6.6,
+      "unit": "metres",
+      "display_text": "6.6m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 23.25,
+      "unit": "metres",
+      "display_text": "23.2m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 11.39,
+      "unit": "percent",
+      "display_text": "11.4%"
+    },
+    {
+      "attribute": "building_footprint_area",
+      "value": 118.59,
+      "unit": "m²",
+      "display_text": "118.6m²"
+    },
+    {
+      "attribute": "total_site_area",
+      "value": 915.39,
+      "unit": "m²",
+      "display_text": "915.4m²"
+    },
+    {
+      "attribute": "zone_category",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "residential"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "C001",
+      "outcome": "FAIL",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C002",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C003",
+      "outcome": "PASS",
+      "evaluated_value": 600.0,
+      "threshold": 1000.0
+    },
+    {
+      "rule_id": "C004",
+      "outcome": "PASS",
+      "evaluated_value": 7.5,
+      "threshold": 15.0
+    },
+    {
+      "rule_id": "R001",
+      "outcome": "PASS",
+      "evaluated_value": 6.6,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "PASS",
+      "evaluated_value": 23.25,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 11.39,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_101000_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "153 Elm Court, Leeds, LE1 7GH",
+          "text_rendered": "153 Elm Court, Leeds, LE1 7GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 6.6,
+          "text_rendered": "6.6m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 11.39,
+          "text_rendered": "11.4%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "153 Elm Court, Leeds, LE1 7GH",
+          "text_rendered": "153 Elm Court, Leeds, LE1 7GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 6.6,
+          "text_rendered": "6.6m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 11.39,
+          "text_rendered": "11.4%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_101000_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_101000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_101000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 6.6,
+          "text_rendered": "6.6m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2077.0,
+            "y": 2778.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 6.6,
+          "text_rendered": "6.6m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2077.0,
+            "y": 2778.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_101000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 6.6,
+          "text_rendered": "6.6m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2122.0,
+            "y": 2758.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 6.6,
+          "text_rendered": "6.6m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2122.0,
+            "y": 2758.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_101000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 101000
+  },
+  "edge_case_strategy": null
+}

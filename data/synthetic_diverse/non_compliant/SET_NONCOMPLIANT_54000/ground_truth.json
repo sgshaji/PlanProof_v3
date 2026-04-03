@@ -1,0 +1,361 @@
+{
+  "set_id": "SET_NONCOMPLIANT_54000",
+  "category": "noncompliant",
+  "seed": 54000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "certificate_type",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "C"
+    },
+    {
+      "attribute": "ownership_declaration",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "other"
+    },
+    {
+      "attribute": "form_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "12 Station Avenue, Kings Heath, B14 7QR"
+    },
+    {
+      "attribute": "drawing_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "12 Station Ave, Kings Heath, B14 7QR"
+    },
+    {
+      "attribute": "stated_site_area",
+      "value": 750.0,
+      "unit": "m²",
+      "display_text": "750.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 720.0,
+      "unit": "m²",
+      "display_text": "720.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_building_height",
+      "value": 5.0,
+      "unit": "metres",
+      "display_text": "5.0m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 5.0,
+      "unit": "metres",
+      "display_text": "5.0m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 80.0,
+      "unit": "metres",
+      "display_text": "80.0m"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 80.0,
+      "unit": "metres",
+      "display_text": "80.0m"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 1.0,
+      "unit": "metres",
+      "display_text": "1.0m"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 1.0,
+      "unit": "metres",
+      "display_text": "1.0m"
+    },
+    {
+      "attribute": "building_height",
+      "value": 8.46,
+      "unit": "metres",
+      "display_text": "8.5m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 13.2,
+      "unit": "metres",
+      "display_text": "13.2m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 22.6,
+      "unit": "percent",
+      "display_text": "22.6%"
+    },
+    {
+      "attribute": "building_footprint_area",
+      "value": 151.5,
+      "unit": "m²",
+      "display_text": "151.5m²"
+    },
+    {
+      "attribute": "total_site_area",
+      "value": 423.43,
+      "unit": "m²",
+      "display_text": "423.4m²"
+    },
+    {
+      "attribute": "zone_category",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "residential"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "C001",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C002",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C003",
+      "outcome": "PASS",
+      "evaluated_value": 750.0,
+      "threshold": 1000.0
+    },
+    {
+      "rule_id": "C004",
+      "outcome": "PASS",
+      "evaluated_value": 5.0,
+      "threshold": 15.0
+    },
+    {
+      "rule_id": "R001",
+      "outcome": "FAIL",
+      "evaluated_value": 8.46,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "PASS",
+      "evaluated_value": 13.2,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 22.6,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_54000_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "34 Hawthorn Way, Nottingham, BS1 4DJ",
+          "text_rendered": "34 Hawthorn Way, Nottingham, BS1 4DJ",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 8.46,
+          "text_rendered": "8.5m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 22.6,
+          "text_rendered": "22.6%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "34 Hawthorn Way, Nottingham, BS1 4DJ",
+          "text_rendered": "34 Hawthorn Way, Nottingham, BS1 4DJ",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 8.46,
+          "text_rendered": "8.5m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 22.6,
+          "text_rendered": "22.6%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_54000_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_54000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_54000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 8.46,
+          "text_rendered": "8.5m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1917.0,
+            "y": 2692.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 8.46,
+          "text_rendered": "8.5m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1917.0,
+            "y": 2692.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_54000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 8.46,
+          "text_rendered": "8.5m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1986.0,
+            "y": 2709.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 8.46,
+          "text_rendered": "8.5m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1986.0,
+            "y": 2709.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_54000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 54000
+  },
+  "edge_case_strategy": null
+}

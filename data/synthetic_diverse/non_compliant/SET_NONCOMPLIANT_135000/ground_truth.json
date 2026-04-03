@@ -1,0 +1,361 @@
+{
+  "set_id": "SET_NONCOMPLIANT_135000",
+  "category": "noncompliant",
+  "seed": 135000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "certificate_type",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "NONE"
+    },
+    {
+      "attribute": "ownership_declaration",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "part_owner"
+    },
+    {
+      "attribute": "form_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "9 Church Lane, Harborne, B17 0BD"
+    },
+    {
+      "attribute": "drawing_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "9 Church Ln, Harborne, B17 0BD"
+    },
+    {
+      "attribute": "stated_site_area",
+      "value": 600.0,
+      "unit": "m²",
+      "display_text": "600.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 580.0,
+      "unit": "m²",
+      "display_text": "580.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_building_height",
+      "value": 5.0,
+      "unit": "metres",
+      "display_text": "5.0m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 5.0,
+      "unit": "metres",
+      "display_text": "5.0m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 80.0,
+      "unit": "metres",
+      "display_text": "80.0m"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 80.0,
+      "unit": "metres",
+      "display_text": "80.0m"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 1.0,
+      "unit": "metres",
+      "display_text": "1.0m"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 1.0,
+      "unit": "metres",
+      "display_text": "1.0m"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.97,
+      "unit": "metres",
+      "display_text": "5.0m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 19.98,
+      "unit": "metres",
+      "display_text": "20.0m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 32.93,
+      "unit": "percent",
+      "display_text": "32.9%"
+    },
+    {
+      "attribute": "building_footprint_area",
+      "value": 172.89,
+      "unit": "m²",
+      "display_text": "172.9m²"
+    },
+    {
+      "attribute": "total_site_area",
+      "value": 315.81,
+      "unit": "m²",
+      "display_text": "315.8m²"
+    },
+    {
+      "attribute": "zone_category",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "residential"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "C001",
+      "outcome": "FAIL",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C002",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C003",
+      "outcome": "PASS",
+      "evaluated_value": 600.0,
+      "threshold": 1000.0
+    },
+    {
+      "rule_id": "C004",
+      "outcome": "PASS",
+      "evaluated_value": 5.0,
+      "threshold": 15.0
+    },
+    {
+      "rule_id": "R001",
+      "outcome": "PASS",
+      "evaluated_value": 4.97,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "PASS",
+      "evaluated_value": 19.98,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 32.93,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_135000_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "196 Gorse Hill, Bristol, LE1 7GH",
+          "text_rendered": "196 Gorse Hill, Bristol, LE1 7GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 4.97,
+          "text_rendered": "5.0m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 32.93,
+          "text_rendered": "32.9%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "196 Gorse Hill, Bristol, LE1 7GH",
+          "text_rendered": "196 Gorse Hill, Bristol, LE1 7GH",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 4.97,
+          "text_rendered": "5.0m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 32.93,
+          "text_rendered": "32.9%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_135000_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_135000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_135000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 4.97,
+          "text_rendered": "5.0m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1977.0,
+            "y": 2861.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 4.97,
+          "text_rendered": "5.0m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1977.0,
+            "y": 2861.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_135000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 4.97,
+          "text_rendered": "5.0m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2074.0,
+            "y": 2837.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 4.97,
+          "text_rendered": "5.0m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2074.0,
+            "y": 2837.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_135000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 135000
+  },
+  "edge_case_strategy": null
+}

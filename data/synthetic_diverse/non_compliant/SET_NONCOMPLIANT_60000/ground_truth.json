@@ -1,0 +1,361 @@
+{
+  "set_id": "SET_NONCOMPLIANT_60000",
+  "category": "noncompliant",
+  "seed": 60000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "certificate_type",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "D"
+    },
+    {
+      "attribute": "ownership_declaration",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "other"
+    },
+    {
+      "attribute": "form_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "9 Church Lane, Harborne, B17 0BD"
+    },
+    {
+      "attribute": "drawing_address",
+      "value": 0.0,
+      "unit": "string_pair",
+      "display_text": "9 Church Ln, Harborne, B17 0BD"
+    },
+    {
+      "attribute": "stated_site_area",
+      "value": 300.0,
+      "unit": "m²",
+      "display_text": "300.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 290.0,
+      "unit": "m²",
+      "display_text": "290.0m²"
+    },
+    {
+      "attribute": "reference_parcel_area",
+      "value": 0.0,
+      "unit": "m²",
+      "display_text": "0.0m²"
+    },
+    {
+      "attribute": "proposed_building_height",
+      "value": 7.5,
+      "unit": "metres",
+      "display_text": "7.5m"
+    },
+    {
+      "attribute": "approved_building_height",
+      "value": 7.5,
+      "unit": "metres",
+      "display_text": "7.5m"
+    },
+    {
+      "attribute": "proposed_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "approved_building_footprint_area",
+      "value": 120.0,
+      "unit": "metres",
+      "display_text": "120.0m"
+    },
+    {
+      "attribute": "proposed_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "approved_storeys",
+      "value": 2.0,
+      "unit": "metres",
+      "display_text": "2.0m"
+    },
+    {
+      "attribute": "building_height",
+      "value": 5.66,
+      "unit": "metres",
+      "display_text": "5.7m"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 6.77,
+      "unit": "metres",
+      "display_text": "6.8m"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 37.67,
+      "unit": "percent",
+      "display_text": "37.7%"
+    },
+    {
+      "attribute": "building_footprint_area",
+      "value": 55.7,
+      "unit": "m²",
+      "display_text": "55.7m²"
+    },
+    {
+      "attribute": "total_site_area",
+      "value": 429.61,
+      "unit": "m²",
+      "display_text": "429.6m²"
+    },
+    {
+      "attribute": "zone_category",
+      "value": 0.0,
+      "unit": "categorical",
+      "display_text": "suburban_residential"
+    }
+  ],
+  "rule_verdicts": [
+    {
+      "rule_id": "C001",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C002",
+      "outcome": "PASS",
+      "evaluated_value": 0.0,
+      "threshold": 0.0
+    },
+    {
+      "rule_id": "C003",
+      "outcome": "PASS",
+      "evaluated_value": 300.0,
+      "threshold": 1000.0
+    },
+    {
+      "rule_id": "C004",
+      "outcome": "PASS",
+      "evaluated_value": 7.5,
+      "threshold": 15.0
+    },
+    {
+      "rule_id": "R001",
+      "outcome": "PASS",
+      "evaluated_value": 5.66,
+      "threshold": 8.0
+    },
+    {
+      "rule_id": "R002",
+      "outcome": "FAIL",
+      "evaluated_value": 6.77,
+      "threshold": 30.0
+    },
+    {
+      "rule_id": "R003",
+      "outcome": "PASS",
+      "evaluated_value": 37.67,
+      "threshold": 50.0
+    }
+  ],
+  "documents": [
+    {
+      "filename": "SET_NONCOMPLIANT_60000_form.pdf",
+      "doc_type": "FORM",
+      "file_format": "pdf",
+      "extractions": [
+        {
+          "attribute": "site_address",
+          "value": "94 Elm Court, Brighton, CB2 1TN",
+          "text_rendered": "94 Elm Court, Brighton, CB2 1TN",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 5.66,
+          "text_rendered": "5.7m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 37.67,
+          "text_rendered": "37.7%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "site_address",
+          "value": "94 Elm Court, Brighton, CB2 1TN",
+          "text_rendered": "94 Elm Court, Brighton, CB2 1TN",
+          "page": 1,
+          "bounding_box": {
+            "x": 794.55,
+            "y": 677.89,
+            "width": 1449.54,
+            "height": 66.67,
+            "page": 1
+          },
+          "entity_type": "ADDRESS"
+        },
+        {
+          "attribute": "building_height",
+          "value": 5.66,
+          "text_rendered": "5.7m",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 719.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        },
+        {
+          "attribute": "site_coverage",
+          "value": 37.67,
+          "text_rendered": "37.7%",
+          "page": 3,
+          "bounding_box": {
+            "x": 1086.22,
+            "y": 969.55,
+            "width": 1157.87,
+            "height": 66.67,
+            "page": 3
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_60000_site_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_60000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_60000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.66,
+          "text_rendered": "5.7m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1884.0,
+            "y": 2770.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.66,
+          "text_rendered": "5.7m",
+          "page": 1,
+          "bounding_box": {
+            "x": 1884.0,
+            "y": 2770.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_60000_elevation.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.66,
+          "text_rendered": "5.7m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2090.0,
+            "y": 2775.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ],
+      "degraded_extractions": [
+        {
+          "attribute": "building_height",
+          "value": 5.66,
+          "text_rendered": "5.7m",
+          "page": 1,
+          "bounding_box": {
+            "x": 2090.0,
+            "y": 2775.0,
+            "width": 115.0,
+            "height": 37.0,
+            "page": 1
+          },
+          "entity_type": "MEASUREMENT"
+        }
+      ]
+    },
+    {
+      "filename": "SET_NONCOMPLIANT_60000_floor_plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "extractions": [],
+      "degraded_extractions": []
+    }
+  ],
+  "degradation": {
+    "preset": "heavy_scan",
+    "seed": 60000
+  },
+  "edge_case_strategy": null
+}
