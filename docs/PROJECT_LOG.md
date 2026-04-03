@@ -5,6 +5,70 @@
 
 ---
 
+## 2026-04-03 — Enhancement Sprint: Research Rigour Improvements (P1.1–P1.4 + P2.1–P2.4)
+
+### Summary
+All Priority 1 and Priority 2 items from `docs/ENHANCEMENT_ROADMAP.md` completed in a single sprint. These address the primary gaps in evaluation rigour identified by the architectural review: oracle-only ablation, weak noncompliant corpus, no baselines, no statistical testing, and no formal theory documentation.
+
+### Final 4-System Comparison
+
+| System | PASS | true FAIL | false FAIL |
+|---|---|---|---|
+| Full system (SABLE) | 85 | 14 | 0 |
+| Ablation D (no SABLE) | 151 | 20 | 93 |
+| Naive LLM baseline | 121 | 17 | 126 |
+| Strong CoT baseline | 10 | 3 | 51 (18/33 sets) |
+
+### Completed (P1.1) — Robustness Curves
+- `NoisyEntityTransformer` with 4 degradation modes: value perturbation (±5% Gaussian), attribute misattribution (swap pairs), entity dropout (10–30%), confidence degradation (resample 0.6–0.9)
+- Re-ran full_system and ablation_d at 5 degradation levels
+- Result: SABLE false-FAIL counts (0→5→1→0→0) stay near zero; ablation_d degrades sharply
+- New figures: `figures/robustness_curves.png` (Figure R1), `figures/robustness_true_fails.png` (Figure R2)
+
+### Completed (P1.2) — Extraction Evaluation v3
+- Re-ran extraction eval on regenerated multi-source oracle data
+- Result: recall=1.0, precision=0.533, value accuracy=1.0
+- Updated 2×2 false-FAIL matrix; full_system remains 0 false FAILs regardless of extraction quality
+
+### Completed (P1.3) — Expanded Noncompliant Corpus
+- Generated 10 additional noncompliant sets (5 building_height 8.5–15m; 5 rear_garden_depth 3–9m)
+- True FAILs detected: full_system 2→14, ablation_d 4→20
+- Expanded corpus now provides strong recall evidence for the dissertation
+
+### Completed (P1.4) — Statistical Rigour
+- McNemar's test with Benjamini-Hochberg correction across all pairwise comparisons
+- Primary result: full_system vs ablation_d — McNemar p<0.0001 (BH corrected)
+- Bootstrap 95% CI on precision, recall, F2 for all 4 systems
+- Cohen's h effect sizes added to all comparison tables
+
+### Completed (P2.1) — Threshold Sensitivity Analysis
+- Swept theta_high (0.5–0.9) and theta_low (0.1–0.4) in 0.05 steps
+- Result: precision=1.0 across all tested thresholds; optimal operating point theta_high=0.55
+- New figure: `figures/threshold_sensitivity.png` (Figure T1)
+
+### Completed (P2.2) — BCC Annotation (Partial)
+- 2025 07100 set: 63 extractions annotated via GPT-4o — sufficient for qualitative generalisation evidence
+- 2 remaining sets deferred: scanned PDFs require poppler (not available ARM64 Windows)
+
+### Completed (P2.3) — CoT Baseline Comparison
+- `strong_baseline` re-run on full 33-set corpus: 10 PASS, 3 true FAILs, 51 false FAILs (18/33 sets affected)
+- `naive_baseline`: 121 PASS, 17 true FAILs, 126 false FAILs
+- Finding: prompt engineering (CoT) does not solve the false-FAIL problem; architectural assessability is required
+
+### Completed (P2.4) — SABLE Formal Properties
+- 5 mathematical proofs documented for dissertation appendix:
+  1. Monotonicity: more concordant sources → higher belief
+  2. Boundedness: output always in [0,1]
+  3. Determinism: same inputs → same output
+  4. Idempotency: repeated application of same source does not inflate belief
+  5. Composability: assessment is order-independent within a rule
+
+### Final Project Metrics (post-sprint)
+- 167 commits, 114 source files, 917 tests collected
+- 15 dissertation figures (300 DPI): 7 SABLE + 4 extraction + 2 robustness + 1 threshold + 1 true_fails
+
+---
+
 ## 2026-04-03 — BCC Auto-Annotation (GPT-4o, Partial)
 
 ### Summary

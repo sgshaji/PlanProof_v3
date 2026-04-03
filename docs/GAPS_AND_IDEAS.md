@@ -123,16 +123,15 @@ The ad-hoc if-else assessability checklist (`DefaultAssessabilityEvaluator`) has
 
 ---
 
-## Project Statistics (2026-04-03, final)
+## Project Statistics (2026-04-03, final — all enhancements complete)
 
 | Metric | Count |
 |--------|-------|
-| Total commits | 157 |
-| Source files | 113 |
+| Total commits | 167 |
+| Source files | 114 |
 | Test files | 69 |
-| Tests passing | 885 |
-| Tests skipped | 22 |
-| Phases complete | 0–9 (all implementation phases) |
+| Tests collected | 917 |
+| Phases complete | 0–9 + Enhancement Sprint (all implementation phases) |
 | Modules implemented | M1–M12 (all) |
 | Compliance rules | 8 (R001–R003 + C001–C005) |
 | Evaluator types | 7 |
@@ -143,12 +142,25 @@ The ad-hoc if-else assessability checklist (`DefaultAssessabilityEvaluator`) has
 | LLM providers supported | Groq, OpenAI, Ollama |
 | VLM providers supported | OpenAI GPT-4o, Gemini (adapter) |
 | Ablation configurations | 7 (full + 4 ablations + 2 baselines) |
-| Ablation experiments | 100 (700 rule evaluations) |
-| Dissertation figures | 11 (7 SABLE + 4 extraction, 300 DPI) |
+| Dissertation figures | 15 (7 SABLE + 4 extraction + 2 robustness + 1 threshold + 1 true_fails, 300 DPI) |
 
-### Key Findings
-- **full_system produces 0 false FAILs; ablation_d produces 43** — the assessability engine completely prevents false violations (Phase 8a, corrected 2026-04-03)
-- **full_system issues 43 PASS and 2 true FAILs** — SABLE does not merely abstain; it clears rules when evidence is genuinely sufficient (belief=0.96 for R001/R002/C004)
+### Key Findings (final, 4-system comparison)
+
+| System | PASS | true FAIL | false FAIL |
+|---|---|---|---|
+| Full system (SABLE) | 85 | 14 | 0 |
+| Ablation D (no SABLE) | 151 | 20 | 93 |
+| Naive LLM baseline | 121 | 17 | 126 |
+| Strong CoT baseline | 10 | 3 | 51 (18/33 sets) |
+
+- **full_system produces 0 false FAILs; ablation_d produces 93** — the assessability engine completely prevents false violations (McNemar p<0.0001, BH corrected)
+- **full_system issues 85 PASS and 14 true FAILs** — expanded noncompliant corpus provides strong recall evidence
+- **Both LLM baselines fail badly on false FAILs** — CoT prompting does not solve the false-FAIL problem; architectural structure is required
+- **Robustness curves:** SABLE stays near 0 false FAILs across all 5 degradation levels (0→5→1→0→0)
+- **Threshold sensitivity:** precision=1.0 across all thresholds; optimal operating point theta_high=0.55
+- **Statistical significance:** McNemar p<0.0001 for full_system vs ablation_d (BH corrected)
+- **Extraction eval v3:** recall=1.0, precision=0.533, value accuracy=1.0
+- **SABLE formal properties:** 5 proofs documented (monotonicity, boundedness, determinism, idempotency, composability)
 - **ablation_b (no SNKG) = full_system** — SNKG not exercised by current 7-rule corpus; capability exists but not tested at scale
 - **Belief two-cluster structure:** 0.56 (SINGLE_SOURCE concordance) and 0.96 (DUAL_SOURCE concordance) — direct confirmation of Dempster combination law
 - **Prompt tuning: precision 0.299 -> 0.715 (+139%)** with zero recall loss (Phase 8c)

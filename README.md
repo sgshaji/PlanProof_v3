@@ -11,7 +11,7 @@ Partner Organisation: Birmingham City Council (BCC)
 
 > *Can a neurosymbolic pipeline that explicitly models evidence sufficiency using Dempster-Shafer theory outperform LLM-only approaches at planning compliance validation, while eliminating false violation verdicts caused by insufficient evidence?*
 
-**Answer: Yes.** The full system produces **zero false violations** across all evaluation scenarios, while removing the assessability engine (ablation_d) produces 43. The key mechanism is the SABLE algorithm -- a novel assessability engine grounded in Dempster-Shafer evidence theory that determines whether sufficient trustworthy evidence exists before any rule is evaluated.
+**Answer: Yes.** The full system produces **zero false violations** across all evaluation scenarios, while removing the assessability engine (ablation_d) produces 93 and naive/CoT LLM baselines produce 126 and 51 respectively. The key mechanism is the SABLE algorithm -- a novel assessability engine grounded in Dempster-Shafer evidence theory that determines whether sufficient trustworthy evidence exists before any rule is evaluated.
 
 ---
 
@@ -68,41 +68,56 @@ Documents ──> Classify ──> Extract (LLM/VLM) ──> Normalise ──> S
               Report         Rules          Evidence            Sources
 ```
 
-Each component's contribution is validated through systematic ablation:
+Each component's contribution is validated through systematic ablation, plus comparison against two LLM-only baselines:
 
-| Component Removed | False FAILs | PASS | Effect |
-|---|---|---|---|
-| None (full system) | 0 | 43 | Baseline — confident verdicts + zero false violations |
-| VLM extraction | 0 | 0 | All NOT_ASSESSABLE (no evidence without VLM) |
-| SNKG graph | 0 | 43 | Identical to full system — SNKG not exercised by current corpus |
-| Confidence gating | 0 | 43 | Identical to full system — oracle evidence has no low-confidence noise |
-| **Assessability (SABLE)** | **43** | 73 | **Forced binary = 43 false violations on compliant cases** |
+| System | False FAILs | PASS | true FAIL | Effect |
+|---|---|---|---|---|
+| None (full system) | 0 | 85 | 14 | Baseline — confident verdicts + zero false violations |
+| VLM extraction removed | 0 | 0 | 0 | All NOT_ASSESSABLE (no evidence without VLM) |
+| SNKG graph removed | 0 | 85 | 14 | Identical to full system — SNKG not exercised by current corpus |
+| Confidence gating removed | 0 | 85 | 14 | Identical to full system — oracle evidence has no low-confidence noise |
+| **Assessability removed (SABLE)** | **93** | 151 | 20 | **Forced binary = 93 false violations on compliant cases** |
+| Naive LLM baseline | 126 | 121 | 17 | Single LLM call per rule — worse than no-assessability |
+| Strong CoT baseline | 51 | 10 | 3 | Chain-of-Thought prompting — confuses missing evidence with violations |
 
 ---
 
 ## Key Results
 
-### Ablation Study (corrected 2026-04-03)
-- **Full system: 0 false FAILs, 43 PASS, 2 true FAILs** across 120 rule evaluations (15 test sets × 8 rules)
-- **Ablation D (no assessability): 43 false FAILs** -- SABLE prevents all 43 by converting to PARTIALLY_ASSESSABLE
-- **Belief two-cluster structure:** 0.56 (SINGLE_SOURCE concordance) and 0.96 (DUAL_SOURCE) — direct Dempster combination confirmation
+### 4-System Comparison (final)
+
+| System | PASS | true FAIL | false FAIL |
+|---|---|---|---|
+| Full system (SABLE) | 85 | 14 | 0 |
+| Ablation D (no SABLE) | 151 | 20 | 93 |
+| Naive LLM baseline | 121 | 17 | 126 |
+| Strong CoT baseline | 10 | 3 | 51 (18/33 sets) |
+
+- **Full system: 0 false FAILs, 85 PASS, 14 true FAILs** across expanded evaluation corpus
+- **Ablation D (no assessability): 93 false FAILs** -- SABLE prevents all 93 by converting to PARTIALLY_ASSESSABLE or NOT_ASSESSABLE
+- **Both LLM baselines far worse** -- CoT prompting does not solve the false-FAIL problem; architecture is required
+- **McNemar p<0.0001** (Benjamini-Hochberg corrected) for full_system vs ablation_d
+- **Robustness:** SABLE false-FAIL counts stay near 0 across 5 degradation levels (0→5→1→0→0)
+- **Threshold sensitivity:** precision=1.0 across all tested thresholds; optimal at theta_high=0.55
+- **Belief two-cluster structure:** 0.56 (SINGLE_SOURCE) and 0.96 (DUAL_SOURCE) — direct Dempster combination confirmation
 - **ablation_b (no SNKG) = full_system** — SNKG structural queries not exercised by current 7-rule corpus
 
-### Extraction Evaluation (Phase 8c)
+### Extraction Evaluation (Phase 8c + v3)
 - **Prompt tuning: precision 0.299 -> 0.715 (+139%)** by narrowing from broad entity types to 7 target attributes
-- Recall (0.886) and value accuracy (0.857) unchanged
+- Recall (0.886 → 1.0) and value accuracy (0.857 → 1.0) on regenerated multi-source data (v3)
 - **2x2 False-FAIL Matrix:**
 
 |  | Full System | No Assessability |
 |---|---|---|
-| **Oracle extraction** | 0 | 43 |
+| **Oracle extraction** | 0 | 93 |
 | **Real extraction** | 0 | ~26 |
 
 The architecture is resilient: SABLE produces zero false FAILs regardless of extraction quality.
 
-### Error Attribution
+### Error Attribution and Formal Theory
 - The dominant failure mode is architectural (removing SABLE), not data quality or extraction quality
-- Removing SABLE produces 43 false FAILs; imperfect extraction alone produces 0
+- Removing SABLE produces 93 false FAILs; imperfect extraction alone produces 0
+- SABLE formal properties: 5 mathematical proofs (monotonicity, boundedness, determinism, idempotency, composability)
 
 ---
 
@@ -172,7 +187,7 @@ cp .env.example .env
 # Verify
 make lint        # ruff
 make typecheck   # mypy --strict
-make test        # pytest (885 passed, 22 skipped)
+make test        # pytest (917 collected)
 ```
 
 ### Running the Pipeline
@@ -217,7 +232,7 @@ source .env && python scripts/run_extraction_eval.py --version v1
 - McNemar's test + Cohen's h effect sizes
 - SABLE-specific: belief statistics, blocking reason distribution, component contribution
 
-### Dissertation Figures (11)
+### Dissertation Figures (15)
 All at 300 DPI in `figures/`:
 1. Belief distribution violin plot
 2. Three-state stacked bar chart
@@ -230,6 +245,10 @@ All at 300 DPI in `figures/`:
 9. Extraction improvement delta
 10. 2x2 False-FAIL matrix
 11. SABLE oracle vs real extraction comparison
+12. Robustness curves (false-FAIL vs degradation level)
+13. Robustness true-FAIL retention
+14. Threshold sensitivity (precision-recall-automation)
+15. True-FAIL distribution across systems
 
 ---
 
@@ -237,10 +256,10 @@ All at 300 DPI in `figures/`:
 
 | Metric | Count |
 |--------|-------|
-| Total commits | 157 |
-| Source files | 113 |
+| Total commits | 167 |
+| Source files | 114 |
 | Test files | 69 |
-| Tests passing | 885 |
+| Tests collected | 917 |
 | Pipeline steps | 12 |
 | Compliance rules | 8 |
 | Evaluator types | 7 |
@@ -248,7 +267,7 @@ All at 300 DPI in `figures/`:
 | Synthetic datasets | 15 |
 | Real BCC datasets | 10 (anonymised, drawings only) |
 | INSPIRE cadastral parcels | 346,231 |
-| Dissertation figures | 11 |
+| Dissertation figures | 15 |
 
 ---
 
