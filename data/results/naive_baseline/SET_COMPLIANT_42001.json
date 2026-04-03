@@ -5,7 +5,7 @@
     {
       "rule_id": "C001",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "NOT_ASSESSABLE",
+      "predicted_outcome": "PASS",
       "config_name": "naive_baseline",
       "set_id": "SET_COMPLIANT_42001",
       "belief": null,
@@ -16,7 +16,7 @@
     {
       "rule_id": "C002",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "NOT_ASSESSABLE",
+      "predicted_outcome": "FAIL",
       "config_name": "naive_baseline",
       "set_id": "SET_COMPLIANT_42001",
       "belief": null,
@@ -27,7 +27,7 @@
     {
       "rule_id": "C003",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "NOT_ASSESSABLE",
+      "predicted_outcome": "FAIL",
       "config_name": "naive_baseline",
       "set_id": "SET_COMPLIANT_42001",
       "belief": null,
@@ -38,7 +38,7 @@
     {
       "rule_id": "C004",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "NOT_ASSESSABLE",
+      "predicted_outcome": "PASS",
       "config_name": "naive_baseline",
       "set_id": "SET_COMPLIANT_42001",
       "belief": null,
@@ -49,7 +49,7 @@
     {
       "rule_id": "C005",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "NOT_ASSESSABLE",
+      "predicted_outcome": "FAIL",
       "config_name": "naive_baseline",
       "set_id": "SET_COMPLIANT_42001",
       "belief": null,
@@ -60,7 +60,7 @@
     {
       "rule_id": "R001",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "NOT_ASSESSABLE",
+      "predicted_outcome": "PASS",
       "config_name": "naive_baseline",
       "set_id": "SET_COMPLIANT_42001",
       "belief": null,
@@ -71,7 +71,7 @@
     {
       "rule_id": "R002",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "NOT_ASSESSABLE",
+      "predicted_outcome": "FAIL",
       "config_name": "naive_baseline",
       "set_id": "SET_COMPLIANT_42001",
       "belief": null,
@@ -82,7 +82,7 @@
     {
       "rule_id": "R003",
       "ground_truth_outcome": "PASS",
-      "predicted_outcome": "NOT_ASSESSABLE",
+      "predicted_outcome": "PASS",
       "config_name": "naive_baseline",
       "set_id": "SET_COMPLIANT_42001",
       "belief": null,
@@ -106,5 +106,5 @@
     "seed": 42001,
     "n_documents": 6
   },
-  "timestamp": "2026-04-03T10:39:48.172869Z"
+  "timestamp": "2026-04-03T13:44:27.339609Z"
 }
