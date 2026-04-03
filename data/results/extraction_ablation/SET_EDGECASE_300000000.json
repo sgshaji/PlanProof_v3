@@ -1,0 +1,92 @@
+{
+  "config_name": "extraction_ablation",
+  "set_id": "SET_EDGECASE_300000000",
+  "rule_results": [
+    {
+      "rule_id": "C001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "extraction_ablation",
+      "set_id": "SET_EDGECASE_300000000",
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "C002",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "extraction_ablation",
+      "set_id": "SET_EDGECASE_300000000",
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "C003",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "extraction_ablation",
+      "set_id": "SET_EDGECASE_300000000",
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "C004",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "extraction_ablation",
+      "set_id": "SET_EDGECASE_300000000",
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "R001",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "extraction_ablation",
+      "set_id": "SET_EDGECASE_300000000",
+      "belief": 0.930304,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "R002",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "extraction_ablation",
+      "set_id": "SET_EDGECASE_300000000",
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    },
+    {
+      "rule_id": "R003",
+      "ground_truth_outcome": "PASS",
+      "predicted_outcome": "NOT_ASSESSABLE",
+      "config_name": "extraction_ablation",
+      "set_id": "SET_EDGECASE_300000000",
+      "belief": 0.0,
+      "plausibility": 1.0,
+      "conflict_mass": 0.0,
+      "blocking_reason": "MISSING_EVIDENCE"
+    }
+  ],
+  "metadata": {
+    "source": "v2_real_extraction",
+    "confidence": 0.8,
+    "category": "edgecase",
+    "difficulty": "high",
+    "seed": 300000000,
+    "n_documents": 6
+  },
+  "timestamp": "2026-04-03T02:28:10.590736Z"
+}
