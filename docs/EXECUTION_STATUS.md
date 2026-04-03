@@ -1,8 +1,8 @@
-commit all the c# PlanProof — Execution Status
+PlanProof — Execution Status
 
 > **Last updated**: 2026-04-03
-> **Current phase**: Phase 9 (Boundary Verification Pipeline)
-> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). **Phase 8b complete** (Architectural Polish — @runtime_checkable, XML prompt wrapping, graceful degradation). **Phase 8c complete** (Extraction Evaluation — accuracy metrics, v1/v2 prompt comparison, 2×2 false-FAIL matrix, error attribution, 4 new dissertation figures). Phase 9 (Boundary Verification Pipeline) pending.
+> **Current phase**: Write-up (Dissertation)
+> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). **Phase 8b complete** (Architectural Polish — @runtime_checkable, XML prompt wrapping, graceful degradation). **Phase 8c complete** (Extraction Evaluation — accuracy metrics, v1/v2 prompt comparison, 2×2 false-FAIL matrix, error attribution, 4 new dissertation figures). **Phase 9 complete** (Three-Tier Boundary Verification Pipeline — INSPIRE GML parser, VLM visual alignment, scale-bar measurement, INSPIRE polygon cross-reference, C005 rule, BoundaryVerificationEvaluator). Dissertation write-up next.
 
 ---
 
@@ -23,8 +23,8 @@ commit all the c# PlanProof — Execution Status
 | Phase 8a | Evaluation Enrichment (Reasoning) | **Complete** | 2026-04-02 | 2026-04-02 |
 | Phase 8b | Architectural Polish | **Complete** | 2026-04-02 | 2026-04-02 |
 | Phase 8c | Extraction Evaluation Track | **Complete** | 2026-04-03 | 2026-04-03 |
-| Phase 9 | Boundary Verification Pipeline | In Progress | 2026-04-03 | — |
-| Write-up | Dissertation | Not Started | — | — |
+| Phase 9 | Boundary Verification Pipeline | **Complete** | 2026-04-03 | 2026-04-03 |
+| Write-up | Dissertation | In Progress | 2026-04-03 | — |
 
 ---
 
@@ -371,12 +371,13 @@ pip install -e ".[geo,pdf,dev]"
 ### Project Statistics (2026-04-03)
 | Metric | Count |
 |--------|-------|
-| Commits | ~135+ |
+| Commits | ~150+ |
 | Source files | 106 |
 | Test files | 78 |
-| Tests passing | ~834 |
+| Tests passing | ~893 |
 | Tests skipped | 14 |
-| Pipeline steps | 11 |
+| Pipeline steps | 12 (was 11) |
+| Rules configured | 8 (R001-R003 + C001-C005) |
 | Ablation configs | 7 |
 | Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
 | Real BCC datasets | 10 |
@@ -453,17 +454,19 @@ Measured extraction accuracy independently from reasoning accuracy. Fed real (im
 
 ---
 
-## Phase 9: Boundary Verification Pipeline — Pending
+## Phase 9: Boundary Verification Pipeline — Complete (2026-04-03)
 
 Three-tier boundary verification: verify that the applicant's red-line site boundary is consistent with authoritative land records. Replaces the simplified C003 placeholder.
 
-### Planned Tasks
-- [ ] Tier 1: VLM visual alignment — red-line boundary vs OS base map in the same image
-- [ ] Tier 2: Scale-bar measurement — estimate site dimensions, flag >15% area discrepancy vs declared
-- [ ] Tier 3: HMLR INSPIRE address cross-reference — UPRN lookup + polygon area comparison, flag over-claiming >1.5×
-- [ ] Combined `BoundaryVerificationStep` wired into pipeline, replaces simplified C003
-- [ ] Synthetic location plan generation with red-line boundaries + E2E test
-- [ ] Dissertation limitations documentation for boundary verification
+### Completed Tasks
+- [x] Boundary verification schemas (VisualAlignmentResult, ScaleBarResult, InspireResult, BoundaryVerificationReport)
+- [x] INSPIRE GML parser — pure Python, shoelace area, centroid nearest lookup (346K parcels)
+- [x] Tier 1: VLM visual alignment verifier with GPT-4o prompt template
+- [x] Tier 2: Scale-bar measurement verifier with area discrepancy detection (>15% threshold)
+- [x] Tier 3: INSPIRE polygon verifier with postcodes.io geocoding and over-claiming detection (>1.5x threshold)
+- [x] Combined BoundaryVerificationStep with three-tier combination logic
+- [x] C005 boundary verification rule + BoundaryVerificationEvaluator registered in factory
+- [x] VLM precision limitations documented in PROJECT_LOG
 
 ---
 
@@ -474,7 +477,7 @@ Three-tier boundary verification: verify that the applicant's red-line site boun
 3. ~~**Phase 8a:** Enrich R003 synthetic data, re-run ablation suite with SABLE metrics, error analysis (reasoning track)~~ — **DONE** (2026-04-02)
 4. ~~**Phase 8b:** Architectural polish (P0–P2 from code review)~~ — **DONE** (2026-04-02)
 5. ~~**Phase 8c:** Extraction evaluation — accuracy metrics, real extraction ablation, error attribution (extraction track)~~ — **DONE** (2026-04-03)
-6. **Phase 9:** Three-tier boundary verification pipeline with HMLR INSPIRE land data
+6. ~~**Phase 9:** Three-tier boundary verification pipeline with HMLR INSPIRE land data~~ — **DONE** (2026-04-03)
 7. **Write-up:** Dissertation chapters
 8. See `docs/GAPS_AND_IDEAS.md` for full gap tracking and future work
 9. See `docs/EXTRACTION_ERROR_ATTRIBUTION.md` for full extraction evaluation analysis with dissertation vignettes

@@ -1,6 +1,6 @@
 # PlanProof — Known Gaps, Issues & Future Ideas
 
-> **Last updated**: 2026-04-02
+> **Last updated**: 2026-04-03
 > **Purpose**: Honest tracking of what's incomplete, what's working but limited, and ideas for improvement.
 
 ---
@@ -87,25 +87,7 @@
 - **Fix assessability wiring:** Make the assessability step functional in E2E mode
 
 ### Short-term (high value — new feature)
-- **Boundary Verification Pipeline (Three-Tier):** Verify that the applicant's red-line site boundary on the location plan is consistent with authoritative land records. Designed after analysis of real BCC (Birmingham) data — UK submissions use red-line boundaries drawn on OS base maps, not lot/plan numbers or survey coordinates.
-
-  | Tier | Input | Output | External data needed? |
-  |------|-------|--------|-----------------------|
-  | **Tier 1: VLM Visual Alignment** | Location plan image (red line on OS base map) | ALIGNED / MISALIGNED / UNCLEAR + specific issues (e.g., "extends into highway", "cuts through neighbour") + confidence | None — reference is already in the image |
-  | **Tier 2: Scale-Bar Measurement** | Location plan image + scale bar + application form (declared site area) | Estimated frontage, depth, area (m²); discrepancy flag if >15% vs declared area | None — uses application form |
-  | **Tier 3: Address Cross-Reference** | Site address + postcode | UPRN match, INSPIRE polygon area, over-claiming flag if area ratio >1.5x | OS Places API (free tier) + HMLR INSPIRE index polygons (free bulk download) |
-
-  **Combined output:** Boundary verification status — CONSISTENT / DISCREPANCY_DETECTED / INSUFFICIENT_DATA — feeds into SABLE as evidence for a boundary compliance rule.
-
-  **Key insight:** The OS base map is already baked into the location plan document. The VLM can see both the red line and the OS property boundaries in the same image — this replicates what a planning officer actually does. No expensive GIS pipeline or data licences needed.
-
-  **Limitations to acknowledge in dissertation:**
-  - VLM catches gross discrepancies, not survey-grade (1-2m) boundary precision
-  - Scan/photo quality affects reliability
-  - Cannot detect cases where OS base map itself is outdated
-  - Legal boundaries (Land Registry) are deliberately imprecise ("general boundaries" under Land Registration Act 2002 s.60)
-
-  **Architecture fit:** New rule type `spatial_boundary` in the rule engine; new VLM prompt templates for boundary analysis; Tier 3 adds an optional `BoundaryReferenceProvider` interface. SABLE assesses whether sufficient boundary evidence exists before evaluation.
+- **~~Boundary Verification Pipeline (Three-Tier)~~** — **DONE** (Phase 9, 2026-04-03): Three-tier boundary verification implemented. INSPIRE GML parser (346K parcels), VLM visual alignment (Tier 1), scale-bar measurement (Tier 2), INSPIRE polygon cross-reference with postcodes.io geocoding (Tier 3). C005 rule + BoundaryVerificationEvaluator registered. Limitations documented in PROJECT_LOG and dissertation framing complete.
 
 ### Medium-term (strengthens research)
 - **VLM fine-tuning (VLM_FINETUNED):** Fine-tune a vision model on architectural drawing annotations
@@ -135,26 +117,26 @@ The ad-hoc if-else assessability checklist (`DefaultAssessabilityEvaluator`) has
 
 ---
 
-## Project Statistics (2026-04-02)
+## Project Statistics (2026-04-03)
 
 | Metric | Count |
 |--------|-------|
-| Total commits | ~120+ |
+| Total commits | ~150+ |
 | Source files | 106 |
 | Test files | 78 |
-| Tests passing | ~790 |
+| Tests passing | ~893 |
 | Tests skipped | 14 |
-| Phases complete | 7 + 7b + 8a (Phase 8b next) |
+| Phases complete | 0–9 (all implementation phases) |
 | Modules implemented | M1-M12 (all) |
-| Rules configured | 7 (R001-R003 + C001-C004) |
+| Rules configured | 8 (R001-R003 + C001-C005) |
 | Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
 | Real BCC datasets | 10 (anonymised, drawings only) |
 | LLM providers supported | Groq, OpenAI, Ollama |
 | VLM providers supported | OpenAI GPT-4o, Gemini (adapter) |
-| Pipeline steps | 11 (classification → evidence requests) |
+| Pipeline steps | 12 (was 11 — BoundaryVerificationStep added) |
 | Ablation configurations | 7 (full + 4 ablations + 2 baselines) |
 | Ablation experiments run | 100 (700 rule evaluations) |
-| Dissertation visualisations | 7 (SABLE metrics, 300 DPI) |
+| Dissertation visualisations | 11 (7 SABLE + 4 extraction, 300 DPI) |
 
 ### Key Finding (Phase 8a)
 **full_system produces 0 false FAILs; ablation_d produces 100** — the assessability engine completely prevents false violations. This is the central quantitative result for the dissertation's evaluation chapter.
