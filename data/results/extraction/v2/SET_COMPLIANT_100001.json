@@ -1,0 +1,243 @@
+{
+  "set_id": "SET_COMPLIANT_100001",
+  "version": "v2",
+  "timestamp": "2026-04-03T02:21:03.802343+00:00",
+  "gt_entity_count": 7,
+  "predicted_entity_count": 11,
+  "recall": 1.0,
+  "precision": 0.6364,
+  "value_accuracy": 0.7143,
+  "per_attribute": {
+    "certificate_type": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "site_area": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "boundary_lengths": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    },
+    "site_coverage": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 0.5
+    },
+    "rear_garden_depth": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 0.0
+    },
+    "site_address": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 1.0
+    },
+    "building_height": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "value_accuracy": 1.0
+    },
+    "setback_distances": {
+      "recall": 0.0,
+      "precision": 0.0,
+      "value_accuracy": 0.0
+    }
+  },
+  "gt_entities": [
+    {
+      "attribute": "site_address",
+      "value": "179 Foxglove Road, Bristol, NG1 5FT",
+      "doc_type": "FORM",
+      "source_document": "SET_COMPLIANT_100001_form.pdf"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.34,
+      "doc_type": "FORM",
+      "source_document": "SET_COMPLIANT_100001_form.pdf"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 17.66,
+      "doc_type": "FORM",
+      "source_document": "SET_COMPLIANT_100001_form.pdf"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 19.49,
+      "doc_type": "DRAWING",
+      "source_document": "SET_COMPLIANT_100001_site_plan.pdf"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 17.66,
+      "doc_type": "DRAWING",
+      "source_document": "SET_COMPLIANT_100001_site_plan.pdf"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.34,
+      "doc_type": "DRAWING",
+      "source_document": "SET_COMPLIANT_100001_elevation.png"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.34,
+      "doc_type": "DRAWING",
+      "source_document": "SET_COMPLIANT_100001_elevation.png"
+    }
+  ],
+  "predicted_entities": [
+    {
+      "attribute": "building_height",
+      "value": 4.3,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-ELEVATION_3.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.3,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-ELEVATION_4.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "site_address",
+      "value": "179 Foxglove Road, Bristol, NG1 5FT",
+      "doc_type": "ADDRESS",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "building_height",
+      "value": 4.3,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 17.7,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "certificate_type",
+      "value": "A",
+      "doc_type": "CERTIFICATE",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-FORM.pdf",
+      "extraction_method": "OCR_LLM"
+    },
+    {
+      "attribute": "rear_garden_depth",
+      "value": 10,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "site_coverage",
+      "value": 40,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "setback_distances",
+      "value": 5,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "site_area",
+      "value": 500,
+      "doc_type": "MEASUREMENT",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    },
+    {
+      "attribute": "boundary_lengths",
+      "value": 20,
+      "doc_type": "BOUNDARY",
+      "source_document": "data\\synthetic_diverse\\compliant\\SET_COMPLIANT_100001\\SET_COMPLIANT_100001-compliant-SITE_PLAN_1_scan.png",
+      "extraction_method": "VLM_ZEROSHOT"
+    }
+  ],
+  "matches": [
+    {
+      "gt_attribute": "site_address",
+      "predicted_attribute": "site_address",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "site_coverage",
+      "predicted_attribute": "site_coverage",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "rear_garden_depth",
+      "predicted_attribute": "rear_garden_depth",
+      "matched": true,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": "site_coverage",
+      "predicted_attribute": "site_coverage",
+      "matched": true,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": "building_height",
+      "predicted_attribute": "building_height",
+      "matched": true,
+      "value_correct": true
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "certificate_type",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "setback_distances",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "site_area",
+      "matched": false,
+      "value_correct": false
+    },
+    {
+      "gt_attribute": null,
+      "predicted_attribute": "boundary_lengths",
+      "matched": false,
+      "value_correct": false
+    }
+  ]
+}

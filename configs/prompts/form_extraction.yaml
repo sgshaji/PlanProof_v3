@@ -5,16 +5,21 @@ system_message: |
   information that is explicitly stated in the text.
 
 user_message_template: |
-  Extract all structured entities from this planning application form text.
-  For each entity found, provide the entity_type, attribute name, value,
-  unit (if applicable), and the page number where it appears.
+  Extract ONLY the following specific attributes from this planning application
+  form text. Do NOT extract any attributes not listed below. For each attribute
+  found, provide the entity_type, attribute name, value, unit, and page number.
 
-  Entity types to look for:
-  - ADDRESS: site addresses, applicant addresses, agent addresses
-  - MEASUREMENT: building height, garden depth, site area, floor area, coverage
-  - CERTIFICATE: certificate type (A, B, C, D), ownership declarations
-  - OWNERSHIP: owner names, applicant names
-  - ZONE: planning zone, conservation area, flood zone references
+  Target attributes (extract ONLY these):
+  - site_address (ADDRESS): the site/property address for the development
+  - building_height (MEASUREMENT): proposed building height in metres
+  - rear_garden_depth (MEASUREMENT): rear garden depth after development in metres
+  - site_coverage (MEASUREMENT): site coverage percentage (built footprint as % of site area)
+  - building_footprint_area (MEASUREMENT): building footprint area in square metres
+  - total_site_area (MEASUREMENT): total site area in square metres
+  - certificate_type (CERTIFICATE): ownership certificate type — one of A, B, C, or D
+
+  Do NOT extract applicant names, agent names, agent addresses, flood zones,
+  conservation areas, floor areas, or any other attributes not listed above.
 
   Text to extract from:
   <document>
@@ -56,7 +61,6 @@ few_shot_examples:
     output: |
       {"entities": [
         {"entity_type": "ADDRESS", "attribute": "site_address", "value": "42 Oak Lane, Bristol, BS3 4QR", "unit": null, "source_page": 1},
-        {"entity_type": "OWNERSHIP", "attribute": "applicant_name", "value": "John Smith", "unit": null, "source_page": 1},
         {"entity_type": "CERTIFICATE", "attribute": "certificate_type", "value": "A", "unit": null, "source_page": 1},
         {"entity_type": "MEASUREMENT", "attribute": "building_height", "value": 6.8, "unit": "metres", "source_page": 3},
         {"entity_type": "MEASUREMENT", "attribute": "rear_garden_depth", "value": 11.2, "unit": "metres", "source_page": 3}
