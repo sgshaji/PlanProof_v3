@@ -1,8 +1,8 @@
 PlanProof — Execution Status
 
-> **Last updated**: 2026-04-03
+> **Last updated**: 2026-04-04
 > **Current phase**: Write-up (Dissertation)
-> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). **Phase 8b complete** (Architectural Polish — @runtime_checkable, XML prompt wrapping, graceful degradation). **Phase 8c complete** (Extraction Evaluation — accuracy metrics, v1/v2 prompt comparison, 2×2 false-FAIL matrix, error attribution, 4 new dissertation figures). **Phase 9 complete** (Three-Tier Boundary Verification Pipeline — INSPIRE GML parser, VLM visual alignment, scale-bar measurement, INSPIRE polygon cross-reference, C005 rule, BoundaryVerificationEvaluator). **Enhancement Sprint complete** (P1.1–P1.4 + P2.1–P2.4 — robustness curves, noncompliant corpus expansion, statistical rigour, extraction eval v3, threshold sensitivity, CoT baseline comparison, SABLE formal properties, BCC partial annotation). All implementation and evaluation work done. Dissertation write-up in progress.
+> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). **Phase 8b complete** (Architectural Polish — @runtime_checkable, XML prompt wrapping, graceful degradation). **Phase 8c complete** (Extraction Evaluation — accuracy metrics, v1/v2 prompt comparison, 2×2 false-FAIL matrix, error attribution, 4 new dissertation figures). **Phase 9 complete** (Three-Tier Boundary Verification Pipeline — INSPIRE GML parser, VLM visual alignment, scale-bar measurement, INSPIRE polygon cross-reference, C005 rule, BoundaryVerificationEvaluator). **Enhancement Sprint complete** (P1.1–P1.4 + P2.1–P2.4 — robustness curves, noncompliant corpus expansion, statistical rigour, extraction eval v3, threshold sensitivity, CoT baseline comparison, SABLE formal properties, BCC partial annotation). **DA1 complete** (SNKG Spatial Containment Rule C006 — Neo4j graph traversal, ablation_b now differs from full_system: 33 additional PASS verdicts, neurosymbolic claim validated). All implementation and evaluation work done. Dissertation write-up in progress.
 
 ---
 
@@ -25,6 +25,7 @@ PlanProof — Execution Status
 | Phase 8c | Extraction Evaluation Track | **Complete** | 2026-04-03 | 2026-04-03 |
 | Phase 9 | Boundary Verification Pipeline | **Complete** | 2026-04-03 | 2026-04-03 |
 | Enhancement Sprint | Research Rigour (P1.1–P1.4, P2.1–P2.4) | **Complete** | 2026-04-03 | 2026-04-03 |
+| DA1 | SNKG Spatial Containment Rule (C006) | **Complete** | 2026-04-04 | 2026-04-04 |
 | Write-up | Dissertation | In Progress | 2026-04-03 | — |
 
 ---
@@ -362,51 +363,63 @@ pip install -e ".[geo,pdf,dev]"
 - [x] Fix rule_id "unknown" in verdict reports — **RESOLVED Phase 7b** (2026-04-01)
 - [ ] Run E2E on more BCC application sets
 
-### Key Findings (final — all enhancements complete 2026-04-03)
+### Key Findings (final — DA1 complete 2026-04-04)
 
-#### 4-System Comparison Table
+#### Full Ablation Table (33 test sets × 9 rules = 297 evaluations per config)
+| Config | PASS | true FAIL | false FAIL | PA | NA | total |
+|---|---|---|---|---|---|---|
+| full_system | 118 | 14 | 0 | 132 | 33 | 297 |
+| ablation_a (no VLM) | 0 | 0 | 0 | 0 | 297 | 297 |
+| ablation_b (no SNKG) | 85 | 14 | 0 | 132 | 66 | 297 |
+| ablation_c (no gating) | 118 | 14 | 0 | 132 | 33 | 297 |
+| ablation_d (no SABLE) | 184 | 20 | 93 | 0 | 0 | 297 |
+
+#### 4-System Comparison (LLM baselines on original corpus)
 | System | PASS | true FAIL | false FAIL |
 |---|---|---|---|
-| Full system (SABLE) | 85 | 14 | 0 |
-| Ablation D (no SABLE) | 151 | 20 | 93 |
+| Full system (SABLE) | 118 | 14 | 0 |
+| Ablation D (no SABLE) | 184 | 20 | 93 |
 | Naive LLM baseline | 121 | 17 | 126 |
 | Strong CoT baseline | 10 | 3 | 51 (18/33 sets) |
 
 - **Full system produces 0 false FAILs; ablation_d produces 93** — SABLE completely prevents false violations (McNemar p<0.0001, BH corrected)
-- **Full system issues 85 PASS and 14 true FAILs** — expanded noncompliant corpus gives strong recall evidence
+- **Full system issues 118 PASS and 14 true FAILs** — 33 test sets × 9 rules; expanded corpus gives strong recall evidence
+- **ablation_b (no SNKG) now differs from full_system** — SNKG contributes 33 additional PASS verdicts via C006 conservation area spatial containment; ablation_b has 66 NA vs full_system's 33 NA
+- **DA1 validates the neurosymbolic claim** — Neo4j graph traversal (zone containment query) required for C006; without SNKG the rule is NOT_ASSESSABLE
 - **Robustness curves:** SABLE stays near 0 false FAILs across all 5 degradation levels (0→5→1→0→0); ablation_d degrades sharply
 - **Threshold sensitivity:** precision=1.0 across all thresholds tested; optimal at theta_high=0.55
 - **Statistical significance:** McNemar p<0.0001 for full_system vs ablation_d (Benjamini-Hochberg corrected)
 - **Strong CoT baseline performs worse than naive** — LLM confuses missing evidence with violations; architecture beats prompt engineering
 - **Extraction eval v3:** recall=1.0, precision=0.533, value accuracy=1.0 on regenerated multi-source data
 - **SABLE formal properties:** 5 mathematical proofs documented (monotonicity, boundedness, determinism, idempotency, composability)
-- **ablation_b (no SNKG) = full_system** — SNKG not exercised by current 7-rule corpus; structural querying capability exists
 - **Belief two-cluster structure:** 0.56 (SINGLE_SOURCE) and 0.96 (DUAL_SOURCE) — direct Dempster combination confirmation
 - Real BCC data runs through full pipeline — correctly identifies insufficient evidence
 
-### Project Statistics (2026-04-03, final — all enhancements complete)
+### Project Statistics (2026-04-04, final — DA1 complete)
 | Metric | Count |
 |--------|-------|
-| Commits | 167 |
-| Source files | 114 |
+| Commits | ~170 |
+| Source files | 115 |
 | Test files | 69 |
 | Tests collected | 917 |
 | Pipeline steps | 12 |
-| Compliance rules | 8 (R001–R003 + C001–C005) |
-| Evaluator types | 7 (numeric_threshold, ratio_threshold, enum_check, fuzzy_string_match, numeric_tolerance, attribute_diff, boundary_verification) |
+| Compliance rules | 9 (R001–R003 + C001–C006) |
+| Evaluator types | 7 (numeric_threshold, ratio_threshold, enum_check, fuzzy_string_match, numeric_tolerance, attribute_diff, boundary_verification) + SNKG spatial containment |
 | Ablation configs | 7 (full + 4 ablations + 2 baselines) |
-| full_system verdicts | 85 PASS, 14 true FAILs, 0 false FAILs |
+| Evaluations per config | 297 (33 test sets × 9 rules) |
+| full_system verdicts | 118 PASS, 14 true FAILs, 0 false FAILs, 132 PA, 33 NA |
+| ablation_b verdicts | 85 PASS, 14 true FAILs, 0 false FAILs, 132 PA, 66 NA (33 fewer PASS than full_system — DA1 effect) |
 | ablation_d false FAILs | 93 (all prevented by SABLE in full_system) |
 | naive_baseline false FAILs | 126 |
 | strong_baseline false FAILs | 51 (18/33 sets) |
-| Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
+| Synthetic datasets | 33 test sets (18 attributes per set, 9-rule corpus) |
 | Real BCC datasets | 10 (anonymised, drawings only) |
 | BCC auto-annotation | 1 of 3 sets annotated (2025 07100, 63 extractions via GPT-4o); 2 deferred (scanned PDFs need pdf2image) |
 | INSPIRE cadastral parcels | 346,231 |
 | Dissertation figures | 15 (7 SABLE + 4 extraction + 2 robustness + 1 threshold + 1 true_fails, all 300 DPI) |
 | Extraction test sets | 5 (v1 + v2 + v3 evaluated) |
-| Enhancement sprints | P1.1–P1.4 + P2.1–P2.4, all complete |
-| Implementation phases | 12 (0–9 + 7b + 8a–8c), all complete |
+| Enhancement sprints | P1.1–P1.4 + P2.1–P2.4 + DA1, all complete |
+| Implementation phases | 13 (0–9 + 7b + 8a–8c + DA1), all complete |
 
 ---
 

@@ -1,9 +1,9 @@
 # PlanProof — Enhancement Roadmap to Top 5% MSc Dissertation
 
-> **Date:** 2026-04-03
-> **Current grade estimate:** A / A+ (all P1 + P2 complete — 4-system comparison, robustness curves, statistical significance, formal proofs, baselines)
+> **Date:** 2026-04-04
+> **Current grade estimate:** A+ (DA1 complete — neurosymbolic claim now empirically validated; ablation_b measurably differs from full_system)
 > **Target:** A+ (top 5 percentile MSc Computer Science)
-> **Enhancement sprint status:** P1.1–P1.4 and P2.1–P2.4 all DONE (2026-04-03)
+> **Enhancement sprint status:** P1.1–P1.4 and P2.1–P2.4 all DONE (2026-04-03). DA1 DONE (2026-04-04).
 
 ---
 
@@ -144,11 +144,10 @@ Adapt 3-5 rules to another council's policy (Nottingham, Leeds). Re-run ablation
 
 These 4 items were identified as the difference between A and definitive A+. Items 1-2 are ready to build but blocked on external dependencies.
 
-### DA1: Exercise SNKG with Spatial Containment Rule — PENDING
-**What:** Add rule C006 "Is the property in a Conservation Area?" requiring Neo4j graph traversal (zone containment query). This makes ablation_b (no SNKG) show a measurable difference from full_system, validating the "neurosymbolic" claim.
-**Status:** Code can be built immediately. BLOCKED on Neo4j Aura — free instance expired (DNS resolution failed). Need to create a new Aura instance at https://aura.neo4j.io and update `.env` credentials.
-**Effort:** 4-6 hours (code) + 10 min (Aura setup)
-**Impact:** Fixes the ablation_b=full_system gap — the single most documented weakness
+### DA1: Exercise SNKG with Spatial Containment Rule — DONE (2026-04-04)
+**What:** C006 "Conservation Area Containment Check" implemented — Neo4j graph traversal (zone containment query via `CONTAINS` relationship on `Zone` nodes with `zone_type=conservation_area`).
+**Result:** ablation_b (no SNKG) now produces 85 PASS vs full_system's 118 PASS. The 33-verdict difference (all C006 evaluations) routes to NOT_ASSESSABLE without the SNKG graph. ablation_b has 66 NA vs full_system's 33 NA.
+**Dissertation impact:** Fixes the ablation_b=full_system gap — the previously documented weakness is now an empirical strength. The neurosymbolic claim is validated: symbolic graph structure (SNKG) provides reasoning capability that neural extraction cannot substitute.
 
 ### DA2: Run Full Pipeline on 5+ Real BCC Applications with Forms — PENDING
 **What:** Obtain complete BCC application bundles (forms + drawings) so all 8 rules can fire on real documents. Currently we only have anonymised drawings — rules requiring form data (C001 certificate type, C002 address, C003 boundary area) always get NOT_ASSESSABLE.

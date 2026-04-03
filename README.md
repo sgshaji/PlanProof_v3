@@ -11,7 +11,7 @@ Partner Organisation: Birmingham City Council (BCC)
 
 > *Can a neurosymbolic pipeline that explicitly models evidence sufficiency using Dempster-Shafer theory outperform LLM-only approaches at planning compliance validation, while eliminating false violation verdicts caused by insufficient evidence?*
 
-**Answer: Yes.** The full system produces **zero false violations** across all evaluation scenarios, while removing the assessability engine (ablation_d) produces 93 and naive/CoT LLM baselines produce 126 and 51 respectively. The key mechanism is the SABLE algorithm -- a novel assessability engine grounded in Dempster-Shafer evidence theory that determines whether sufficient trustworthy evidence exists before any rule is evaluated.
+**Answer: Yes.** The full system produces **zero false violations** across all evaluation scenarios, while removing the assessability engine (ablation_d) produces 93 and naive/CoT LLM baselines produce 126 and 51 respectively. The key mechanism is the SABLE algorithm -- a novel assessability engine grounded in Dempster-Shafer evidence theory that determines whether sufficient trustworthy evidence exists before any rule is evaluated. A spatial containment rule (C006) implemented in the SNKG confirms the neurosymbolic claim: ablation_b (no SNKG) now differs measurably from the full system (66 NA vs 33 NA).
 
 ---
 
@@ -70,15 +70,15 @@ Documents ──> Classify ──> Extract (LLM/VLM) ──> Normalise ──> S
 
 Each component's contribution is validated through systematic ablation, plus comparison against two LLM-only baselines:
 
-| System | False FAILs | PASS | true FAIL | Effect |
-|---|---|---|---|---|
-| None (full system) | 0 | 85 | 14 | Baseline — confident verdicts + zero false violations |
-| VLM extraction removed | 0 | 0 | 0 | All NOT_ASSESSABLE (no evidence without VLM) |
-| SNKG graph removed | 0 | 85 | 14 | Identical to full system — SNKG not exercised by current corpus |
-| Confidence gating removed | 0 | 85 | 14 | Identical to full system — oracle evidence has no low-confidence noise |
-| **Assessability removed (SABLE)** | **93** | 151 | 20 | **Forced binary = 93 false violations on compliant cases** |
-| Naive LLM baseline | 126 | 121 | 17 | Single LLM call per rule — worse than no-assessability |
-| Strong CoT baseline | 51 | 10 | 3 | Chain-of-Thought prompting — confuses missing evidence with violations |
+| System | False FAILs | PASS | true FAIL | NA | Effect |
+|---|---|---|---|---|---|
+| None (full system) | 0 | 118 | 14 | 33 | Baseline — confident verdicts + zero false violations |
+| VLM extraction removed | 0 | 0 | 0 | 297 | All NOT_ASSESSABLE (no evidence without VLM) |
+| SNKG graph removed | 0 | 85 | 14 | 66 | 33 fewer PASS — C006 conservation area checks require SNKG graph |
+| Confidence gating removed | 0 | 118 | 14 | 33 | Identical to full system — oracle evidence has no low-confidence noise |
+| **Assessability removed (SABLE)** | **93** | 184 | 20 | 0 | **Forced binary = 93 false violations on compliant cases** |
+| Naive LLM baseline | 126 | 121 | 17 | — | Single LLM call per rule — worse than no-assessability |
+| Strong CoT baseline | 51 | 10 | 3 | — | Chain-of-Thought prompting — confuses missing evidence with violations |
 
 ---
 
@@ -88,19 +88,19 @@ Each component's contribution is validated through systematic ablation, plus com
 
 | System | PASS | true FAIL | false FAIL |
 |---|---|---|---|
-| Full system (SABLE) | 85 | 14 | 0 |
-| Ablation D (no SABLE) | 151 | 20 | 93 |
+| Full system (SABLE) | 118 | 14 | 0 |
+| Ablation D (no SABLE) | 184 | 20 | 93 |
 | Naive LLM baseline | 121 | 17 | 126 |
 | Strong CoT baseline | 10 | 3 | 51 (18/33 sets) |
 
-- **Full system: 0 false FAILs, 85 PASS, 14 true FAILs** across expanded evaluation corpus
+- **Full system: 0 false FAILs, 118 PASS, 14 true FAILs** across 33 test sets × 9 rules (297 evaluations)
 - **Ablation D (no assessability): 93 false FAILs** -- SABLE prevents all 93 by converting to PARTIALLY_ASSESSABLE or NOT_ASSESSABLE
+- **ablation_b (no SNKG): 85 PASS vs full_system 118** — SNKG contributes 33 additional PASS verdicts via C006 conservation area spatial containment rule
 - **Both LLM baselines far worse** -- CoT prompting does not solve the false-FAIL problem; architecture is required
 - **McNemar p<0.0001** (Benjamini-Hochberg corrected) for full_system vs ablation_d
 - **Robustness:** SABLE false-FAIL counts stay near 0 across 5 degradation levels (0→5→1→0→0)
 - **Threshold sensitivity:** precision=1.0 across all tested thresholds; optimal at theta_high=0.55
 - **Belief two-cluster structure:** 0.56 (SINGLE_SOURCE) and 0.96 (DUAL_SOURCE) — direct Dempster combination confirmation
-- **ablation_b (no SNKG) = full_system** — SNKG structural queries not exercised by current 7-rule corpus
 
 ### Extraction Evaluation (Phase 8c + v3)
 - **Prompt tuning: precision 0.299 -> 0.715 (+139%)** by narrowing from broad entity types to 7 target attributes
@@ -136,11 +136,11 @@ The architecture is resilient: SABLE produces zero false FAILs regardless of ext
 | 7 | Reconciliation | M6 | Pairwise cross-document evidence agreement |
 | 8 | Confidence Gating | M7 | Per-method, per-type threshold filtering |
 | 9 | Assessability (SABLE) | M8 | D-S evidence sufficiency evaluation |
-| 10 | Rule Evaluation | M9 | 7 evaluator types (numeric, ratio, enum, fuzzy, tolerance, diff, boundary) |
+| 10 | Rule Evaluation | M9 | 7 evaluator types (numeric, ratio, enum, fuzzy, tolerance, diff, boundary) + SNKG spatial containment |
 | 11 | Compliance Scoring | M10 | Aggregate verdicts into report |
 | 12 | Evidence Requests | M11 | Generate minimum evidence requests for NOT_ASSESSABLE rules |
 
-### Compliance Rules (8)
+### Compliance Rules (9)
 
 | Rule | Description | Type |
 |------|-------------|------|
@@ -152,6 +152,7 @@ The architecture is resilient: SABLE produces zero false FAILs regardless of ext
 | C003 | Boundary area validation (stated vs reference) | Numeric tolerance |
 | C004 | Plan change detection (proposed vs approved) | Attribute diff |
 | C005 | Three-tier boundary verification | Boundary verification |
+| C006 | Conservation area containment check | SNKG spatial containment (Neo4j graph traversal) |
 
 ### Design Principles
 
@@ -256,15 +257,15 @@ All at 300 DPI in `figures/`:
 
 | Metric | Count |
 |--------|-------|
-| Total commits | 167 |
-| Source files | 114 |
+| Total commits | ~170 |
+| Source files | 115 |
 | Test files | 69 |
 | Tests collected | 917 |
 | Pipeline steps | 12 |
-| Compliance rules | 8 |
+| Compliance rules | 9 (R001–R003 + C001–C006) |
 | Evaluator types | 7 |
 | Ablation configurations | 7 |
-| Synthetic datasets | 15 |
+| Synthetic datasets | 33 (9 rules × 33 test sets = 297 evaluations per config) |
 | Real BCC datasets | 10 (anonymised, drawings only) |
 | INSPIRE cadastral parcels | 346,231 |
 | Dissertation figures | 15 |
@@ -322,6 +323,7 @@ All at 300 DPI in `figures/`:
 | 8b | Architectural Polish | Complete |
 | 8c | Extraction Evaluation & Error Attribution | Complete |
 | 9 | Three-Tier Boundary Verification | Complete |
+| DA1 | SNKG Spatial Containment Rule (C006) | Complete |
 | -- | Dissertation Write-up | In Progress |
 
 ---
