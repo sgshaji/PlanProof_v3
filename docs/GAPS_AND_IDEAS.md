@@ -95,6 +95,12 @@
 ### Short-term (high value — new feature)
 - **~~Boundary Verification Pipeline (Three-Tier)~~** — **DONE** (Phase 9, 2026-04-03): Three-tier boundary verification implemented. INSPIRE GML parser (346K parcels), VLM visual alignment (Tier 1), scale-bar measurement (Tier 2), INSPIRE polygon cross-reference with postcodes.io geocoding (Tier 3). C005 rule + BoundaryVerificationEvaluator registered. Limitations documented in PROJECT_LOG and dissertation framing complete.
 
+### Definitive A+ items (assessed 2026-04-03, pending)
+- **SNKG spatial containment rule (DA1):** Add C006 "Conservation Area check" requiring Neo4j graph traversal. Fixes ablation_b=full_system gap. BLOCKED: Neo4j Aura instance expired — recreate at https://aura.neo4j.io. (4-6h code + 10min setup)
+- **Real BCC applications with forms (DA2):** Obtain 5 complete application bundles from BCC (forms + drawings). Enables all 8 rules on real data. BLOCKED: needs BCC partnership. (2-3h coordination + 4-6h pipeline)
+- **User study with 3 planning officers (DA3):** 10 cases, Fleiss' Kappa agreement. BLOCKED: IRB + recruitment. (20-30h total)
+- **Dockerfile for reproducibility (DA4):** Pinned deps, `make reproduce-ablation`. No blockers. (4-6h)
+
 ### Medium-term (strengthens research)
 - **VLM fine-tuning (VLM_FINETUNED):** Fine-tune a vision model on architectural drawing annotations
 - **Shapely spatial predicates:** Wire real polygon containment checks for zone-based rules

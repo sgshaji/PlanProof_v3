@@ -140,6 +140,37 @@ Adapt 3-5 rules to another council's policy (Nottingham, Leeds). Re-run ablation
 
 ---
 
+## Definitive A+ Items (Pending — Assessed 2026-04-03)
+
+These 4 items were identified as the difference between A and definitive A+. Items 1-2 are ready to build but blocked on external dependencies.
+
+### DA1: Exercise SNKG with Spatial Containment Rule — PENDING
+**What:** Add rule C006 "Is the property in a Conservation Area?" requiring Neo4j graph traversal (zone containment query). This makes ablation_b (no SNKG) show a measurable difference from full_system, validating the "neurosymbolic" claim.
+**Status:** Code can be built immediately. BLOCKED on Neo4j Aura — free instance expired (DNS resolution failed). Need to create a new Aura instance at https://aura.neo4j.io and update `.env` credentials.
+**Effort:** 4-6 hours (code) + 10 min (Aura setup)
+**Impact:** Fixes the ablation_b=full_system gap — the single most documented weakness
+
+### DA2: Run Full Pipeline on 5+ Real BCC Applications with Forms — PENDING
+**What:** Obtain complete BCC application bundles (forms + drawings) so all 8 rules can fire on real documents. Currently we only have anonymised drawings — rules requiring form data (C001 certificate type, C002 address, C003 boundary area) always get NOT_ASSESSABLE.
+**Status:** BLOCKED on BCC partnership. Cannot generate real application forms — they contain applicant details, ownership declarations, and site addresses that must come from actual submissions.
+**Action needed:** Contact BCC planning department to request 5 anonymised complete application bundles (forms + drawings + certificates).
+**Effort:** 2-3 hours (coordination) + 4-6 hours (pipeline runs + analysis)
+**Impact:** Strongest possible real-world validation — "end-to-end on real council data"
+
+### DA3: Small User Study (3 Planning Officers) — PENDING
+**What:** Present 10 applications + system verdicts to 3-5 BCC officers. Measure agreement rate (Fleiss' Kappa). Ask: "Do you agree with the system's PASS/FAIL/NOT_ASSESSABLE verdict?"
+**Status:** Not started. Requires IRB ethics approval (2-3 weeks), BCC partnership, officer recruitment.
+**Effort:** 20-30 hours total
+**Impact:** Domain expert validation — the gold standard for applied systems
+
+### DA4: Dockerfile for Reproducibility — PENDING
+**What:** Dockerfile with pinned Python 3.12, all dependencies, seed-deterministic `make reproduce-ablation` target. CITATION.cff for academic citation.
+**Status:** Ready to implement. No blockers.
+**Effort:** 4-6 hours
+**Impact:** Credibility signal — any reviewer can replicate results exactly
+
+---
+
 ## What NOT To Do (Diminishing Returns)
 
 - Don't add more rules beyond 8 — diminishing returns for dissertation
