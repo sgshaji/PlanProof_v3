@@ -77,7 +77,19 @@ def _parse_args() -> argparse.Namespace:
         "--output-dir",
         type=Path,
         default=Path("data/results/extraction_ablation"),
-        help="Directory to write extraction ablation result JSONs.",
+        help="Directory to write extraction ablation (full_system) result JSONs.",
+    )
+    parser.add_argument(
+        "--output-dir-abl-d",
+        type=Path,
+        default=Path("data/results/extraction_ablation_d"),
+        help="Directory to write extraction ablation_d result JSONs.",
+    )
+    parser.add_argument(
+        "--oracle-abl-d-dir",
+        type=Path,
+        default=Path("data/results/ablation_d"),
+        help="Directory containing oracle ablation_d ExperimentResult JSONs.",
     )
     parser.add_argument(
         "--data-dir",
@@ -232,12 +244,16 @@ def _register_evaluators() -> Any:
 def run_pipeline_on_entities(
     entities: list[Any],
     configs_dir: Path,
+    use_assessability: bool = True,
 ) -> tuple[list[Any], list[Any], list[Any]]:
     """Run the full reasoning pipeline on pre-built entities.
 
+    When *use_assessability* is False (ablation_d mode), the SABLE step is
+    skipped and all rules are treated as assessable, forcing binary PASS/FAIL
+    verdicts even when evidence is insufficient.
+
     Returns (verdicts, assessability_results, loaded_rule_pairs).
     """
-    from planproof.reasoning.assessability import DefaultAssessabilityEvaluator
     from planproof.reasoning.confidence import ThresholdConfidenceGate
     from planproof.reasoning.reconciliation import PairwiseReconciler
     from planproof.representation.flat_evidence import FlatEvidenceProvider
@@ -282,18 +298,23 @@ def run_pipeline_on_entities(
     all_rule_ids = list(rules_dict.keys())
 
     # --- Assessability (SABLE) ---
-    assessability_evaluator = DefaultAssessabilityEvaluator(
-        evidence_provider=evidence_provider,
-        confidence_gate=confidence_gate,
-        reconciler=reconciler,
-        rules=rules_dict,
-    )
     assessability_results: list[Any] = []
-    for rule_id in all_rule_ids:
-        result = assessability_evaluator.evaluate(rule_id)
-        assessability_results.append(result)
+    if use_assessability:
+        from planproof.reasoning.assessability import DefaultAssessabilityEvaluator
 
-    assessable_ids = {r.rule_id for r in assessability_results if r.status == "ASSESSABLE"}
+        assessability_evaluator = DefaultAssessabilityEvaluator(
+            evidence_provider=evidence_provider,
+            confidence_gate=confidence_gate,
+            reconciler=reconciler,
+            rules=rules_dict,
+        )
+        for rule_id in all_rule_ids:
+            result = assessability_evaluator.evaluate(rule_id)
+            assessability_results.append(result)
+        assessable_ids = {r.rule_id for r in assessability_results if r.status == "ASSESSABLE"}
+    else:
+        # ablation_d: skip SABLE, treat every rule as assessable
+        assessable_ids = set(all_rule_ids)
 
     # --- Rule evaluation on assessable rules ---
     verdicts: list[Any] = []
@@ -348,6 +369,7 @@ def build_and_save_result(
     loaded_rule_pairs: list[Any],
     ground_truth: dict[str, Any] | None,
     output_dir: Path,
+    config_name: str = CONFIG_NAME,
 ) -> Any:
     """Build an ExperimentResult from pipeline outputs and write it to disk."""
     from planproof.evaluation.results import ExperimentResult, RuleResult, save_result
@@ -377,7 +399,7 @@ def build_and_save_result(
         conflict_mass_val = ar.conflict_mass if ar else None
         blocking_reason_val = str(ar.blocking_reason) if ar else None
 
-        # Promote PARTIALLY_ASSESSABLE through
+        # Promote PARTIALLY_ASSESSABLE through (only relevant when assessability is enabled)
         if ar and ar.status == "PARTIALLY_ASSESSABLE" and predicted == "NOT_ASSESSABLE":
             predicted = "PARTIALLY_ASSESSABLE"
 
@@ -386,7 +408,7 @@ def build_and_save_result(
                 rule_id=rule_id,
                 ground_truth_outcome=gt_outcome,  # type: ignore[arg-type]
                 predicted_outcome=predicted,  # type: ignore[arg-type]
-                config_name=CONFIG_NAME,
+                config_name=config_name,
                 set_id=set_id,
                 belief=belief,
                 plausibility=plausibility,
@@ -408,7 +430,7 @@ def build_and_save_result(
         )
 
     exp_result = ExperimentResult(
-        config_name=CONFIG_NAME,
+        config_name=config_name,
         set_id=set_id,
         rule_results=rule_results,
         metadata=metadata,
@@ -475,10 +497,47 @@ def attribute_errors(
     return attributions
 
 
+def count_false_fails(results: dict[str, Any]) -> int:
+    """Count (rule, set) pairs where ground_truth=PASS and predicted=FAIL."""
+    total = 0
+    for exp in results.values():
+        for rr in exp.rule_results:
+            if rr.ground_truth_outcome == "PASS" and rr.predicted_outcome == "FAIL":
+                total += 1
+    return total
+
+
+def print_false_fail_matrix(
+    oracle_fs_results: dict[str, Any],
+    oracle_abl_d_results: dict[str, Any],
+    real_fs_results: dict[str, Any],
+    real_abl_d_results: dict[str, Any],
+) -> None:
+    """Print a 2x2 false-FAIL matrix (extraction x assessability mode)."""
+    x = count_false_fails(oracle_fs_results)
+    y = count_false_fails(oracle_abl_d_results)
+    z = count_false_fails(real_fs_results)
+    w = count_false_fails(real_abl_d_results)
+
+    col1 = "Full System"
+    col2 = "Ablation D (no assessability)"
+    print()
+    print("=" * 70)
+    print("  FALSE-FAIL MATRIX  (ground_truth=PASS, predicted=FAIL)")
+    print("=" * 70)
+    print(f"  {'':30}  {col1:>14}  {col2:>30}")
+    print(f"  {'-'*30}  {'-'*14}  {'-'*30}")
+    print(f"  {'Oracle extraction':<30}  {x:>14}  {y:>30}")
+    print(f"  {'Real extraction':<30}  {z:>14}  {w:>30}")
+    print("=" * 70)
+    print()
+
+
 def print_attribution_summary(
     all_attributions: dict[str, dict[str, str]],
     oracle_results: dict[str, Any],
     real_results: dict[str, Any],
+    label: str = "EXTRACTION ABLATION (full_system)",
 ) -> None:
     """Print summary counts and average SABLE beliefs."""
     counts: dict[str, int] = defaultdict(int)
@@ -486,8 +545,8 @@ def print_attribution_summary(
     real_beliefs: list[float] = []
 
     for set_id, attr_map in all_attributions.items():
-        for rule_id, label in attr_map.items():
-            counts[label] += 1
+        for rule_id, label_val in attr_map.items():
+            counts[label_val] += 1
 
         if set_id in oracle_results and set_id in real_results:
             for rr in oracle_results[set_id].rule_results:
@@ -501,17 +560,17 @@ def print_attribution_summary(
 
     print()
     print("=" * 60)
-    print("  EXTRACTION ABLATION — ERROR ATTRIBUTION SUMMARY")
+    print(f"  {label}")
     print("=" * 60)
     print(f"  Sets processed   : {len(all_attributions)}")
     print(f"  (rule, set) pairs: {total}")
     print()
     print(f"  {'Category':<28}  {'Count':>6}  {'%':>6}")
     print(f"  {'-'*28}  {'------':>6}  {'------':>6}")
-    for label in ATTRIBUTION_LABELS:
-        n = counts.get(label, 0)
+    for lbl in ATTRIBUTION_LABELS:
+        n = counts.get(lbl, 0)
         pct = 100.0 * n / total if total else 0.0
-        print(f"  {label:<28}  {n:>6}  {pct:>5.1f}%")
+        print(f"  {lbl:<28}  {n:>6}  {pct:>5.1f}%")
 
     print()
     print("  SABLE Belief Comparison")
@@ -539,7 +598,9 @@ def main() -> None:
 
     extraction_dir: Path = args.extraction_dir
     oracle_dir: Path = args.oracle_dir
+    oracle_abl_d_dir: Path = args.oracle_abl_d_dir
     output_dir: Path = args.output_dir
+    output_dir_abl_d: Path = args.output_dir_abl_d
     data_dir: Path = args.data_dir
     configs_dir: Path = args.configs_dir
 
@@ -551,7 +612,7 @@ def main() -> None:
 
     print(f"Found {len(extraction_files)} extraction result file(s) in {extraction_dir}")
 
-    # Load oracle results indexed by set_id
+    # Load oracle full_system results indexed by set_id
     oracle_results: dict[str, Any] = {}
     if oracle_dir.exists():
         from planproof.evaluation.results import load_result
@@ -563,10 +624,26 @@ def main() -> None:
             except Exception as exc:  # noqa: BLE001
                 _log.warning("Could not load oracle result %s: %s", oracle_path, exc)
 
-    print(f"Loaded {len(oracle_results)} oracle result(s) from {oracle_dir}")
+    print(f"Loaded {len(oracle_results)} oracle (full_system) result(s) from {oracle_dir}")
+
+    # Load oracle ablation_d results indexed by set_id
+    oracle_abl_d_results: dict[str, Any] = {}
+    if oracle_abl_d_dir.exists():
+        from planproof.evaluation.results import load_result
+
+        for oracle_path in sorted(oracle_abl_d_dir.glob("*.json")):
+            try:
+                res = load_result(oracle_path)
+                oracle_abl_d_results[res.set_id] = res
+            except Exception as exc:  # noqa: BLE001
+                _log.warning("Could not load oracle ablation_d result %s: %s", oracle_path, exc)
+
+    print(f"Loaded {len(oracle_abl_d_results)} oracle (ablation_d) result(s) from {oracle_abl_d_dir}")
 
     real_results: dict[str, Any] = {}
+    real_abl_d_results: dict[str, Any] = {}
     all_attributions: dict[str, dict[str, str]] = {}
+    all_abl_d_attributions: dict[str, dict[str, str]] = {}
 
     for extraction_path in extraction_files:
         with extraction_path.open(encoding="utf-8") as fh:
@@ -579,17 +656,15 @@ def main() -> None:
             # Part 1: Build entities from real extraction
             entities = build_entities_from_extraction(extraction_data)
 
-            # Part 2: Run reasoning pipeline
-            verdicts, assessability_results, loaded_rule_pairs = run_pipeline_on_entities(
-                entities, configs_dir
-            )
-
-            # Find ground truth for this set_id
+            # Find ground truth for this set_id (shared between both passes)
             ground_truth = find_ground_truth(set_id, data_dir)
             if ground_truth is None:
                 _log.warning("No ground_truth.json found for %s", set_id)
 
-            # Part 3: Build and save result
+            # --- Pass A: full_system (with SABLE) ---
+            verdicts, assessability_results, loaded_rule_pairs = run_pipeline_on_entities(
+                entities, configs_dir, use_assessability=True
+            )
             real_result = build_and_save_result(
                 set_id=set_id,
                 verdicts=verdicts,
@@ -597,23 +672,61 @@ def main() -> None:
                 loaded_rule_pairs=loaded_rule_pairs,
                 ground_truth=ground_truth,
                 output_dir=output_dir,
+                config_name=CONFIG_NAME,
             )
             real_results[set_id] = real_result
 
-            # Part 4: Error attribution (only if oracle exists for this set)
             if set_id in oracle_results:
                 attributions = attribute_errors(oracle_results[set_id], real_result)
                 all_attributions[set_id] = attributions
-                print(f"OK ({len(attributions)} rules attributed)")
-            else:
-                print("OK (no oracle — skipping attribution)")
+
+            # --- Pass B: ablation_d (no assessability, forced binary verdicts) ---
+            verdicts_d, assessability_results_d, loaded_rule_pairs_d = run_pipeline_on_entities(
+                entities, configs_dir, use_assessability=False
+            )
+            real_abl_d_result = build_and_save_result(
+                set_id=set_id,
+                verdicts=verdicts_d,
+                assessability_results=assessability_results_d,
+                loaded_rule_pairs=loaded_rule_pairs_d,
+                ground_truth=ground_truth,
+                output_dir=output_dir_abl_d,
+                config_name="extraction_ablation_d",
+            )
+            real_abl_d_results[set_id] = real_abl_d_result
+
+            if set_id in oracle_abl_d_results:
+                attributions_d = attribute_errors(oracle_abl_d_results[set_id], real_abl_d_result)
+                all_abl_d_attributions[set_id] = attributions_d
+
+            n_attr = len(all_attributions.get(set_id, {}))
+            print(f"OK ({n_attr} rules attributed)")
 
         except Exception as exc:  # noqa: BLE001
             _log.exception("Error processing %s: %s", set_id, exc)
             print(f"ERROR: {exc}")
 
-    # Print summary
-    print_attribution_summary(all_attributions, oracle_results, real_results)
+    # Print 2x2 false-FAIL matrix
+    print_false_fail_matrix(
+        oracle_fs_results=oracle_results,
+        oracle_abl_d_results=oracle_abl_d_results,
+        real_fs_results=real_results,
+        real_abl_d_results=real_abl_d_results,
+    )
+
+    # Print attribution summaries
+    print_attribution_summary(
+        all_attributions,
+        oracle_results,
+        real_results,
+        label="EXTRACTION ABLATION — full_system ERROR ATTRIBUTION",
+    )
+    print_attribution_summary(
+        all_abl_d_attributions,
+        oracle_abl_d_results,
+        real_abl_d_results,
+        label="EXTRACTION ABLATION — ablation_d ERROR ATTRIBUTION",
+    )
 
 
 if __name__ == "__main__":
