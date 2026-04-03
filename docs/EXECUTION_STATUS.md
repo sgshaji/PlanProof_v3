@@ -368,21 +368,25 @@ pip install -e ".[geo,pdf,dev]"
 - Real BCC data runs through full pipeline — correctly identifies insufficient evidence
 - SABLE algorithm replaces ad-hoc if-else assessability logic with principled D-S evidence theory — belief/plausibility bounds enable richer analysis
 
-### Project Statistics (2026-04-03)
+### Project Statistics (2026-04-03, final)
 | Metric | Count |
 |--------|-------|
-| Commits | ~150+ |
-| Source files | 106 |
-| Test files | 78 |
-| Tests passing | ~893 |
+| Commits | 151 |
+| Source files | 113 |
+| Test files | 69 |
+| Tests passing | 893 |
 | Tests skipped | 14 |
-| Pipeline steps | 12 (was 11) |
-| Rules configured | 8 (R001-R003 + C001-C005) |
-| Ablation configs | 7 |
+| Pipeline steps | 12 |
+| Compliance rules | 8 (R001–R003 + C001–C005) |
+| Evaluator types | 7 (numeric_threshold, ratio_threshold, enum_check, fuzzy_string_match, numeric_tolerance, attribute_diff, boundary_verification) |
+| Ablation configs | 7 (full + 4 ablations + 2 baselines) |
+| Ablation experiments | 100 (700 rule evaluations) |
 | Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
-| Real BCC datasets | 10 |
-| Dissertation figures | 11 (7 SABLE + 4 extraction) |
+| Real BCC datasets | 10 (anonymised, drawings only) |
+| INSPIRE cadastral parcels | 346,231 |
+| Dissertation figures | 11 (7 SABLE + 4 extraction, all 300 DPI) |
 | Extraction test sets | 5 (v1 + v2 both evaluated) |
+| Implementation phases | 12 (0–9 + 7b + 8a–8c), all complete |
 
 ---
 

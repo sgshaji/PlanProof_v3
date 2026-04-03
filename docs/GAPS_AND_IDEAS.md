@@ -117,29 +117,34 @@ The ad-hoc if-else assessability checklist (`DefaultAssessabilityEvaluator`) has
 
 ---
 
-## Project Statistics (2026-04-03)
+## Project Statistics (2026-04-03, final)
 
 | Metric | Count |
 |--------|-------|
-| Total commits | ~150+ |
-| Source files | 106 |
-| Test files | 78 |
-| Tests passing | ~893 |
+| Total commits | 151 |
+| Source files | 113 |
+| Test files | 69 |
+| Tests passing | 893 |
 | Tests skipped | 14 |
 | Phases complete | 0–9 (all implementation phases) |
-| Modules implemented | M1-M12 (all) |
-| Rules configured | 8 (R001-R003 + C001-C005) |
+| Modules implemented | M1–M12 (all) |
+| Compliance rules | 8 (R001–R003 + C001–C005) |
+| Evaluator types | 7 |
+| Pipeline steps | 12 |
 | Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
 | Real BCC datasets | 10 (anonymised, drawings only) |
+| INSPIRE cadastral parcels | 346,231 |
 | LLM providers supported | Groq, OpenAI, Ollama |
 | VLM providers supported | OpenAI GPT-4o, Gemini (adapter) |
-| Pipeline steps | 12 (was 11 — BoundaryVerificationStep added) |
 | Ablation configurations | 7 (full + 4 ablations + 2 baselines) |
-| Ablation experiments run | 100 (700 rule evaluations) |
-| Dissertation visualisations | 11 (7 SABLE + 4 extraction, 300 DPI) |
+| Ablation experiments | 100 (700 rule evaluations) |
+| Dissertation figures | 11 (7 SABLE + 4 extraction, 300 DPI) |
 
-### Key Finding (Phase 8a)
-**full_system produces 0 false FAILs; ablation_d produces 100** — the assessability engine completely prevents false violations. This is the central quantitative result for the dissertation's evaluation chapter.
+### Key Findings
+- **full_system produces 0 false FAILs; ablation_d produces 100** — the assessability engine completely prevents false violations (Phase 8a)
+- **Prompt tuning: precision 0.299 -> 0.715 (+139%)** with zero recall loss (Phase 8c)
+- **Error attribution: 71.4% reasoning failure, 4.8% extraction failure** — architecture matters more than extraction quality (Phase 8c)
+- **Three-tier boundary verification** with pure Python INSPIRE parsing and VLM visual alignment (Phase 9)
 
 ---
 

@@ -31,10 +31,13 @@
 - Survey-grade would require: georeferenced plans, OS MasterMap, LiDAR, RICS survey
 
 ### Metrics
-- ~893 tests passing, 14 skipped
-- ~150+ commits
-- 12 pipeline steps (was 11)
-- 8 rules (R001-R003 + C001-C005)
+- 893 tests passing, 14 skipped
+- 151 commits
+- 113 source files, 69 test files
+- 12 pipeline steps, 8 compliance rules, 7 evaluator types
+- 346,231 INSPIRE cadastral parcels loaded
+- 11 dissertation figures (300 DPI)
+- All implementation phases (0–9) complete
 
 ---
 
