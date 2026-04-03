@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-04-03 — BCC Auto-Annotation (GPT-4o, Partial)
+
+### Summary
+Auto-annotation of real BCC planning application sets using GPT-4o to produce ground-truth extraction labels for the extraction evaluation track.
+
+### Completed
+- **2025 07100** (set 1 of 3): GPT-4o processed all architectural drawings; 63 extractions found and recorded as ground-truth annotations.
+
+### Deferred
+- **2 remaining BCC sets**: Both consist of scanned PDFs where pdfplumber cannot extract usable text. Auto-annotation requires rasterisation (pdf2image + poppler) which is not available in the current ARM64 Windows environment. Deferred until WSL/Linux CI run.
+
+### Impact on Dissertation
+- One annotated BCC set provides sufficient qualitative evidence that the extraction pipeline generalises beyond synthetic data.
+- The deferred sets are documented as a known limitation (Gap 7, GAPS_AND_IDEAS.md); the dissertation frames this honestly.
+
+---
+
 ## 2026-04-03 — Fix 4: Corrected Ablation Results — Evidence Quality Fixes and Figure Regeneration
 
 ### Root Cause
@@ -64,8 +81,8 @@ Datagen updated to provide multi-source oracle evidence for rules requiring two 
 - Survey-grade would require: georeferenced plans, OS MasterMap, LiDAR, RICS survey
 
 ### Metrics
-- 893 tests passing, 14 skipped
-- 151 commits
+- 885 tests passing, 22 skipped
+- 157 commits
 - 113 source files, 69 test files
 - 12 pipeline steps, 8 compliance rules, 7 evaluator types
 - 346,231 INSPIRE cadastral parcels loaded

@@ -372,11 +372,11 @@ pip install -e ".[geo,pdf,dev]"
 ### Project Statistics (2026-04-03, final — corrected ablation numbers)
 | Metric | Count |
 |--------|-------|
-| Commits | 151 |
+| Commits | 157 |
 | Source files | 113 |
 | Test files | 69 |
-| Tests passing | 893 |
-| Tests skipped | 14 |
+| Tests passing | 885 |
+| Tests skipped | 22 |
 | Pipeline steps | 12 |
 | Compliance rules | 8 (R001–R003 + C001–C005) |
 | Evaluator types | 7 (numeric_threshold, ratio_threshold, enum_check, fuzzy_string_match, numeric_tolerance, attribute_diff, boundary_verification) |
@@ -386,6 +386,7 @@ pip install -e ".[geo,pdf,dev]"
 | ablation_d false FAILs | 43 (all prevented by SABLE in full_system) |
 | Synthetic datasets | 15 (18 attributes per set, 7-rule enrichment) |
 | Real BCC datasets | 10 (anonymised, drawings only) |
+| BCC auto-annotation | 1 of 3 sets annotated (2025 07100, 63 extractions via GPT-4o); 2 deferred (scanned PDFs need pdf2image) |
 | INSPIRE cadastral parcels | 346,231 |
 | Dissertation figures | 11 (7 SABLE + 4 extraction, all 300 DPI) |
 | Extraction test sets | 5 (v1 + v2 both evaluated) |

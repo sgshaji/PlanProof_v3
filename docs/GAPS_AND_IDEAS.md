@@ -52,8 +52,9 @@
 **Resolution:** R003 enriched with `building_footprint_area`, `total_site_area`, and `zone_category`. Datagen extended to produce categorical, string_pair, and numeric_pair value types for C001–C004 rules. All 15 synthetic datasets regenerated with 18 attributes per set (7-rule enrichment). Commit batch in Phase 8a.
 
 ### 7. BCC anonymised data has no application forms
-**Status:** Data gap
+**Status:** Data gap (partially mitigated)
 **Impact:** The 10 BCC sets in `data/anonymised/` contain only architectural drawings — no planning application forms. Rules requiring form data (certificate type, address, site area) can't be evaluated.
+**BCC auto-annotation status:** 1 of 3 targeted sets annotated (2025 07100, 63 extractions via GPT-4o). 2 remaining sets consist of scanned PDFs — auto-annotation deferred until pdf2image/poppler is available (WSL/Linux CI).
 **Fix:** Obtain BCC application forms (these may contain PII and need careful handling).
 
 ### 8. Confidence scores are heuristic, not calibrated
@@ -126,11 +127,11 @@ The ad-hoc if-else assessability checklist (`DefaultAssessabilityEvaluator`) has
 
 | Metric | Count |
 |--------|-------|
-| Total commits | 151 |
+| Total commits | 157 |
 | Source files | 113 |
 | Test files | 69 |
-| Tests passing | 893 |
-| Tests skipped | 14 |
+| Tests passing | 885 |
+| Tests skipped | 22 |
 | Phases complete | 0–9 (all implementation phases) |
 | Modules implemented | M1–M12 (all) |
 | Compliance rules | 8 (R001–R003 + C001–C005) |

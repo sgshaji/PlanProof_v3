@@ -172,7 +172,7 @@ cp .env.example .env
 # Verify
 make lint        # ruff
 make typecheck   # mypy --strict
-make test        # pytest (~893 tests)
+make test        # pytest (885 passed, 22 skipped)
 ```
 
 ### Running the Pipeline
@@ -237,10 +237,10 @@ All at 300 DPI in `figures/`:
 
 | Metric | Count |
 |--------|-------|
-| Total commits | ~150+ |
-| Source files | ~110 |
-| Test files | ~85 |
-| Tests passing | 893 |
+| Total commits | 157 |
+| Source files | 113 |
+| Test files | 69 |
+| Tests passing | 885 |
 | Pipeline steps | 12 |
 | Compliance rules | 8 |
 | Evaluator types | 7 |
