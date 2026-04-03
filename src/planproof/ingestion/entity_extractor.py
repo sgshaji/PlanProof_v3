@@ -50,7 +50,7 @@ class LLMEntityExtractor:
         self,
         llm: Any,
         prompts_dir: Path,
-        model: str = "llama-3.1-70b-versatile",
+        model: str = "llama-3.3-70b-versatile",
         doc_type: str = "FORM",
     ) -> None:
         self._llm = llm

@@ -245,10 +245,10 @@ def _build_vlm_client() -> Any | None:
     """Build an OpenAIClient from env vars, or return None with a warning."""
     from planproof.infrastructure.openai_client import OpenAIClient  # noqa: PLC0415
 
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("PLANPROOF_OPENAI_API_KEY") or ""
     if not api_key:
         _log.warning(
-            "OPENAI_API_KEY not set. VLM extraction will be skipped."
+            "OPENAI_API_KEY / PLANPROOF_OPENAI_API_KEY not set. VLM extraction will be skipped."
         )
         return None
     try:
@@ -341,7 +341,10 @@ def _extract_from_document(
 
         from planproof.ingestion.vlm_spatial_extractor import VLMSpatialExtractor  # noqa: PLC0415
 
-        extractor = VLMSpatialExtractor(openai_client=vlm_client, prompts_dir=prompts_dir)
+        # VLMSpatialExtractor expects a raw openai.OpenAI client (uses .chat.completions.create),
+        # not our OpenAIClient wrapper. Pass the underlying client.
+        raw_client = vlm_client._client if hasattr(vlm_client, "_client") else vlm_client
+        extractor = VLMSpatialExtractor(openai_client=raw_client, prompts_dir=prompts_dir)
         entities = extractor.extract_spatial_attributes(doc_path)
 
     else:
