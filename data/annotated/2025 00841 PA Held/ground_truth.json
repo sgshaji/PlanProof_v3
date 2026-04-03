@@ -1,0 +1,58 @@
+{
+  "set_id": "2025 00841 PA Held",
+  "category": "real_bcc",
+  "source": "vlm_auto_annotation",
+  "annotated_at": "2026-04-03T10:59:20.616941+00:00",
+  "documents": [
+    {
+      "filename": "6132015-Householder Planning App_136 Rectory Rd.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "OTHER",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6132017-2100-200-A-Existing Elevations.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "ELEVATION",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6132019-2100-101-C-Existing and Proposed First Floor Plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "FLOOR_PLAN",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6132020-2100-100-C-Existing and Proposed Ground Floor Plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "FLOOR_PLAN",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6132021-2100-10-C-Location and Block Plan.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "LOCATION_PLAN",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6132023-2100-200-A-Existing Elevations.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "ELEVATION",
+      "status": "ok",
+      "extractions": []
+    }
+  ],
+  "values": [],
+  "rule_verdicts": []
+}

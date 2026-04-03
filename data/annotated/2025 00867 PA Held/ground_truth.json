@@ -1,0 +1,34 @@
+{
+  "set_id": "2025 00867 PA Held",
+  "category": "real_bcc",
+  "source": "vlm_auto_annotation",
+  "annotated_at": "2026-04-03T10:59:30.616416+00:00",
+  "documents": [
+    {
+      "filename": "6132918-Plans & Drawings-Application Plans.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "LOCATION_PLAN",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6132920-Plans & Drawings-Application Plans.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "drawing_type": "OTHER",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6132921-Plans & Drawings-Application Plans.png",
+      "doc_type": "DRAWING",
+      "file_format": "png",
+      "drawing_type": "OTHER",
+      "status": "ok",
+      "extractions": []
+    }
+  ],
+  "values": [],
+  "rule_verdicts": []
+}

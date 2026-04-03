@@ -1,0 +1,565 @@
+{
+  "set_id": "2025 07100 PA Validated",
+  "category": "real_bcc",
+  "source": "vlm_auto_annotation",
+  "annotated_at": "2026-04-03T10:59:04.958431+00:00",
+  "documents": [
+    {
+      "filename": "6303075-Plans & Drawings-Application Plans.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "LOCATION_PLAN",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6303077-Plans & Drawings-Application Plans.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "FLOOR_PLAN",
+      "status": "ok",
+      "extractions": [
+        {
+          "attribute": "scale",
+          "value": 1,
+          "unit": "500",
+          "page": 2,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_length",
+          "value": 2.5,
+          "unit": "metres",
+          "page": 3,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_width",
+          "value": 1.5,
+          "unit": "metres",
+          "page": 3,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_level",
+          "value": 2.63,
+          "unit": "metres",
+          "page": 3,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_level",
+          "value": 5.46,
+          "unit": "metres",
+          "page": 3,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "garage_ceiling_level",
+          "value": 2.63,
+          "unit": "metres",
+          "page": 3,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "lobby_ceiling_level",
+          "value": 3.61,
+          "unit": "metres",
+          "page": 3,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale",
+          "value": 1,
+          "unit": "count",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale_ratio",
+          "value": 100,
+          "unit": "count",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "floor_plan_width",
+          "value": 11480,
+          "unit": "mm",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "floor_plan_length",
+          "value": 20355,
+          "unit": "mm",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "floor_to_ceiling_height",
+          "value": 2570,
+          "unit": "mm",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_width",
+          "value": 2.5,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_length",
+          "value": 1.5,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_count",
+          "value": 5,
+          "unit": "count",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "window_width",
+          "value": 1.0,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "window_height",
+          "value": 1.0,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_1_width",
+          "value": 2.5,
+          "unit": "metres",
+          "page": 6,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_1_length",
+          "value": 1.5,
+          "unit": "metres",
+          "page": 6,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_2_width",
+          "value": 1.0,
+          "unit": "metres",
+          "page": 6,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_2_length",
+          "value": 1.0,
+          "unit": "metres",
+          "page": 6,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "number_of_roof_lights",
+          "value": 5,
+          "unit": "count",
+          "page": 6,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale",
+          "value": 1,
+          "unit": "count",
+          "page": 7,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale_ratio",
+          "value": 100,
+          "unit": "count",
+          "page": 7,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale",
+          "value": 1,
+          "unit": "count",
+          "page": 10,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale_ratio",
+          "value": 100,
+          "unit": "count",
+          "page": 10,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        }
+      ]
+    },
+    {
+      "filename": "6303078-Plans & Drawings-Application Plans.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "ELEVATION",
+      "status": "ok",
+      "extractions": [
+        {
+          "attribute": "ceiling_level_utility_store",
+          "value": 2.6,
+          "unit": "metres",
+          "page": 1,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_level_living_room",
+          "value": 2.67,
+          "unit": "metres",
+          "page": 1,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_level_kitchen",
+          "value": 2.36,
+          "unit": "metres",
+          "page": 1,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale",
+          "value": 1,
+          "unit": "metres",
+          "page": 2,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale",
+          "value": 100,
+          "unit": "metres",
+          "page": 2,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        }
+      ]
+    },
+    {
+      "filename": "6303079-Plans & Drawings-Application Plans.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "SITE_PLAN",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6303080-Plans & Drawings-Application Plans.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "OTHER",
+      "status": "ok",
+      "extractions": []
+    },
+    {
+      "filename": "6303082-Plans & Drawings-Application Plans.pdf",
+      "doc_type": "DRAWING",
+      "file_format": "pdf",
+      "drawing_type": "FLOOR_PLAN",
+      "status": "ok",
+      "extractions": [
+        {
+          "attribute": "ceiling_height",
+          "value": 2.6,
+          "unit": "metres",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height",
+          "value": 2.71,
+          "unit": "metres",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height",
+          "value": 2.66,
+          "unit": "metres",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height",
+          "value": 2.67,
+          "unit": "metres",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height",
+          "value": 2.36,
+          "unit": "metres",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height",
+          "value": 2.42,
+          "unit": "metres",
+          "page": 4,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_bedroom_05",
+          "value": 2.36,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_wc",
+          "value": 2.56,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_bathroom",
+          "value": 2.52,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_bedroom_01",
+          "value": 2.52,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_bedroom_04",
+          "value": 2.42,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_ensuite",
+          "value": 2.57,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_hallway",
+          "value": 2.57,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_bedroom_03",
+          "value": 2.57,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height_bedroom_02",
+          "value": 2.57,
+          "unit": "metres",
+          "page": 5,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_length",
+          "value": 2.5,
+          "unit": "metres",
+          "page": 8,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_width",
+          "value": 1.5,
+          "unit": "metres",
+          "page": 8,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "ceiling_height",
+          "value": 2.63,
+          "unit": "metres",
+          "page": 8,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "garage_door_width",
+          "value": 2.5,
+          "unit": "metres",
+          "page": 8,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "garage_door_height",
+          "value": 2.4,
+          "unit": "metres",
+          "page": 8,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale",
+          "value": 1,
+          "unit": "count",
+          "page": 9,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "scale_ratio",
+          "value": 100,
+          "unit": "count",
+          "page": 9,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "floor_plan_width",
+          "value": 114.8,
+          "unit": "metres",
+          "page": 9,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "floor_plan_length",
+          "value": 20.355,
+          "unit": "metres",
+          "page": 9,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "floor_plan_area",
+          "value": 233.5,
+          "unit": "m\u00b2",
+          "page": 9,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "dormer_extension",
+          "value": 1.2,
+          "unit": "metres",
+          "page": 10,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_size",
+          "value": 2.5,
+          "unit": "metres",
+          "page": 10,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_size",
+          "value": 1.5,
+          "unit": "metres",
+          "page": 10,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "roof_light_count",
+          "value": 5,
+          "unit": "count",
+          "page": 10,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "parapet_height",
+          "value": 5.923,
+          "unit": "metres",
+          "page": 11,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "eaves_height",
+          "value": 5.413,
+          "unit": "metres",
+          "page": 11,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        },
+        {
+          "attribute": "gable_roof_height_increase",
+          "value": 0.87,
+          "unit": "metres",
+          "page": 11,
+          "entity_type": "MEASUREMENT",
+          "bounding_box": null
+        }
+      ]
+    }
+  ],
+  "values": [],
+  "rule_verdicts": []
+}
