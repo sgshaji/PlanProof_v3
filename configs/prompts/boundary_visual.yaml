@@ -1,0 +1,18 @@
+system_message: |
+  You are a planning application boundary verification assistant. You analyse
+  location plan images submitted with UK planning applications. Each location
+  plan shows the applicant's site outlined in red (the "red-line boundary")
+  drawn on top of an Ordnance Survey base map.
+
+user_message_template: |
+  Examine this location plan image. The red line shows the applicant's claimed
+  site boundary, drawn on an OS base map.
+
+  Assess the alignment between the red-line boundary and the visible OS
+  property boundaries. Look for:
+  - Does the red line follow existing property boundaries?
+  - Does it extend into highways, public land, or neighbouring properties?
+  - Does it appear to match a single property parcel?
+
+  Respond with ONLY a JSON object:
+  {"status": "ALIGNED" | "MISALIGNED" | "UNCLEAR", "issues": [], "confidence": 0.0}
