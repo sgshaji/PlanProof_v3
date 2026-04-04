@@ -33,6 +33,66 @@
 
 ---
 
+## CRITICAL GAP: End-to-End Integration Not Validated on Real Data
+
+### 12. Full pipeline never tested end-to-end on real planning applications
+**Status:** OPEN — fundamental limitation
+**Severity:** HIGH — affects credibility of the entire system
+**Date identified:** 2026-04-04
+
+**The problem:** Each pipeline component works individually, but the full chain (upload real PDFs → classify → extract → populate SNKG → reconcile → SABLE assess → evaluate rules → produce verdicts) has NEVER run successfully on a real BCC planning application producing meaningful verdicts.
+
+**What actually works end-to-end:**
+- Synthetic data with oracle entities (ablation study) → produces correct verdicts. BUT entities are injected from ground truth, not extracted by LLM/VLM.
+- Synthetic data with real LLM extraction (extraction evaluation) → LLM extracts from synthetic FORM PDFs, but most rules still NOT_ASSESSABLE because entities don't match rule requirements after extraction.
+- BCC real data → classifies documents, extracts some entities, but ALL rules produce NOT_ASSESSABLE because:
+  - No application forms in BCC data (only drawings)
+  - VLM refuses to extract from some synthetic/scanned drawings
+  - Extracted entity attributes don't match rule requirement attributes
+  - SNKG is empty (entities not populated into Neo4j in live pipeline)
+
+**What each component does vs what's tested:**
+
+| Component | Code works? | Tested on synthetic? | Tested on real BCC? | Works E2E? |
+|---|---|---|---|---|
+| Classification (M1) | Yes | Yes | Yes | Yes |
+| Text Extraction (M2) | Yes | Yes | Partially (sparse text from drawings) | Yes |
+| LLM Entity Extraction | Yes | Yes (FORM PDFs) | Limited (1 BCC set, 63 extractions) | Partially |
+| VLM Spatial Extraction | Yes | Limited (GPT-4o refuses some drawings) | Limited | Partially |
+| Normalisation (M5) | Yes | Yes | Yes | Yes |
+| SNKG Population (Neo4j) | Yes | Simulated (entities injected, not queried) | Never (Neo4j empty in live runs) | **NO** |
+| Reconciliation (M6) | Yes | Yes | Yes | Yes |
+| Confidence Gating (M7) | Yes | Yes | Yes | Yes |
+| SABLE Assessability (M8) | Yes | Yes | Yes (but all NOT_ASSESSABLE) | Yes (but no meaningful verdicts) |
+| Rule Evaluation (M9) | Yes | Yes (with oracle entities) | Never reaches evaluation (all NOT_ASSESSABLE) | **NO** |
+| Boundary Verification | Yes | Never tested on real data | Never (no location plans identified) | **NO** |
+| C006 Conservation Area | Yes | Simulated in ablation runner | Never (SNKG not populated) | **NO** |
+
+**Root causes:**
+1. **No real application forms** — BCC data has only drawings. Rules requiring form data (C001 certificate, C002 address, C003 area, R001/R002 need zone_category from FORM) can't fire.
+2. **SNKG not populated in live pipeline** — The ablation runner injects entities directly. The live pipeline bootstrap creates a Neo4jSNKG instance but never populates it with extracted entities during a real run.
+3. **Entity-to-rule attribute mismatch** — LLM extraction returns attributes like "building_height" but the source_document prefix doesn't always match rule `acceptable_sources` (e.g., entity from FORM but rule wants DRAWING source).
+4. **Synthetic data doesn't represent real documents** — Generated PDFs are template-based with planted values. Real BCC forms have complex layouts, handwriting, stamps, and varied formatting.
+5. **VLM extraction unreliable on drawings** — GPT-4o frequently responds "I'm unable to analyze the content of the image directly" for both synthetic and real architectural drawings.
+
+**Impact on dissertation claims:**
+- The SABLE algorithm IS mathematically sound and correctly implemented (formal proofs, 904 unit tests)
+- The ablation study IS valid as a reasoning-layer evaluation (oracle entities isolate reasoning contribution)
+- BUT the claim "this system can validate real planning applications" is NOT empirically supported
+- The system demonstrates the ARCHITECTURE and ALGORITHM, not a deployable product
+
+**Honest dissertation framing:**
+> "PlanProof demonstrates an assessability-aware compliance checking architecture with the SABLE algorithm. The reasoning layer is validated through a 297-evaluation ablation study showing zero false violations. However, end-to-end integration on real planning application documents remains incomplete — the system requires further development in extraction-to-rule-matching and SNKG population to achieve operational deployment. The current work establishes the architectural foundation and proves the core algorithmic contribution; production readiness is future work."
+
+**What would fix this:**
+1. Obtain 5 complete BCC application bundles (forms + drawings + certificates) — enables all rules to fire on real data
+2. Populate Neo4j with extracted entities during live pipeline runs (wire GraphPopulationStep correctly)
+3. Fix entity source_document prefixes to match rule acceptable_sources consistently
+4. Improve VLM prompts for real architectural drawing formats
+5. Add an attribute mapping layer between LLM-returned attribute names and rule requirement attributes
+
+---
+
 ## Known Limitations (honest framing for dissertation)
 
 ### 5. SNKG spatial predicates not computed
