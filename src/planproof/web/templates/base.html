@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanProof — {% block title %}Research Narrative{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="has-sidebar">
+
+<nav class="sidebar">
+    <div class="brand">
+        <h2>PlanProof</h2>
+        <p class="brand-sub">Research Narrative</p>
+    </div>
+    <div class="nav-links">
+        <a href="/problem" class="nav-item {% if page == 'problem' %}active{% endif %}">
+            <span class="nav-num">1</span> The Problem
+        </a>
+        <a href="/data" class="nav-item {% if page == 'data' %}active{% endif %}">
+            <span class="nav-num">2</span> The Data
+        </a>
+        <a href="/extraction" class="nav-item {% if page == 'extraction' %}active{% endif %}">
+            <span class="nav-num">3</span> Extraction Pipeline
+        </a>
+        <a href="/snkg" class="nav-item {% if page == 'snkg' %}active{% endif %}">
+            <span class="nav-num">4</span> Knowledge Graph
+        </a>
+        <a href="/boundary" class="nav-item {% if page == 'boundary' %}active{% endif %}">
+            <span class="nav-num">5</span> Boundary Verification
+        </a>
+        <a href="/sable" class="nav-item {% if page == 'sable' %}active{% endif %}">
+            <span class="nav-num">6</span> SABLE Engine
+        </a>
+        <a href="/ablation" class="nav-item {% if page == 'ablation' %}active{% endif %}">
+            <span class="nav-num">7</span> Ablation Study
+        </a>
+        <a href="/demo" class="nav-item {% if page == 'demo' %}active{% endif %}">
+            <span class="nav-num">8</span> Live Demo
+        </a>
+    </div>
+    <div class="sidebar-footer">
+        <p>MSc Dissertation Project</p>
+        <p>University of Birmingham</p>
+    </div>
+</nav>
+
+<main class="content">
+    <div class="content-inner">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<!-- Lightbox for figures -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="Figure">
+</div>
+
+<script>
+function openLightbox(src) {
+    const lb = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    if (lb && img) { img.src = src; lb.classList.add('active'); }
+}
+function closeLightbox() {
+    const lb = document.getElementById('lightbox');
+    if (lb) lb.classList.remove('active');
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

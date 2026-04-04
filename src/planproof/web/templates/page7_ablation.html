@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}Ablation Study{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Ablation Study</h1>
+<p class="page-subtitle">Systematic removal of components to prove each one's contribution.</p>
+
+<!-- What is Ablation -->
+<section class="page-section">
+    <h2>What is Ablation?</h2>
+    <p class="interpretation">
+        An ablation study systematically removes one component at a time from a complete system, then
+        measures what breaks. If removing component X causes metric Y to degrade, that's causal evidence
+        that X contributes to Y. It's the gold standard for proving that each part of a system actually
+        matters, borrowed from neuroscience where researchers lesion specific brain regions to map function.
+    </p>
+</section>
+
+<!-- The 5 Configurations -->
+<section class="page-section">
+    <h2>The Five Configurations</h2>
+    <div class="data-table-wrap">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Config</th>
+                    <th>Description</th>
+                    <th>What's Removed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>full_system</strong></td>
+                    <td>Complete PlanProof with all components</td>
+                    <td>Nothing -- baseline</td>
+                </tr>
+                <tr>
+                    <td><strong>ablation_a</strong></td>
+                    <td>Without extraction pipeline</td>
+                    <td>LLM + VLM extraction removed; no entities available</td>
+                </tr>
+                <tr>
+                    <td><strong>ablation_b</strong></td>
+                    <td>Without SNKG knowledge graph</td>
+                    <td>Graph construction removed; flat entity lists only</td>
+                </tr>
+                <tr>
+                    <td><strong>ablation_c</strong></td>
+                    <td>Without reconciliation</td>
+                    <td>Multi-source reconciliation removed; entities used as-is</td>
+                </tr>
+                <tr>
+                    <td><strong>ablation_d</strong></td>
+                    <td>Without SABLE</td>
+                    <td>Evidence sufficiency removed; forced binary verdicts</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Results Table -->
+<section class="page-section">
+    <h2>Full Results: {{ n_evaluations }} Evaluations Across {{ n_test_sets }} Test Sets</h2>
+    <div class="data-table-wrap">
+        <table class="results-table results-table-highlight">
+            <thead>
+                <tr>
+                    <th>Config</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F2 Score</th>
+                    <th>False Fail Rate</th>
+                    <th>Automation Rate</th>
+                    <th>TP</th>
+                    <th>FP (False Fails)</th>
+                    <th>FN</th>
+                    <th>TN</th>
+                    <th>NA</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for config_name, s in stats.items() %}
+                <tr class="{% if config_name == 'full_system' %}row-highlight{% endif %}{% if config_name == 'ablation_d' %}row-danger{% endif %}">
+                    <td><strong>{{ config_name }}</strong></td>
+                    <td>{{ "%.3f"|format(s.precision) }}</td>
+                    <td>{{ "%.3f"|format(s.recall) }}</td>
+                    <td>{{ "%.3f"|format(s.f2) }}</td>
+                    <td class="{% if s.false_fail_rate > 0 %}cell-danger{% else %}cell-success{% endif %}">
+                        {{ "%.1f%%"|format(s.false_fail_rate * 100) }}
+                    </td>
+                    <td>{{ "%.1f%%"|format(s.automation_rate * 100) }}</td>
+                    <td>{{ s.confusion_matrix.tp }}</td>
+                    <td class="{% if s.confusion_matrix.fp > 0 %}cell-danger{% else %}cell-success{% endif %}">
+                        <strong>{{ s.confusion_matrix.fp }}</strong>
+                    </td>
+                    <td>{{ s.confusion_matrix.fn }}</td>
+                    <td>{{ s.confusion_matrix.tn }}</td>
+                    <td>{{ s.confusion_matrix.not_assessable }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="interpretation">
+        The critical column is <strong>FP (False Fails)</strong>. The full system and ablations a/b/c
+        all produce zero false violations. Only ablation_d (without SABLE) produces false violations --
+        93 of them. This proves that SABLE is the component responsible for preventing false violations.
+        The trade-off is automation rate: the full system assesses 37.5% of rules automatically, while
+        ablation_d claims to assess 100% but at the cost of massive false-fail contamination.
+    </p>
+</section>
+
+<!-- Baseline Comparison -->
+<section class="page-section">
+    <h2>Baseline Comparison</h2>
+    <div class="stats-grid stats-grid-3">
+        <div class="stat-card stat-card-red">
+            <div class="stat-number">126</div>
+            <div class="stat-label">Naive LLM baseline</div>
+            <div class="stat-detail">False violations from direct LLM judgement with no structure</div>
+        </div>
+        <div class="stat-card" style="border-top: 3px solid var(--amber);">
+            <div class="stat-number">51</div>
+            <div class="stat-label">Chain-of-Thought baseline</div>
+            <div class="stat-detail">False violations with CoT prompting but no SABLE</div>
+        </div>
+        <div class="stat-card stat-card-green">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Full PlanProof</div>
+            <div class="stat-detail">Zero false violations with SABLE assessability gating</div>
+        </div>
+    </div>
+    <p class="interpretation">
+        The progression tells the story: a naive LLM produces 126 false violations (48% false-fail rate),
+        adding chain-of-thought reasoning reduces it to 51, but only the full SABLE-gated system eliminates
+        false violations entirely. Prompting improvements help but are insufficient -- structural
+        assessability gating is required.
+    </p>
+</section>
+
+<!-- Figures with Interpretations -->
+<section class="page-section">
+    <h2>Ablation Figures</h2>
+
+    <div class="figure-card">
+        <img src="/figures/sable_false_fail_prevention.png" alt="False-FAIL Prevention" onclick="openLightbox(this.src)">
+        <h4>False Violation Prevention</h4>
+        <p class="interpretation">
+            The full system with SABLE produces <strong>zero false violations</strong> across {{ n_evaluations }}
+            evaluations. Removing SABLE (ablation_d) produces 93 false violations -- applicants would receive
+            incorrect rejection notices for rules they actually comply with. This is the central result:
+            assessability gating prevents the most damaging failure mode in planning validation.
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/robustness_curves.png" alt="Robustness Under Noise" onclick="openLightbox(this.src)">
+        <h4>Robustness Under Extraction Noise</h4>
+        <p class="interpretation">
+            Even when extraction noise is artificially increased to 30% (simulating much worse LLM/VLM
+            performance), the full system maintains near-zero false violations. SABLE's evidence
+            sufficiency framework naturally handles noisy input by lowering belief scores, causing
+            uncertain rules to be classified as Not Assessable rather than incorrectly assessed.
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/robustness_true_fails.png" alt="True Violation Detection Under Noise" onclick="openLightbox(this.src)">
+        <h4>True Violation Detection Under Noise</h4>
+        <p class="interpretation">
+            While false violations stay near zero, true violation detection (recall) degrades gracefully
+            as noise increases. At 30% noise, the system catches fewer real violations because noisy
+            evidence causes SABLE to withhold assessment. This is the designed behaviour -- it's better
+            to miss a violation (which an officer will catch) than to fabricate one (which wastes
+            everyone's time).
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/sable_three_state_bar.png" alt="Three-State Distribution" onclick="openLightbox(this.src)">
+        <h4>Verdict Distribution Across Configurations</h4>
+        <p class="interpretation">
+            The full system produces a balanced distribution: rules with strong evidence get clear
+            PASS/FAIL verdicts, while rules with weak evidence are marked Not Assessable. Ablation_d
+            (without SABLE) forces every rule into PASS or FAIL, eliminating the safety net. Ablation_a
+            (without extraction) marks everything as Not Assessable since no evidence exists at all.
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/sable_component_contribution.png" alt="Component Contribution" onclick="openLightbox(this.src)">
+        <h4>Component Contribution Analysis</h4>
+        <p class="interpretation">
+            This chart isolates each component's unique contribution. Only SABLE removal causes false
+            violations to appear. Removing the SNKG or reconciliation has no effect on false violations
+            for the current rule set, though these components serve architectural and future-proofing
+            purposes. Removing extraction makes the system unable to assess anything, which is safe
+            (zero false violations) but useless (zero automation).
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/sable_concordance_heatmap.png" alt="Rule x Config Belief Heatmap" onclick="openLightbox(this.src)">
+        <h4>Per-Rule Belief Across Configurations</h4>
+        <p class="interpretation">
+            This heatmap shows belief scores for each rule under each configuration. Rules with strong
+            multi-source evidence (like height) maintain high belief across most configurations. Rules
+            depending on single-source evidence (like Conservation Area status) drop more readily when
+            components are removed. The pattern reveals which rules are most evidence-hungry and where
+            extraction improvements would most increase automation rates.
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/threshold_sensitivity.png" alt="Threshold Sensitivity" onclick="openLightbox(this.src)">
+        <h4>Threshold Sensitivity Analysis</h4>
+        <p class="interpretation">
+            Precision (the rate of correct verdicts among issued verdicts) stays at <strong>1.0 across
+            all threshold values</strong>. This means the system never issues a wrong verdict regardless
+            of where you set the assessability threshold. Lowering the threshold increases automation rate
+            (more rules assessed) without introducing errors. This is a remarkably strong result --
+            the threshold controls how cautious the system is, not how accurate.
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/false_fail_matrix.png" alt="Oracle vs Real Extraction" onclick="openLightbox(this.src)">
+        <h4>Oracle vs Real Extraction Matrix</h4>
+        <p class="interpretation">
+            A 2x2 experiment: run SABLE with perfect (oracle) extraction vs real (noisy) extraction,
+            crossed with SABLE on vs off. Result: <strong>SABLE produces zero false violations in all
+            four cells</strong>. Even with perfect extraction, removing SABLE creates false violations.
+            Even with noisy extraction, keeping SABLE prevents them. The protection is structural,
+            not dependent on extraction quality.
+        </p>
+    </div>
+</section>
+
+<!-- Statistical Significance -->
+<section class="page-section">
+    <h2>Statistical Significance</h2>
+    <div class="data-table-wrap">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Comparison</th>
+                    <th>McNemar p-value</th>
+                    <th>Cohen's h</th>
+                    <th>Significant?</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comp in comparisons %}
+                <tr>
+                    <td>{{ comp.comparison }}</td>
+                    <td>{{ comp.mcnemar_p if comp.mcnemar_p is not none else "N/A" }}</td>
+                    <td>{{ "%.4f"|format(comp.cohens_h) }}</td>
+                    <td>
+                        {% if comp.bh_significant %}
+                        <span class="badge badge-agreed">Yes</span>
+                        {% else %}
+                        <span class="badge badge-missing">No</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="interpretation">
+        The comparison between the full system and ablation_d (SABLE removed) is highly significant
+        (McNemar p < 0.0001, Cohen's h = -1.16). The comparisons with ablation_b and ablation_c show
+        no significant difference, confirming that SNKG and reconciliation don't affect verdict accuracy
+        for the current rule set. The comparison with ablation_a is significant because removing extraction
+        makes the system unable to assess any rules at all.
+    </p>
+</section>
+
+<!-- Key Findings -->
+<section class="page-section">
+    <div class="callout callout-primary">
+        <h3>Key Findings</h3>
+        <ul style="margin-top: 0.75rem; padding-left: 1.5rem; line-height: 2;">
+            <li>SABLE is the <strong>only component</strong> whose removal causes false violations (93 out of {{ n_evaluations }})</li>
+            <li>The full system achieves <strong>precision 1.0</strong> -- every verdict it issues is correct</li>
+            <li>Automation rate is 37.5% -- the system confidently assesses about 1 in 3 rules, routing the rest to humans</li>
+            <li>Results are <strong>robust to extraction noise</strong> up to 30%</li>
+            <li>Threshold choice affects automation rate but <strong>not accuracy</strong></li>
+            <li>Statistical significance confirmed via McNemar test with Benjamini-Hochberg correction</li>
+        </ul>
+    </div>
+</section>
+
+<div class="page-nav">
+    <a href="/sable" class="btn btn-secondary">&larr; SABLE Engine</a>
+    <a href="/demo" class="btn btn-primary">Next: Live Demo &rarr;</a>
+</div>
+{% endblock %}

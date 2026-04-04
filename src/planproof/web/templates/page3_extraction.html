@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Extraction Pipeline{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Extraction Pipeline</h1>
+<p class="page-subtitle">How documents become structured data through classification, LLM, and VLM extraction.</p>
+
+<!-- Pipeline Diagram -->
+<section class="page-section">
+    <h2>Pipeline Stages</h2>
+    <div class="pipeline-flow">
+        <div class="pipeline-step">
+            <div class="pipeline-icon">1</div>
+            <div class="pipeline-label">Classify</div>
+            <div class="pipeline-desc">Identify document type: form, site plan, elevation, floor plan</div>
+        </div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-step">
+            <div class="pipeline-icon">2</div>
+            <div class="pipeline-label">Extract Text</div>
+            <div class="pipeline-desc">LLM (Groq) extracts entities from forms and text-based PDFs</div>
+        </div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-step">
+            <div class="pipeline-icon">3</div>
+            <div class="pipeline-label">Extract Vision</div>
+            <div class="pipeline-desc">VLM (GPT-4o) reads measurements from drawings and plans</div>
+        </div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-step">
+            <div class="pipeline-icon">4</div>
+            <div class="pipeline-label">Entities</div>
+            <div class="pipeline-desc">Structured entities with values, units, confidence, and provenance</div>
+        </div>
+    </div>
+</section>
+
+<!-- Classification -->
+<section class="page-section">
+    <h2>Document Classification (M1)</h2>
+    <p class="interpretation">
+        The first stage identifies what each uploaded file is. A site plan, an elevation drawing, a floor
+        plan, or an application form each need different extraction strategies. Classification uses a
+        combination of filename heuristics and LLM-based content analysis. Confidence scores indicate
+        how certain the classification is.
+    </p>
+    <div class="card-grid">
+        <div class="card">
+            <span class="badge badge-form">FORM</span>
+            <p class="card-desc">Application forms with structured fields -- name, address, measurements, declarations</p>
+        </div>
+        <div class="card">
+            <span class="badge badge-drawing">SITE PLAN</span>
+            <p class="card-desc">Bird's-eye view showing property boundaries, neighbouring buildings, access roads</p>
+        </div>
+        <div class="card">
+            <span class="badge badge-drawing">ELEVATION</span>
+            <p class="card-desc">Side/front views showing building height, ridge lines, material finishes</p>
+        </div>
+        <div class="card">
+            <span class="badge badge-drawing">FLOOR PLAN</span>
+            <p class="card-desc">Internal layout showing room dimensions, wall positions, door placements</p>
+        </div>
+    </div>
+</section>
+
+<!-- LLM Extraction -->
+<section class="page-section">
+    <h2>LLM Text Extraction</h2>
+    <p class="interpretation">
+        For text-based documents (primarily application forms), PlanProof uses Groq-hosted LLMs to extract
+        structured entities. The prompt is carefully designed to extract specific planning-relevant attributes:
+        addresses, measurements, certificate types, and ownership declarations. Each extracted entity carries
+        a confidence score and source provenance.
+    </p>
+    <div class="data-table-wrap">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Example Value</th>
+                    <th>Source</th>
+                    <th>Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>proposed_building_height</td><td>3.8 metres</td><td>Application Form</td><td>LLM extraction</td></tr>
+                <tr><td>garden_depth_remaining</td><td>22.0 metres</td><td>Application Form</td><td>LLM extraction</td></tr>
+                <tr><td>form_address</td><td>9 Church Lane, Harborne, B17 0BD</td><td>Application Form</td><td>LLM extraction</td></tr>
+                <tr><td>certificate_type</td><td>Certificate A</td><td>Application Form</td><td>LLM extraction</td></tr>
+                <tr><td>stated_site_area</td><td>400.0 m2</td><td>Application Form</td><td>LLM extraction</td></tr>
+                <tr><td>ownership_declaration</td><td>sole owner</td><td>Application Form</td><td>LLM extraction</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- VLM Extraction -->
+<section class="page-section">
+    <h2>VLM Vision Extraction</h2>
+    <p class="interpretation">
+        Drawings contain measurements that text extraction cannot reach -- they are embedded in the
+        visual layout of architectural plans. PlanProof uses GPT-4o's vision capabilities to read
+        dimension labels, scale bars, and annotations directly from plan images. This is inherently
+        noisier than text extraction but provides critical corroborating evidence.
+    </p>
+    <div class="data-table-wrap">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Example Value</th>
+                    <th>Source</th>
+                    <th>Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>proposed_building_height</td><td>3.9 metres</td><td>Elevation Drawing</td><td>VLM vision</td></tr>
+                <tr><td>drawing_address</td><td>9 Church Ln, Harborne, B17 0BD</td><td>Site Plan</td><td>VLM vision</td></tr>
+                <tr><td>garden_depth_remaining</td><td>21.5 metres</td><td>Site Plan</td><td>VLM vision</td></tr>
+                <tr><td>site_boundary_dimensions</td><td>20m x 21m</td><td>Site Plan</td><td>VLM vision</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Extraction Accuracy -->
+<section class="page-section">
+    <h2>Extraction Accuracy</h2>
+
+    <div class="figure-card">
+        <img src="/figures/extraction_accuracy.png" alt="Extraction Accuracy" onclick="openLightbox(this.src)">
+        <h4>Extraction Accuracy</h4>
+        <p class="interpretation">
+            The LLM extracts 88.6% of planning-relevant attributes from application forms, with 85.7%
+            of extracted values matching ground truth exactly. The remaining errors are typically unit
+            mismatches (e.g., "3800mm" instead of "3.8m") or partial extractions where the LLM captures
+            a related but not identical value.
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/extraction_v1_v2_delta.png" alt="Prompt v1 vs v2" onclick="openLightbox(this.src)">
+        <h4>Prompt Improvement: v1 vs v2</h4>
+        <p class="interpretation">
+            The first version of the extraction prompt was too broad -- it extracted many irrelevant
+            attributes alongside the relevant ones, yielding precision of just 0.30. The narrowed v2
+            prompt focuses on exactly the attributes needed for validation rules, improving precision
+            to 0.72 while maintaining the same recall. This demonstrates that prompt engineering
+            matters as much as model capability for structured extraction tasks.
+        </p>
+    </div>
+</section>
+
+<div class="page-nav">
+    <a href="/data" class="btn btn-secondary">&larr; The Data</a>
+    <a href="/snkg" class="btn btn-primary">Next: Knowledge Graph &rarr;</a>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}The Problem{% endblock %}
+
+{% block content %}
+<h1 class="page-title">The Problem</h1>
+<p class="page-subtitle">Why planning validation is broken, and what PlanProof does differently.</p>
+
+<!-- Key Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">460K</div>
+        <div class="stat-label">Applications per year</div>
+        <div class="stat-detail">Submitted to UK local planning authorities</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">30-60 min</div>
+        <div class="stat-label">Per validation</div>
+        <div class="stat-detail">Manual check by a planning officer</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">40+</div>
+        <div class="stat-label">Validation rules</div>
+        <div class="stat-detail">Each application checked against</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">8 days</div>
+        <div class="stat-label">Statutory target</div>
+        <div class="stat-detail">To validate or reject an application</div>
+    </div>
+</div>
+
+<!-- The Failure -->
+<section class="page-section">
+    <h2>The Failure Mode</h2>
+    <div class="callout callout-danger">
+        <h3>Binary PASS/FAIL on insufficient evidence</h3>
+        <p>
+            Traditional automated validation systems force a binary decision on every rule: either the application
+            passes or it fails. When evidence is missing, ambiguous, or extracted incorrectly, these systems
+            guess -- and guessing wrong produces <strong>false violations</strong>. An applicant receives a
+            rejection notice for a rule they actually comply with.
+        </p>
+        <p>
+            This is the most damaging failure mode in planning validation. It wastes officer time re-checking
+            correct applications, delays legitimate development, and erodes trust in automation.
+        </p>
+    </div>
+</section>
+
+<!-- The Thesis -->
+<section class="page-section">
+    <h2>The Thesis</h2>
+    <div class="callout callout-primary">
+        <h3>"Don't guess when you don't know"</h3>
+        <p>
+            PlanProof introduces a third state: <strong>Not Assessable</strong>. When the system lacks sufficient
+            evidence to make a reliable determination, it says so explicitly rather than forcing a potentially
+            wrong binary verdict. This seemingly simple idea requires a formal evidence-sufficiency framework
+            (SABLE) built on Dempster-Shafer theory to work correctly.
+        </p>
+    </div>
+</section>
+
+<!-- Comparison -->
+<section class="page-section">
+    <h2>Traditional System vs PlanProof</h2>
+    <div class="comparison-grid">
+        <div class="comparison-card comparison-old">
+            <h3>Traditional Approach</h3>
+            <ul>
+                <li>Extract data from documents</li>
+                <li>Apply rule: value vs threshold</li>
+                <li>Force PASS or FAIL verdict</li>
+                <li class="comparison-bad">Missing data? Guess FAIL</li>
+                <li class="comparison-bad">Conflicting sources? Pick one</li>
+                <li class="comparison-bad">Low confidence? Ignore it</li>
+            </ul>
+            <div class="comparison-result comparison-result-bad">
+                Result: 126 false violations per 264 evaluations (naive LLM)
+            </div>
+        </div>
+        <div class="comparison-card comparison-new">
+            <h3>PlanProof Approach</h3>
+            <ul>
+                <li>Extract data from documents (LLM + VLM)</li>
+                <li>Build knowledge graph (SNKG)</li>
+                <li>Reconcile conflicting evidence</li>
+                <li class="comparison-good">Compute evidence sufficiency (SABLE)</li>
+                <li class="comparison-good">Three-state verdicts: PASS / FAIL / Not Assessable</li>
+                <li class="comparison-good">Confidence-aware decisions</li>
+            </ul>
+            <div class="comparison-result comparison-result-good">
+                Result: 0 false violations per 264 evaluations
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What this means -->
+<section class="page-section">
+    <h2>What This Means in Practice</h2>
+    <p class="interpretation">
+        When a homeowner submits a planning application for a rear extension, PlanProof processes their
+        site plans, elevation drawings, and application forms. It extracts measurements, checks them against
+        permitted development rules, and -- crucially -- tells the planning officer which rules it could
+        reliably assess and which ones need human review. The officer focuses their time on the uncertain
+        cases rather than re-checking everything. No applicant receives a false rejection.
+    </p>
+</section>
+
+<div class="page-nav">
+    <div></div>
+    <a href="/data" class="btn btn-primary">Next: The Data &rarr;</a>
+</div>
+{% endblock %}

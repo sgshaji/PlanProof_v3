@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}The Data{% endblock %}
+
+{% block content %}
+<h1 class="page-title">The Data</h1>
+<p class="page-subtitle">Real BCC applications and synthetic test sets with ground truth.</p>
+
+<!-- Real Data -->
+<section class="page-section">
+    <h2>BCC Real Data</h2>
+    <div class="stats-grid stats-grid-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ real_set_count }}</div>
+            <div class="stat-label">Application sets</div>
+            <div class="stat-detail">From Birmingham City Council</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ real_file_count }}</div>
+            <div class="stat-label">Total files</div>
+            <div class="stat-detail">PDFs and scanned images</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Application forms</div>
+            <div class="stat-detail">Forms not included in dataset</div>
+        </div>
+    </div>
+
+    <div class="data-table-wrap">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Application Reference</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in real_sets %}
+                <tr>
+                    <td><code>{{ s.name }}</code></td>
+                    <td>
+                        {% if 'Validated' in s.name %}
+                        <span class="badge badge-agreed">Validated</span>
+                        {% else %}
+                        <span class="badge badge-single_source">Held</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <p class="interpretation">
+        The BCC dataset contains real planning applications with site plans and elevation drawings, but
+        no application forms. This is a significant limitation -- forms contain the structured data
+        (measurements, addresses, certificate types) that rules check against. Without forms, the real
+        data is useful for testing document classification and drawing extraction, but not full
+        end-to-end validation.
+    </p>
+</section>
+
+<!-- Synthetic Data -->
+<section class="page-section">
+    <h2>Synthetic Test Data</h2>
+    <div class="stats-grid stats-grid-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ synthetic_total }}</div>
+            <div class="stat-label">Test sets</div>
+            <div class="stat-detail">With ground truth labels</div>
+        </div>
+        <div class="stat-card stat-card-green">
+            <div class="stat-number">{{ synthetic_compliant }}</div>
+            <div class="stat-label">Compliant</div>
+            <div class="stat-detail">All rules should PASS</div>
+        </div>
+        <div class="stat-card stat-card-red">
+            <div class="stat-number">{{ synthetic_noncompliant }}</div>
+            <div class="stat-label">Non-compliant</div>
+            <div class="stat-detail">At least one rule should FAIL</div>
+        </div>
+    </div>
+
+    <div class="callout callout-info">
+        <h3>Why synthetic data?</h3>
+        <p>
+            Real planning applications don't come with ground truth labels. We don't know which rules
+            truly pass or fail without a planning officer's assessment. Synthetic data lets us control
+            every variable: building height, garden depth, site area, certificate type. Each test set
+            has a <code>ground_truth.json</code> file with exact values, so we can measure extraction
+            accuracy and verdict correctness precisely.
+        </p>
+    </div>
+
+    <p class="interpretation">
+        Each synthetic test set contains a generated application form (PDF), floor plans, elevation
+        drawings, and a site plan -- all as both PDF and scanned PNG images. The ground truth records
+        every attribute value used during generation, enabling exact comparison with extracted values.
+    </p>
+</section>
+
+<!-- Ground Truth Format -->
+<section class="page-section">
+    <h2>Ground Truth Format</h2>
+    <div class="code-block">
+        <pre><code>{
+  "set_id": "SET_COMPLIANT_42000",
+  "category": "compliant",
+  "seed": 42000,
+  "difficulty": "high",
+  "values": [
+    {
+      "attribute": "proposed_building_height",
+      "value": 3.8,
+      "unit": "metres",
+      "display_text": "3.8m"
+    },
+    {
+      "attribute": "garden_depth_remaining",
+      "value": 22.0,
+      "unit": "metres",
+      "display_text": "22.0m"
+    }
+  ],
+  "expected_outcomes": {
+    "R_HEIGHT_LIMIT": "PASS",
+    "R_GARDEN_DEPTH": "PASS"
+  }
+}</code></pre>
+    </div>
+    <p class="interpretation">
+        The ground truth specifies exact numeric values for every measurable attribute, plus
+        the expected PASS/FAIL outcome for each rule. This lets us separately evaluate extraction
+        accuracy (did we get the right number?) and verdict correctness (did we reach the right
+        conclusion?). The <code>seed</code> field ensures reproducibility -- the same seed
+        always generates the same test set.
+    </p>
+</section>
+
+<!-- Data Quality -->
+<section class="page-section">
+    <h2>What's Representative, What's Not</h2>
+    <div class="comparison-grid">
+        <div class="comparison-card comparison-new">
+            <h3>Representative</h3>
+            <ul>
+                <li class="comparison-good">Document types match real applications</li>
+                <li class="comparison-good">Measurement ranges are realistic</li>
+                <li class="comparison-good">Address formats follow UK conventions</li>
+                <li class="comparison-good">Rules cover actual BCC validation criteria</li>
+                <li class="comparison-good">Multiple difficulty levels test edge cases</li>
+            </ul>
+        </div>
+        <div class="comparison-card comparison-old">
+            <h3>Not Representative</h3>
+            <ul>
+                <li class="comparison-bad">Generated PDFs are cleaner than real scans</li>
+                <li class="comparison-bad">No handwritten annotations</li>
+                <li class="comparison-bad">Consistent formatting (real forms vary)</li>
+                <li class="comparison-bad">No multi-phase or amended applications</li>
+                <li class="comparison-bad">Limited to householder extensions</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<div class="page-nav">
+    <a href="/problem" class="btn btn-secondary">&larr; The Problem</a>
+    <a href="/extraction" class="btn btn-primary">Next: Extraction Pipeline &rarr;</a>
+</div>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}SABLE Engine{% endblock %}
+
+{% block content %}
+<h1 class="page-title">SABLE Engine</h1>
+<p class="page-subtitle">Structured Assessability via Belief Logic and Evidence -- the core innovation.</p>
+
+<!-- The Problem SABLE Solves -->
+<section class="page-section">
+    <h2>The Problem SABLE Solves</h2>
+    <p class="interpretation">
+        Every planning validation rule requires specific evidence to assess. "Is the building height under
+        4 metres?" needs an extracted height measurement. "Is the site in a Conservation Area?" needs
+        spatial zone data. But extraction is imperfect -- measurements may be missing, low-confidence,
+        or conflicting between sources.
+    </p>
+    <p class="interpretation">
+        Traditional systems ignore this uncertainty. If extraction produces a value, the system uses it;
+        if not, it guesses. SABLE formalises the question: "Given the evidence we actually have, can we
+        reliably assess this rule?" It computes a numeric <strong>belief score</strong> for each rule,
+        representing how much evidence supports assessment, and a <strong>plausibility score</strong>
+        representing the upper bound of what evidence could support.
+    </p>
+    <p class="interpretation">
+        The gap between belief and plausibility is <strong>ignorance</strong> -- evidence that is missing
+        or too uncertain to count. When ignorance is high, SABLE withholds judgement rather than guessing.
+    </p>
+</section>
+
+<!-- Dempster-Shafer Basics -->
+<section class="page-section">
+    <h2>Dempster-Shafer Theory (Simplified)</h2>
+    <div class="stats-grid stats-grid-3">
+        <div class="stat-card">
+            <div class="stat-number">Bel</div>
+            <div class="stat-label">Belief</div>
+            <div class="stat-detail">Minimum evidence supporting assessability. "We definitely have this much evidence."</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">Pl</div>
+            <div class="stat-label">Plausibility</div>
+            <div class="stat-detail">Maximum possible support. "Evidence could support up to this much."</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">Pl - Bel</div>
+            <div class="stat-label">Ignorance</div>
+            <div class="stat-detail">The gap between what we know and what we could know. Drives the "Not Assessable" state.</div>
+        </div>
+    </div>
+    <p class="interpretation">
+        Unlike probability (where P(A) + P(not A) = 1), Dempster-Shafer theory allows evidence to
+        support "I don't know" explicitly. A belief of 0.3 and plausibility of 0.9 means we have
+        moderate evidence but high uncertainty -- exactly the situation where forcing a binary verdict
+        would be dangerous.
+    </p>
+</section>
+
+<!-- The 4-Factor Mass Function -->
+<section class="page-section">
+    <h2>The 4-Factor Mass Function</h2>
+    <p class="interpretation">
+        SABLE combines four factors to compute the mass of evidence for each rule. Each factor is a
+        value between 0 and 1, and they multiply together to produce the overall evidence mass:
+    </p>
+    <div class="factor-grid">
+        <div class="factor-card">
+            <div class="factor-name">Reliability</div>
+            <div class="factor-formula">How trustworthy is the extraction method?</div>
+            <p>LLM extraction from structured forms scores higher than VLM extraction from hand-drawn sketches. Based on extraction method and document quality.</p>
+        </div>
+        <div class="factor-card">
+            <div class="factor-name">Confidence</div>
+            <div class="factor-formula">How confident is the extraction itself?</div>
+            <p>The extraction model's self-reported confidence score. Low confidence means the model struggled to read the value -- the evidence is weak.</p>
+        </div>
+        <div class="factor-card">
+            <div class="factor-name">Relevance</div>
+            <div class="factor-formula">Does this evidence actually apply to this rule?</div>
+            <p>A height measurement is relevant to the height rule but not the garden depth rule. Ensures evidence is mapped to the correct rules.</p>
+        </div>
+        <div class="factor-card">
+            <div class="factor-name">Concordance</div>
+            <div class="factor-formula">Do multiple sources agree?</div>
+            <p>If the form says "3.8m" and the drawing says "3.9m", concordance is high. If one says "3.8m" and the other says "7.2m", concordance drops and the evidence is weakened.</p>
+        </div>
+    </div>
+</section>
+
+<!-- The 3 States -->
+<section class="page-section">
+    <h2>The Three Assessment States</h2>
+    <div class="three-states">
+        <div class="state-card state-assessable">
+            <h3>ASSESSABLE</h3>
+            <p>Belief exceeds threshold (default 0.6). The system has enough evidence to render a PASS or FAIL verdict with confidence.</p>
+            <div class="state-example">Example: Height extracted from both form and drawing, values agree, confidence high. Verdict: PASS (3.8m < 4.0m limit).</div>
+        </div>
+        <div class="state-card state-pa">
+            <h3>PARTIALLY ASSESSABLE</h3>
+            <p>Belief is moderate (0.3-0.6). Some evidence exists but it's insufficient for a reliable verdict. The system flags this for human review.</p>
+            <div class="state-example">Example: Height found only in one low-confidence VLM extraction. Can't reliably say if height limit is met.</div>
+        </div>
+        <div class="state-card state-na">
+            <h3>NOT ASSESSABLE</h3>
+            <p>Belief is below minimum threshold (0.3). The evidence is too sparse or unreliable to make any determination.</p>
+            <div class="state-example">Example: No height measurement found in any document. Rule cannot be evaluated -- reported as NA, not guessed as FAIL.</div>
+        </div>
+    </div>
+</section>
+
+<!-- Formal Properties -->
+<section class="page-section">
+    <h2>Formal Properties</h2>
+    <div class="callout callout-primary">
+        <p>
+            SABLE satisfies three formally proven properties that guarantee safe behaviour:
+        </p>
+        <ul style="margin-top: 0.75rem; padding-left: 1.5rem;">
+            <li><strong>Monotonicity:</strong> Adding more concordant evidence can only increase belief, never decrease it. More data always helps.</li>
+            <li><strong>Boundedness:</strong> Belief is always in [0, 1] and belief <= plausibility. The system cannot produce paradoxical scores.</li>
+            <li><strong>Determinism:</strong> Same inputs always produce same outputs. No randomness, no prompt-dependent variation.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- Figures -->
+<section class="page-section">
+    <h2>SABLE Analysis</h2>
+
+    <div class="figure-card">
+        <img src="/figures/sable_belief_violin.png" alt="SABLE Belief Distribution" onclick="openLightbox(this.src)">
+        <h4>Belief Distribution Across Configurations</h4>
+        <p class="interpretation">
+            This violin plot shows how belief scores distribute across the five ablation configurations.
+            The full system produces a bimodal distribution: high belief (>0.7) for rules with strong
+            evidence, and near-zero belief for rules lacking evidence. This clean separation is what
+            enables reliable three-state verdicts. Removing SABLE (ablation_d) collapses everything
+            to binary, eliminating the uncertainty signal entirely.
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/sable_belief_vs_plausibility.png" alt="Belief vs Plausibility" onclick="openLightbox(this.src)">
+        <h4>Belief vs Plausibility</h4>
+        <p class="interpretation">
+            Each point is a rule-evaluation pair. Points on the diagonal have zero ignorance -- belief
+            equals plausibility, meaning the evidence is conclusive. Points below the diagonal show
+            uncertainty: the gap between what we know (belief) and what we could know (plausibility).
+            Wide gaps indicate rules where more evidence would change the assessment, guiding officers
+            to where their attention is most needed.
+        </p>
+    </div>
+
+    <div class="figure-card">
+        <img src="/figures/sable_blocking_reasons.png" alt="Blocking Reasons" onclick="openLightbox(this.src)">
+        <h4>Evidence Blocking Reasons</h4>
+        <p class="interpretation">
+            When a rule is Not Assessable, this chart shows why. Missing evidence dominates -- the
+            required attribute was simply not found in any document. Low confidence and conflicting
+            sources are secondary reasons. This breakdown helps identify where extraction improvements
+            would have the most impact on automation rates.
+        </p>
+    </div>
+</section>
+
+<div class="page-nav">
+    <a href="/boundary" class="btn btn-secondary">&larr; Boundary Verification</a>
+    <a href="/ablation" class="btn btn-primary">Next: Ablation Study &rarr;</a>
+</div>
+{% endblock %}

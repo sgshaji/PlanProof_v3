@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Boundary Verification{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Boundary Verification</h1>
+<p class="page-subtitle">Multi-tier site boundary checking -- the most common reason for application rejection.</p>
+
+<!-- Why it matters -->
+<section class="page-section">
+    <h2>Why Boundary Checking Matters</h2>
+    <div class="callout callout-danger">
+        <p>
+            Incorrect site boundaries are the <strong>single most common reason</strong> for planning
+            application rejection at validation stage. If the red-line boundary on the site plan doesn't
+            match the actual property extent, the entire application is invalid. Planning officers spend
+            significant time cross-referencing site plans against land registry data and OS mapping.
+        </p>
+    </div>
+    <p class="interpretation">
+        PlanProof implements a three-tier boundary verification system. Each tier provides independent
+        evidence about whether the applicant's stated site boundary is consistent with external data.
+        The tiers are designed to degrade gracefully -- if INSPIRE data is unavailable, the system
+        falls back to visual and scale-bar checks rather than failing entirely.
+    </p>
+</section>
+
+<!-- Tier 1 -->
+<section class="page-section">
+    <h2>Tier 1: VLM Visual Alignment</h2>
+    <div class="tier-card tier-1">
+        <div class="tier-badge">Tier 1</div>
+        <div class="tier-content">
+            <h3>Visual boundary analysis via GPT-4o</h3>
+            <p>
+                The VLM examines the site plan image and assesses whether the red-line boundary
+                appears reasonable for the stated property type and location. It checks for obvious
+                discrepancies: boundaries that include public roads, neighbouring properties, or
+                impossibly large/small areas for the stated address.
+            </p>
+            <div class="tier-detail">
+                <strong>Detects:</strong> Gross boundary errors, inclusion of public land, missing boundary lines
+            </div>
+            <div class="tier-detail">
+                <strong>Limitation:</strong> Cannot verify exact boundary position -- visual assessment only
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tier 2 -->
+<section class="page-section">
+    <h2>Tier 2: Scale-Bar Measurement</h2>
+    <div class="tier-card tier-2">
+        <div class="tier-badge">Tier 2</div>
+        <div class="tier-content">
+            <h3>Area comparison using the drawing's own scale bar</h3>
+            <p>
+                If the site plan includes a scale bar, PlanProof measures the boundary area using
+                the stated scale and compares it to the applicant's declared site area. A discrepancy
+                exceeding <strong>15%</strong> triggers a flag. This catches cases where the applicant
+                states "400 m2" but the drawing shows a much larger or smaller area.
+            </p>
+            <div class="tier-detail">
+                <strong>Threshold:</strong> 15% area discrepancy triggers DISCREPANCY_DETECTED
+            </div>
+            <div class="tier-detail">
+                <strong>Limitation:</strong> Depends on scale bar presence and correct scale notation
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tier 3 -->
+<section class="page-section">
+    <h2>Tier 3: INSPIRE Polygon Lookup</h2>
+    <div class="tier-card tier-3">
+        <div class="tier-badge">Tier 3</div>
+        <div class="tier-content">
+            <h3>Cross-reference against national cadastral data</h3>
+            <p>
+                The INSPIRE dataset contains cadastral parcel boundaries for England and Wales --
+                over <strong>346,000 parcels</strong> in the Birmingham area alone. PlanProof geocodes
+                the application address using <strong>postcodes.io</strong>, finds nearby INSPIRE
+                parcels, and compares the official parcel area with the applicant's stated site area.
+            </p>
+            <div class="tier-detail">
+                <strong>Data source:</strong> HM Land Registry INSPIRE polygons (GML format)
+            </div>
+            <div class="tier-detail">
+                <strong>Geocoding:</strong> postcodes.io free API -- postcode to lat/lng
+            </div>
+            <div class="tier-detail">
+                <strong>Limitation:</strong> INSPIRE data may not match exact property boundary (leasehold vs freehold)
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Combined Logic -->
+<section class="page-section">
+    <h2>Combined Boundary Verdict</h2>
+    <p class="interpretation">
+        The three tiers produce independent evidence streams that combine into a single boundary
+        assessment. The logic is deliberately conservative:
+    </p>
+    <div class="data-table-wrap">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Outcome</th>
+                    <th>Meaning</th>
+                    <th>When Produced</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge badge-agreed">CONSISTENT</span></td>
+                    <td>All available tiers agree the boundary is reasonable</td>
+                    <td>At least one tier confirms, none flag discrepancy</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-conflicting">DISCREPANCY_DETECTED</span></td>
+                    <td>At least one tier flags a significant mismatch</td>
+                    <td>Scale-bar area differs >15%, or INSPIRE area differs significantly</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-missing">INSUFFICIENT_DATA</span></td>
+                    <td>Not enough evidence to assess the boundary</td>
+                    <td>No scale bar, no INSPIRE match, VLM inconclusive</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Limitations -->
+<section class="page-section">
+    <h2>Limitations</h2>
+    <div class="callout callout-info">
+        <p>
+            Boundary verification in PlanProof detects <strong>gross discrepancies only</strong> -- it
+            is not survey-grade. A boundary that is off by 1-2 metres will not be flagged. The system
+            is designed to catch the cases that waste the most officer time: boundaries that include
+            neighbouring land, boundaries drawn around the wrong property, or stated areas that are
+            wildly inconsistent with the actual parcel. For precise boundary verification, a land
+            surveyor's assessment remains necessary.
+        </p>
+    </div>
+</section>
+
+<div class="page-nav">
+    <a href="/snkg" class="btn btn-secondary">&larr; Knowledge Graph</a>
+    <a href="/sable" class="btn btn-primary">Next: SABLE Engine &rarr;</a>
+</div>
+{% endblock %}

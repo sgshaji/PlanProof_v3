@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Graph{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Spatial Normalised Knowledge Graph (SNKG)</h1>
+<p class="page-subtitle">Structuring extracted entities into a queryable graph with spatial awareness.</p>
+
+<!-- Why a Knowledge Graph -->
+<section class="page-section">
+    <h2>Why a Knowledge Graph?</h2>
+    <p class="interpretation">
+        Extracted entities are flat -- a list of attribute-value pairs with provenance. But planning
+        validation requires <em>relational reasoning</em>: "Is this property within a Conservation Area?"
+        "Do the form address and drawing address match?" "Is the stated site area consistent with the
+        INSPIRE parcel boundary?" These questions need structure, not just data.
+    </p>
+    <p class="interpretation">
+        The SNKG (Spatial Normalised Knowledge Graph) transforms extracted entities into a property-centric
+        graph where measurements, addresses, zones, and boundaries are connected through typed relationships.
+        This enables multi-hop queries that a flat entity list cannot support.
+    </p>
+</section>
+
+<!-- How Entities Become Nodes -->
+<section class="page-section">
+    <h2>From Entities to Graph</h2>
+    <div class="pipeline-flow pipeline-flow-vertical">
+        <div class="pipeline-step">
+            <div class="pipeline-icon" style="background: var(--primary);">P</div>
+            <div class="pipeline-label">Property Node</div>
+            <div class="pipeline-desc">Central node representing the application site, linked to all extracted data</div>
+        </div>
+        <div class="graph-children">
+            <div class="graph-child">
+                <span class="snkg-node measurement">Height: 3.8m</span>
+                <span class="graph-edge">HAS_MEASUREMENT</span>
+            </div>
+            <div class="graph-child">
+                <span class="snkg-node address">9 Church Lane, B17 0BD</span>
+                <span class="graph-edge">HAS_ADDRESS</span>
+            </div>
+            <div class="graph-child">
+                <span class="snkg-node zone">Conservation Area</span>
+                <span class="graph-edge">LOCATED_IN</span>
+            </div>
+            <div class="graph-child">
+                <span class="snkg-node boundary">INSPIRE Parcel 420m2</span>
+                <span class="graph-edge">HAS_BOUNDARY</span>
+            </div>
+            <div class="graph-child">
+                <span class="snkg-node certificate">Certificate A</span>
+                <span class="graph-edge">HAS_CERTIFICATE</span>
+            </div>
+            <div class="graph-child">
+                <span class="snkg-node ownership">Sole Owner</span>
+                <span class="graph-edge">HAS_OWNERSHIP</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conservation Area Example -->
+<section class="page-section">
+    <h2>Example: Conservation Area Query (C006)</h2>
+    <div class="callout callout-info">
+        <p>
+            Rule C006 asks: "Is the property in a Conservation Area?" If yes, permitted development
+            rights are restricted. The SNKG resolves this by linking the property's postcode to a
+            geocoded location, then checking spatial containment against known Conservation Area
+            boundaries. Without the graph, this would require ad-hoc lookups scattered through the
+            rule logic.
+        </p>
+    </div>
+    <div class="code-block">
+        <pre><code>// Cypher query: find if property is in a Conservation Area
+MATCH (p:Property)-[:HAS_ADDRESS]->(a:Address)
+MATCH (p)-[:LOCATED_IN]->(z:Zone {type: 'conservation_area'})
+RETURN p.id, a.postcode, z.name, z.designation_date</code></pre>
+    </div>
+    <p class="interpretation">
+        This Cypher query traverses from the property node through its address to check for
+        Conservation Area zone relationships. The SNKG pre-computes these spatial relationships
+        during graph construction so that rule evaluation is a simple graph traversal, not a
+        runtime geospatial operation.
+    </p>
+</section>
+
+<!-- Ablation Proof -->
+<section class="page-section">
+    <h2>Ablation Evidence: What Happens Without SNKG?</h2>
+    <div class="callout callout-primary">
+        <p>
+            <strong>Ablation B</strong> removes the SNKG component, forcing the system to work from
+            flat entity lists. The result: the system produces <strong>identical verdict accuracy</strong>
+            to the full system on the current rule set. This is because the current 8 rules primarily
+            check numeric thresholds rather than relational queries.
+        </p>
+        <p>
+            However, the SNKG becomes essential for more complex rules that require spatial reasoning --
+            Conservation Area checks, listed building proximity, flood zone containment. These rules
+            cannot be evaluated from flat entity lists alone.
+        </p>
+    </div>
+
+    <div class="stats-grid stats-grid-2">
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.full_system.confusion_matrix.fp if stats and stats.full_system else 0 }}</div>
+            <div class="stat-label">False violations (full system)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.ablation_b.confusion_matrix.fp if stats and stats.ablation_b else 0 }}</div>
+            <div class="stat-label">False violations (without SNKG)</div>
+        </div>
+    </div>
+    <p class="interpretation">
+        Both configurations produce zero false violations, confirming that for the current rule set,
+        SNKG's primary value is architectural (cleaner separation of concerns) rather than functional.
+        The spatial query capabilities are stored as WKT geometry but not yet exercised by runtime
+        Shapely predicates -- this is a known gap reserved for future spatial rules.
+    </p>
+</section>
+
+<!-- Interactive Placeholder -->
+<section class="page-section">
+    <div class="placeholder-box">
+        <h3>Live Graph Visualisation</h3>
+        <p>In a live pipeline run (via the <a href="/demo">Demo page</a>), the SNKG populates here
+        showing property nodes, measurements, and relationships extracted from uploaded documents.</p>
+    </div>
+</section>
+
+<div class="page-nav">
+    <a href="/extraction" class="btn btn-secondary">&larr; Extraction Pipeline</a>
+    <a href="/boundary" class="btn btn-primary">Next: Boundary Verification &rarr;</a>
+</div>
+{% endblock %}

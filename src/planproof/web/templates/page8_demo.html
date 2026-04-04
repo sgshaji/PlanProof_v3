@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Live Demo{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Live Demo</h1>
+<p class="page-subtitle">Upload planning documents and watch the pipeline process them in real time.</p>
+
+<!-- Upload Area -->
+<section class="page-section">
+    <div class="upload-zone" id="upload-zone">
+        <span class="icon">&#128196;</span>
+        <p class="upload-prompt">Drag &amp; drop planning documents here, or click to select files</p>
+        <p class="upload-hint">Accepts PDF, PNG, JPG -- site plans, application forms, elevation drawings</p>
+        <span class="btn btn-primary">Select Files</span>
+        <input type="file" id="file-input" multiple accept=".pdf,.png,.jpg,.jpeg" hidden>
+    </div>
+</section>
+
+<!-- Demo Data -->
+{% if test_sets %}
+<section class="page-section">
+    <h2>Or Try With Demo Data</h2>
+    <div class="test-set-grid">
+        {% for ts in test_sets %}
+        <button class="test-set-btn" onclick="runTestSet('{{ ts.id }}')">
+            <div class="set-label">{{ ts.label }}</div>
+            <div class="set-description">{{ ts.description }}</div>
+            <div class="set-category cat-{{ ts.category }}">{{ ts.category | replace('_', ' ') }}</div>
+        </button>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Pipeline Output -->
+<section class="page-section">
+    <div id="pipeline-stages">
+        <p class="empty-state">Upload documents or select a test set above to begin compliance analysis.</p>
+    </div>
+</section>
+
+<!-- Run History -->
+<details class="history-section" id="history-section" style="display:none">
+    <summary>Run History</summary>
+    <div id="run-history"></div>
+</details>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/app.js"></script>
+{% endblock %}
