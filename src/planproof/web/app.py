@@ -55,11 +55,14 @@ async def index(request: Request):
         else []
     )
 
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "test_sets": test_sets[:9],
-        "figures": figures,
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={
+            "test_sets": test_sets[:9],
+            "figures": figures,
+        },
+    )
 
 
 @app.post("/api/upload")
