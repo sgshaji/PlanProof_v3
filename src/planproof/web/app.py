@@ -44,6 +44,86 @@ def _generate_job_id() -> str:
     return f"RUN-{uuid.uuid4().hex[:8]}"
 
 
+def _describe_test_set(set_id: str, category: str) -> dict:
+    """Return human-readable label and description for a test set."""
+    if category == "compliant":
+        return {
+            "label": "Compliant House Extension",
+            "description": "3-storey, 4 m height, 22 m garden — all rules pass",
+        }
+    elif category in ("non_compliant", "noncompliant"):
+        return {
+            "label": "Building Violation",
+            "description": "Height or garden depth exceeds permitted limit",
+        }
+    else:
+        return {
+            "label": "Edge Case — Borderline",
+            "description": "Measurements close to rule thresholds",
+        }
+
+
+# Figure metadata: filename → (title, interpretation)
+_FIGURE_META: dict[str, tuple[str, str]] = {
+    "sable_belief_violin.png": (
+        "SABLE Belief Distribution",
+        "Shows how evidence sufficiency varies across configurations",
+    ),
+    "sable_false_fail_prevention.png": (
+        "False Violation Prevention",
+        "Full system: 0 false violations; without SABLE: 93",
+    ),
+    "robustness_curves.png": (
+        "Robustness Under Noise",
+        "SABLE maintains near-zero false violations even with 30% extraction noise",
+    ),
+    "threshold_sensitivity.png": (
+        "Threshold Operating Curves",
+        "Precision stays at 1.0 across all threshold values",
+    ),
+    "extraction_accuracy.png": (
+        "Extraction Accuracy",
+        "LLM extracts 88.6% of attributes with 85.7% value accuracy",
+    ),
+    "extraction_v1_v2_delta.png": (
+        "Prompt Improvement",
+        "Narrowing prompt: precision 0.30 → 0.72, recall unchanged",
+    ),
+    "false_fail_matrix.png": (
+        "Oracle vs Real Extraction",
+        "2×2 matrix: SABLE produces 0 false violations regardless of extraction quality",
+    ),
+    "sable_three_state_bar.png": (
+        "Verdict Distribution",
+        "Full system issues 118 PASS + 14 true FAIL + 0 false FAIL",
+    ),
+    "sable_blocking_reasons.png": (
+        "Evidence Blocking Reasons",
+        "Why rules can't be assessed: missing evidence dominates",
+    ),
+    "sable_belief_vs_plausibility.png": (
+        "Belief vs Plausibility",
+        "Gap shows uncertainty — larger gap means more ignorance",
+    ),
+    "sable_component_contribution.png": (
+        "Component Contribution",
+        "Only SABLE removal causes false violations; other components don't",
+    ),
+    "sable_concordance_heatmap.png": (
+        "Rule × Config Belief",
+        "Heatmap showing which rules are most affected by component removal",
+    ),
+    "sable_oracle_vs_real.png": (
+        "Oracle vs Real Extraction Beliefs",
+        "SABLE beliefs are robust to extraction quality",
+    ),
+    "robustness_true_fails.png": (
+        "Violation Detection Under Noise",
+        "True violation detection degrades gracefully with noise",
+    ),
+}
+
+
 def _save_metadata(job_id: str, metadata: dict) -> None:
     """Write metadata.json for a run."""
     run_dir = RUNS_DIR / job_id
@@ -70,17 +150,27 @@ async def index(request: Request):
         if cat_dir.exists():
             for d in sorted(cat_dir.iterdir()):
                 if d.is_dir() and (d / "ground_truth.json").exists():
+                    meta = _describe_test_set(d.name, category)
                     test_sets.append({
                         "id": d.name,
                         "path": str(d),
                         "category": category,
+                        "label": meta["label"],
+                        "description": meta["description"],
                     })
 
-    figures = (
-        sorted(f.name for f in Path("figures").glob("*.png"))
-        if Path("figures").exists()
-        else []
-    )
+    figures: list[dict] = []
+    if Path("figures").exists():
+        for name in sorted(f.name for f in Path("figures").glob("*.png")):
+            title, interpretation = _FIGURE_META.get(name, (
+                name.replace(".png", "").replace("_", " ").title(),
+                "",
+            ))
+            figures.append({
+                "filename": name,
+                "title": title,
+                "interpretation": interpretation,
+            })
 
     return templates.TemplateResponse(
         request=request,

@@ -12,15 +12,20 @@
 
   // ── Run History ──
 
+  const historySectionEl = document.getElementById("history-section");
+
   async function loadRunHistory() {
     try {
       const res = await fetch("/api/runs");
       const data = await res.json();
       if (!data.runs || data.runs.length === 0) {
-        historyEl.innerHTML =
-          '<p style="color: var(--text-muted); text-align: center; padding: 1rem;">No previous runs.</p>';
+        // Hide the section entirely when there are no runs
+        if (historySectionEl) historySectionEl.style.display = "none";
         return;
       }
+      // Show the section now that we have runs
+      if (historySectionEl) historySectionEl.style.display = "";
+
       let html = '<div class="run-history-grid">';
       for (const run of data.runs) {
         const sourceLabel = run.source_id || run.source_type || "";
@@ -201,6 +206,7 @@
         );
         source.close();
         loadRunHistory();
+        scrollToPipelineOutput();
         return;
       }
 
@@ -494,6 +500,12 @@
 
   function scrollToBottom() {
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  function scrollToPipelineOutput() {
+    if (stagesEl) {
+      stagesEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 
   function escapeHtml(str) {

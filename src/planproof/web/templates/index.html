@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlanProof Research Demo</title>
+    <title>PlanProof</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,60 +12,61 @@
 
 <header class="header">
     <h1>PlanProof</h1>
-    <p class="subtitle">Automated Planning-Application Compliance via Structured Evidence Reasoning</p>
+    <p class="subtitle">Upload planning application documents to analyse compliance</p>
 </header>
 
 <main class="container">
 
-    <!-- Upload Section -->
-    <h2 class="section-title">Upload Documents</h2>
+    <!-- Upload Area — primary action -->
     <div class="upload-zone" id="upload-zone">
         <span class="icon">&#128196;</span>
-        <p>Drag &amp; drop planning documents here, or click to browse</p>
-        <span class="btn btn-primary">Browse Files</span>
+        <p class="upload-prompt">Drag &amp; drop planning documents here, or click to select files</p>
+        <p class="upload-hint">Accepts PDF, PNG, JPG — site plans, application forms, elevation drawings</p>
+        <span class="btn btn-primary">Select Files</span>
         <input type="file" id="file-input" multiple accept=".pdf,.png,.jpg,.jpeg" hidden>
     </div>
 
-    <!-- Test Sets -->
+    <!-- Demo Data — collapsed by default -->
     {% if test_sets %}
-    <h2 class="section-title">Pre-loaded Test Sets</h2>
-    <div class="test-set-grid">
-        {% for ts in test_sets %}
-        <button class="test-set-btn" onclick="runTestSet('{{ ts.id }}')">
-            <div class="set-name">{{ ts.id }}</div>
-            <div class="set-category cat-{{ ts.category }}">{{ ts.category | replace('_', ' ') }}</div>
-        </button>
-        {% endfor %}
-    </div>
+    <details class="demo-section">
+        <summary>Try with demo data</summary>
+        <div class="test-set-grid">
+            {% for ts in test_sets %}
+            <button class="test-set-btn" onclick="runTestSet('{{ ts.id }}')">
+                <div class="set-label">{{ ts.label }}</div>
+                <div class="set-description">{{ ts.description }}</div>
+                <div class="set-category cat-{{ ts.category }}">{{ ts.category | replace('_', ' ') }}</div>
+            </button>
+            {% endfor %}
+        </div>
+    </details>
     {% endif %}
 
-    <!-- Run History -->
-    <h2 class="section-title">Run History</h2>
-    <div id="run-history">
-        <p style="color: var(--text-muted); text-align: center; padding: 1rem;">
-            No previous runs.
-        </p>
-    </div>
-
     <!-- Pipeline Output -->
-    <h2 class="section-title">Pipeline Output</h2>
     <div id="pipeline-stages">
-        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">
-            Select a test set or upload documents to run the pipeline.
-        </p>
+        <p class="empty-state">Upload documents above to begin compliance analysis.</p>
     </div>
 
-    <!-- Figures Gallery -->
+    <!-- Run History — hidden until runs exist -->
+    <details class="history-section" id="history-section" style="display:none">
+        <summary>Run History</summary>
+        <div id="run-history"></div>
+    </details>
+
+    <!-- Research Figures — collapsed, labeled Research Analysis not Dissertation Figures -->
     {% if figures %}
-    <h2 class="section-title" style="margin-top: 3rem;">Dissertation Figures</h2>
-    <div class="figures-gallery">
-        {% for fig in figures %}
-        <div class="figure-thumb" onclick="openLightbox('/figures/{{ fig }}')">
-            <img src="/figures/{{ fig }}" alt="{{ fig }}" loading="lazy">
-            <div class="fig-name">{{ fig | replace('.png', '') | replace('_', ' ') }}</div>
+    <details class="figures-section">
+        <summary>Research Analysis Figures ({{ figures | length }} charts)</summary>
+        <div class="figures-gallery">
+            {% for fig in figures %}
+            <div class="figure-thumb" onclick="openLightbox('/figures/{{ fig.filename }}')">
+                <img src="/figures/{{ fig.filename }}" alt="{{ fig.title }}" loading="lazy">
+                <div class="fig-title">{{ fig.title }}</div>
+                <div class="figure-interpretation">{{ fig.interpretation }}</div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
+    </details>
     {% endif %}
 
 </main>
