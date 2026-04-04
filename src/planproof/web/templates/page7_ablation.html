@@ -5,6 +5,34 @@
 <h1 class="page-title">Ablation Study</h1>
 <p class="page-subtitle">Systematic removal of components to prove each one's contribution.</p>
 
+<!-- Interactive Ablation Toggle -->
+<section class="page-section">
+    <div class="ablation-toggle-section">
+        <h2>What happens when you remove SABLE?</h2>
+        <p class="interpretation" style="margin-bottom:1.25rem;">
+            Toggle between the full system (with SABLE assessability gating) and the ablated system
+            (without SABLE, forced binary verdicts). Watch the verdict cards change colour in real time.
+        </p>
+        <div class="toggle-container">
+            <span class="toggle-label" id="toggle-with" style="font-weight:700;color:var(--green);">With SABLE</span>
+            <label class="switch">
+                <input type="checkbox" id="ablation-toggle" onchange="toggleAblation(this.checked)">
+                <span class="slider"></span>
+            </label>
+            <span class="toggle-label" id="toggle-without">Without SABLE</span>
+        </div>
+
+        <div class="verdict-grid" id="ablation-verdict-grid" style="margin-top:1.5rem;">
+            <!-- Populated by JS -->
+        </div>
+
+        <div class="ablation-stats" id="ablation-stats" style="margin-top:1.5rem;text-align:center;">
+            <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.25rem;">False FAILs generated</div>
+            <div id="false-fail-counter" style="font-size:2.5rem;font-weight:800;color:var(--green);transition:color 0.3s ease;">0</div>
+        </div>
+    </div>
+</section>
+
 <!-- What is Ablation -->
 <section class="page-section">
     <h2>What is Ablation?</h2>
@@ -292,8 +320,183 @@
     </div>
 </section>
 
+<!-- 3D Robustness Surface -->
+<section class="page-section">
+    <h2>Robustness Under Extraction Noise (3D)</h2>
+    <div class="figure-card">
+        <h4>Full System vs Ablation_d across noise levels</h4>
+        <div id="robustness-3d" style="width:100%;height:550px"></div>
+        <p class="interpretation">
+            This 3D surface plot shows how the full system (blue) and the ablated system without SABLE (red)
+            respond to increasing extraction noise. The full system surface stays flat near zero false FAILs
+            regardless of noise level -- SABLE absorbs the noise by lowering belief and routing to PARTIAL/NA.
+            The ablated system surface stays elevated at 93-174 false FAILs because without assessability
+            gating, every uncertain rule is forced into a binary verdict. Drag to rotate, scroll to zoom.
+        </p>
+    </div>
+</section>
+
 <div class="page-nav">
     <a href="/sable" class="btn btn-secondary">&larr; SABLE Engine</a>
     <a href="/demo" class="btn btn-primary">Next: Live Demo &rarr;</a>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    /* ── Chart 2: Ablation Toggle ── */
+    var rules = [
+        { id: 'R001', name: 'Building Height',      withSable: 'PASS',    withoutSable: 'PASS' },
+        { id: 'R002', name: 'Rear Garden Depth',     withSable: 'PASS',    withoutSable: 'PASS' },
+        { id: 'R003', name: 'Site Coverage',          withSable: 'PARTIAL', withoutSable: 'FAIL' },
+        { id: 'C001', name: 'Certificate Type',       withSable: 'PARTIAL', withoutSable: 'FAIL' },
+        { id: 'C002', name: 'Ownership Declaration',  withSable: 'PARTIAL', withoutSable: 'FAIL' },
+        { id: 'C003', name: 'Agricultural Holdings',  withSable: 'PARTIAL', withoutSable: 'FAIL' },
+        { id: 'C004', name: 'Neighbour Notification', withSable: 'PASS',    withoutSable: 'FAIL' },
+        { id: 'C005', name: 'Trees / Landscape',      withSable: 'NA',      withoutSable: 'FAIL' },
+        { id: 'C006', name: 'Conservation Area',      withSable: 'PASS',    withoutSable: 'FAIL' }
+    ];
+
+    var verdictClass = { 'PASS': 'pass', 'FAIL': 'fail', 'PARTIAL': 'pa', 'NA': 'na' };
+    var verdictColor = { 'PASS': 'var(--green)', 'FAIL': 'var(--red)', 'PARTIAL': 'var(--amber)', 'NA': '#9ca3af' };
+
+    var grid = document.getElementById('ablation-verdict-grid');
+    rules.forEach(function(r) {
+        var card = document.createElement('div');
+        card.className = 'verdict-card verdict-' + verdictClass[r.withSable];
+        card.id = 'ablation-card-' + r.id;
+        card.style.transition = 'all 0.3s ease';
+        card.innerHTML =
+            '<div class="verdict-rule">' + r.id + '</div>' +
+            '<div class="verdict-desc">' + r.name + '</div>' +
+            '<div class="verdict-outcome" id="ablation-badge-' + r.id + '" style="color:' + verdictColor[r.withSable] + '">' + r.withSable + '</div>';
+        grid.appendChild(card);
+    });
+
+    window.toggleAblation = function(withoutSable) {
+        var toggleWith = document.getElementById('toggle-with');
+        var toggleWithout = document.getElementById('toggle-without');
+        var counter = document.getElementById('false-fail-counter');
+
+        if (withoutSable) {
+            toggleWith.style.fontWeight = '400';
+            toggleWith.style.color = 'var(--text-muted)';
+            toggleWithout.style.fontWeight = '700';
+            toggleWithout.style.color = 'var(--red)';
+        } else {
+            toggleWith.style.fontWeight = '700';
+            toggleWith.style.color = 'var(--green)';
+            toggleWithout.style.fontWeight = '400';
+            toggleWithout.style.color = 'var(--text-muted)';
+        }
+
+        rules.forEach(function(r) {
+            var verdict = withoutSable ? r.withoutSable : r.withSable;
+            var card = document.getElementById('ablation-card-' + r.id);
+            var badge = document.getElementById('ablation-badge-' + r.id);
+
+            card.className = 'verdict-card verdict-' + verdictClass[verdict];
+            card.style.transition = 'all 0.3s ease';
+            badge.textContent = verdict;
+            badge.style.color = verdictColor[verdict];
+        });
+
+        // Animate counter
+        var target = withoutSable ? 93 : 0;
+        var current = parseInt(counter.textContent) || 0;
+        var step = target > current ? 1 : -1;
+        var delay = Math.max(8, Math.floor(300 / Math.abs(target - current || 1)));
+
+        counter.style.color = withoutSable ? 'var(--red)' : 'var(--green)';
+
+        function tick() {
+            if (current === target) return;
+            current += step;
+            counter.textContent = current;
+            setTimeout(tick, delay);
+        }
+        tick();
+    };
+
+    /* ── Chart 4: 3D Robustness Surface ── */
+    var levels = ['Oracle', 'Mild (5%)', 'Moderate (10%)', 'Heavy (20%)', 'Severe (30%)'];
+    var metrics = ['False FAILs', 'True FAILs', 'PASS'];
+    var x = [0, 1, 2, 3, 4]; // noise level indices
+
+    var fullSystem = {
+        false_fail: [0, 5, 1, 0, 0],
+        true_fail:  [14, 7, 3, 1, 0],
+        pass:       [85, 17, 5, 2, 0]
+    };
+    var ablationD = {
+        false_fail: [93, 160, 174, 164, 166],
+        true_fail:  [20, 19, 18, 20, 17],
+        pass:       [151, 85, 72, 80, 81]
+    };
+
+    // Build z matrices: rows = metrics, cols = noise levels
+    var zFull = [fullSystem.false_fail, fullSystem.true_fail, fullSystem.pass];
+    var zAblation = [ablationD.false_fail, ablationD.true_fail, ablationD.pass];
+
+    var surfaceFull = {
+        type: 'surface',
+        x: x,
+        y: [0, 1, 2],
+        z: zFull,
+        name: 'Full System',
+        colorscale: [[0, '#93c5fd'], [1, '#1d4ed8']],
+        opacity: 0.85,
+        showscale: false,
+        hovertemplate: 'Full System<br>Noise: %{x}<br>Metric: %{y}<br>Count: %{z}<extra></extra>'
+    };
+
+    var surfaceAblation = {
+        type: 'surface',
+        x: x,
+        y: [0, 1, 2],
+        z: zAblation,
+        name: 'Ablation_d (no SABLE)',
+        colorscale: [[0, '#fca5a5'], [1, '#dc2626']],
+        opacity: 0.85,
+        showscale: false,
+        hovertemplate: 'Ablation_d<br>Noise: %{x}<br>Metric: %{y}<br>Count: %{z}<extra></extra>'
+    };
+
+    Plotly.newPlot('robustness-3d', [surfaceFull, surfaceAblation], {
+        font: { family: 'Inter, sans-serif', size: 11, color: '#1a1a2e' },
+        margin: { l: 10, r: 10, t: 30, b: 10 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        scene: {
+            xaxis: {
+                title: 'Noise Level',
+                tickvals: x,
+                ticktext: levels,
+                gridcolor: '#e5e7eb'
+            },
+            yaxis: {
+                title: 'Metric',
+                tickvals: [0, 1, 2],
+                ticktext: metrics,
+                gridcolor: '#e5e7eb'
+            },
+            zaxis: {
+                title: 'Count',
+                gridcolor: '#e5e7eb'
+            },
+            camera: {
+                eye: { x: 1.8, y: -1.6, z: 0.9 }
+            },
+            bgcolor: 'rgba(0,0,0,0)'
+        },
+        legend: {
+            x: 0.01,
+            y: 0.99,
+            bgcolor: 'rgba(255,255,255,0.85)',
+            bordercolor: '#e5e7eb',
+            borderwidth: 1
+        }
+    }, { responsive: true, displayModeBar: true });
+})();
+</script>
 {% endblock %}

@@ -1290,6 +1290,77 @@ details.demo-section > .test-set-grid {
 }
 
 /* ══════════════════════════════════════════
+   ABLATION TOGGLE
+   ══════════════════════════════════════════ */
+
+.ablation-toggle-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.toggle-label {
+    font-size: 0.92rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--green);
+    border-radius: 28px;
+    transition: background 0.3s ease;
+}
+
+.switch .slider::before {
+    content: '';
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.switch input:checked + .slider {
+    background: var(--red);
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(24px);
+}
+
+/* ══════════════════════════════════════════
    LIGHTBOX
    ══════════════════════════════════════════ */
 

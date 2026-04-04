@@ -163,8 +163,116 @@
     </div>
 </section>
 
+<!-- Belief Waterfall Chart -->
+<section class="page-section">
+    <h2>Belief Computation Waterfall</h2>
+    <div class="figure-card">
+        <h4>Step-by-step belief accumulation</h4>
+        <div style="margin-bottom:1rem;">
+            <label for="waterfall-rule-select" style="font-size:0.85rem;font-weight:600;margin-right:0.5rem;">Select rule:</label>
+            <select id="waterfall-rule-select" onchange="renderWaterfall(this.value)" style="padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;font-family:inherit;">
+                <option value="R001">R001 -- Building Height (belief=0.96, ASSESSABLE)</option>
+                <option value="C001">C001 -- Certificate Type (belief=0.56, PARTIAL)</option>
+                <option value="C005">C005 -- Trees/Landscape (belief=0.00, NOT ASSESSABLE)</option>
+            </select>
+        </div>
+        <div id="waterfall-chart" style="width:100%;height:420px"></div>
+        <p class="interpretation">
+            Each bar shows how one factor contributes to the final belief score. Blue bars represent
+            source reliability, green bars are extraction confidence, purple bars are semantic relevance,
+            and orange bars are concordance adjustments. The horizontal dashed line at 0.70 marks the
+            ASSESSABLE threshold -- only rules whose belief exceeds this line receive a definitive verdict.
+            Use the dropdown to compare well-evidenced rules (R001) with under-evidenced ones (C001, C005).
+        </p>
+    </div>
+</section>
+
 <div class="page-nav">
     <a href="/boundary" class="btn btn-secondary">&larr; Boundary Verification</a>
     <a href="/ablation" class="btn btn-primary">Next: Ablation Study &rarr;</a>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    var waterfallData = {
+        'R001': {
+            steps: ['Source Reliability<br>(OCR_LLM)', 'Extraction<br>Confidence', 'Semantic<br>Relevance', 'm(sufficient)', 'Dempster<br>Combination (2 src)', 'Concordance<br>(AGREED)'],
+            measures: ['relative', 'relative', 'relative', 'total', 'relative', 'total'],
+            values: [0.80, 0.0, 0.0, 0.80, 0.16, 0.96],
+            text: ['+0.80', '+0.00', '+0.00', '0.80', '+0.16', '0.96'],
+            colors: ['#2563eb', '#059669', '#7c3aed', '#64748b', '#2563eb', '#d97706']
+        },
+        'C001': {
+            steps: ['Source Reliability<br>(OCR_LLM)', 'Extraction<br>Confidence', 'Semantic<br>Relevance', 'm(sufficient)', 'Single Source<br>(no combination)', 'Concordance<br>(SINGLE: -0.24)'],
+            measures: ['relative', 'relative', 'relative', 'total', 'relative', 'total'],
+            values: [0.80, 0.0, 0.0, 0.80, 0.0, 0.56],
+            text: ['+0.80', '+0.00', '+0.00', '0.80', '+0.00', '0.56'],
+            colors: ['#2563eb', '#059669', '#7c3aed', '#64748b', '#64748b', '#d97706']
+        },
+        'C005': {
+            steps: ['No Evidence Found'],
+            measures: ['total'],
+            values: [0.0],
+            text: ['0.00'],
+            colors: ['#9ca3af']
+        }
+    };
+
+    window.renderWaterfall = function(ruleId) {
+        var d = waterfallData[ruleId];
+        var trace = {
+            type: 'waterfall',
+            orientation: 'v',
+            x: d.steps,
+            y: d.values,
+            measure: d.measures,
+            text: d.text,
+            textposition: 'outside',
+            textfont: { family: 'Inter, sans-serif', size: 12 },
+            connector: { line: { color: '#e5e7eb', width: 1, dash: 'dot' } },
+            increasing: { marker: { color: '#2563eb' } },
+            decreasing: { marker: { color: '#dc2626' } },
+            totals: { marker: { color: '#64748b' } }
+        };
+
+        var layout = {
+            font: { family: 'Inter, sans-serif', size: 12, color: '#1a1a2e' },
+            margin: { l: 60, r: 20, t: 30, b: 100 },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            yaxis: {
+                title: 'Belief Score',
+                range: [-0.05, 1.15],
+                gridcolor: '#f1f5f9',
+                zerolinecolor: '#e5e7eb'
+            },
+            xaxis: {
+                tickangle: 0
+            },
+            shapes: [{
+                type: 'line',
+                x0: -0.5,
+                x1: d.steps.length - 0.5,
+                y0: 0.70,
+                y1: 0.70,
+                line: { color: '#059669', width: 2, dash: 'dash' }
+            }],
+            annotations: [{
+                x: d.steps.length - 0.5,
+                y: 0.72,
+                text: 'ASSESSABLE threshold (0.70)',
+                showarrow: false,
+                font: { size: 11, color: '#059669', family: 'Inter, sans-serif' },
+                xanchor: 'right'
+            }]
+        };
+
+        Plotly.newPlot('waterfall-chart', [trace], layout, { responsive: true, displayModeBar: false });
+    };
+
+    renderWaterfall('R001');
+})();
+</script>
 {% endblock %}
