@@ -61,8 +61,8 @@
 
 **Effort:** 8-12 hours | **Impact:** +4 points
 
-### 3.2 Dashboard / Web UI
-Restore FastAPI + React dashboard showing: rule verdicts, belief intervals, missing evidence requests, boundary map.
+### 3.2 Dashboard / Web UI — **DONE** (2026-04-04)
+FastAPI + Jinja2 + SSE web interface built. Streams live pipeline execution: 8 stages, SABLE belief gauges, extraction/SNKG visualizations, reconciliation summary, verdict cards, ablation comparison, figures gallery. Run: `uvicorn planproof.web.app:app --port 8000`.
 
 **Effort:** 16-24 hours | **Impact:** +6 points
 

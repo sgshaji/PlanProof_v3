@@ -204,6 +204,36 @@ python scripts/run_ablation.py --config full_system --data-dir data/synthetic_di
 source .env && python scripts/run_extraction_eval.py --version v1
 ```
 
+### Research Demo Web UI
+
+A live FastAPI + Jinja2 web interface visualizes the 12-step pipeline in real time using Server-Sent Events (SSE). The UI streams extraction, SNKG population, reconciliation, assessability, and rule evaluation as it happens.
+
+**Features:**
+- File upload with document type auto-detection
+- Pre-loaded test set buttons (compliant, non-compliant, edge-case)
+- SABLE belief gauges for each rule
+- Extraction and SNKG graph visualizations
+- Reconciliation cross-document agreement
+- Three-state assessability badges (ASSESSABLE, PARTIALLY_ASSESSABLE, NOT_ASSESSABLE)
+- Verdict cards with evidence summaries
+- Ablation comparison matrix
+- Dissertation figures gallery
+
+**Run the demo:**
+
+```bash
+# Ensure API keys are set
+source .env
+
+# Start the web server
+uvicorn planproof.web.app:app --port 8000
+
+# Open in browser
+# http://localhost:8000
+```
+
+The demo runs the full live pipeline (no pre-computed results) — each rule evaluation, extraction step, and SNKG query executes in real time. This allows exploring how different components contribute to verdicts.
+
 ---
 
 ## Evaluation Infrastructure
@@ -257,8 +287,8 @@ All at 300 DPI in `figures/`:
 
 | Metric | Count |
 |--------|-------|
-| Total commits | ~170 |
-| Source files | 115 |
+| Total commits | 172 |
+| Source files | 118 |
 | Test files | 69 |
 | Tests collected | 917 |
 | Pipeline steps | 12 |
@@ -269,6 +299,7 @@ All at 300 DPI in `figures/`:
 | Real BCC datasets | 10 (anonymised, drawings only) |
 | INSPIRE cadastral parcels | 346,231 |
 | Dissertation figures | 15 |
+| Research demo web components | 6 (app.py, pipeline_runner.py, index.html, style.css, app.js, utils.js) |
 
 ---
 

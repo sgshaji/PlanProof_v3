@@ -26,6 +26,7 @@ PlanProof — Execution Status
 | Phase 9 | Boundary Verification Pipeline | **Complete** | 2026-04-03 | 2026-04-03 |
 | Enhancement Sprint | Research Rigour (P1.1–P1.4, P2.1–P2.4) | **Complete** | 2026-04-03 | 2026-04-03 |
 | DA1 | SNKG Spatial Containment Rule (C006) | **Complete** | 2026-04-04 | 2026-04-04 |
+| Research Demo UI | FastAPI + SSE Web Interface | **Complete** | 2026-04-04 | 2026-04-04 |
 | Write-up | Dissertation | In Progress | 2026-04-03 | — |
 
 ---

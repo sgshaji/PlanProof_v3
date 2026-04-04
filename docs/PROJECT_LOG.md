@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-04-04 — Research Demo Web UI: FastAPI + SSE Pipeline Visualization
+
+### Summary
+Built a live research demonstration web UI that visualizes the 12-step PlanProof pipeline in real time using Server-Sent Events (SSE). The interface streams extraction, SNKG population, reconciliation, assessability, and rule evaluation as it happens — no pre-computed results.
+
+### Components Built
+- **Backend:** `src/planproof/web/app.py` (FastAPI + Jinja2), `src/planproof/web/pipeline_runner.py` (SSE streaming)
+- **Frontend:** `src/planproof/web/templates/index.html`, `src/planproof/web/static/style.css`, `src/planproof/web/static/app.js`, `src/planproof/web/static/utils.js`
+
+### Features
+1. **File Upload** — document type auto-detection and ingestion
+2. **Pre-loaded Test Sets** — buttons for compliant, non-compliant, edge-case applications
+3. **Live Pipeline Streaming** — 8 major stages visible in sequence (classify, extract, boundary, normalise, graph, reconcile, assess, evaluate)
+4. **SABLE Belief Gauges** — rule-by-rule belief/plausibility visualizations
+5. **Extraction & SNKG Visualization** — extracted entities and knowledge graph structure
+6. **Reconciliation Badges** — cross-document agreement summary
+7. **Three-State Assessability** — ASSESSABLE, PARTIALLY_ASSESSABLE, NOT_ASSESSABLE indicators
+8. **Verdict Cards** — PASS/FAIL/NOT_ASSESSABLE with evidence summaries per rule
+9. **Ablation Comparison Matrix** — side-by-side comparison of all 7 configurations
+10. **Dissertation Figures Gallery** — 15 high-resolution evaluation figures
+
+### Usage
+```bash
+source .env
+uvicorn planproof.web.app:app --port 8000
+# Open http://localhost:8000
+```
+
+### Impact
+- **Research visibility** — the neurosymbolic pipeline is no longer a black box; viewers can observe how SABLE prevents false violations in real time
+- **Dissertation supplement** — interactive proof-of-concept demonstrates that the system works end-to-end with real (not synthetic-only) interaction patterns
+- **Knowledge transfer** — planning officers and council stakeholders can understand verdict reasoning directly
+- **Evaluation artifact** — demonstrates all 7 ablation configurations via single reusable UI
+
+### Project Stats Updated
+- New source files: 6 (`app.py`, `pipeline_runner.py`, `index.html`, `style.css`, `app.js`, `utils.js`)
+- Total commits: 172
+- Total source files: 118 (was 115)
+
+---
+
 ## 2026-04-04 — DA1: SNKG Spatial Containment Rule (C006)
 
 ### Summary
