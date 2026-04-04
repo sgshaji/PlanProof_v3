@@ -1,6 +1,7 @@
 """Pipeline runner for the web demo — yields stage results for SSE streaming."""
 from __future__ import annotations
 
+import json
 import os
 from collections import defaultdict
 from pathlib import Path
@@ -10,23 +11,78 @@ from planproof.infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 
+RUNS_DIR = Path("data/runs")
 
-def run_pipeline_stages(input_dir: Path) -> Generator[dict[str, Any], None, None]:
+
+def save_stage_result(job_id: str, stage_name: str, data: dict) -> None:
+    """Persist a single stage result to disk."""
+    stages_dir = RUNS_DIR / job_id / "stages"
+    stages_dir.mkdir(parents=True, exist_ok=True)
+    dest = stages_dir / f"{stage_name}.json"
+    dest.write_text(json.dumps(data, default=str, indent=2), encoding="utf-8")
+
+
+def save_run_summary(job_id: str, all_stages: list[dict]) -> None:
+    """Write summary.json with aggregate verdict counts."""
+    verdicts_stage = next(
+        (s for s in all_stages if s.get("stage") == "verdicts"), None
+    )
+    total = 0
+    pass_count = fail_count = pa_count = na_count = 0
+    if verdicts_stage:
+        for v in verdicts_stage.get("data", {}).get("verdicts", []):
+            total += 1
+            outcome = (v.get("outcome") or "").upper()
+            if outcome == "PASS":
+                pass_count += 1
+            elif outcome == "FAIL":
+                fail_count += 1
+            elif outcome == "PARTIALLY_ASSESSABLE":
+                pa_count += 1
+            elif outcome == "NOT_ASSESSABLE":
+                na_count += 1
+
+    summary = {
+        "job_id": job_id,
+        "total_rules": total,
+        "pass": pass_count,
+        "fail": fail_count,
+        "partially_assessable": pa_count,
+        "not_assessable": na_count,
+        "stages_completed": len(all_stages),
+    }
+    dest = RUNS_DIR / job_id / "summary.json"
+    dest.write_text(json.dumps(summary, default=str, indent=2), encoding="utf-8")
+
+
+def run_pipeline_stages(
+    input_dir: Path, job_id: str | None = None,
+) -> Generator[dict[str, Any], None, None]:
     """Run the full pipeline on input_dir, yielding one dict per stage.
 
     Each dict has: stage (str), title (str), data (dict with stage-specific results).
     """
     configs_dir = Path("configs")
+    all_stages: list[dict] = []
+
+    def _yield_and_save(result: dict) -> dict:
+        """Append to all_stages and optionally persist to disk."""
+        all_stages.append(result)
+        if job_id:
+            # Strip internal keys before saving
+            clean = {k: v for k, v in result.get("data", {}).items() if not k.startswith("_")}
+            save_stage_result(job_id, result["stage"], {**result, "data": clean})
+        return result
 
     # -- Stage 1: Classification --
-    yield _stage_classify(input_dir, configs_dir)
+    yield _yield_and_save(_stage_classify(input_dir, configs_dir))
 
     # Get classified docs for subsequent stages
     classified_docs = _classify_all(input_dir, configs_dir)
 
     # -- Stage 2: Extraction --
     extraction_result = _stage_extract(classified_docs, configs_dir)
-    yield extraction_result
+    yield _yield_and_save(extraction_result)
     entities = extraction_result.get("data", {}).get("_entities", [])
 
     # -- Stage 3: Normalisation (silent — merged into extraction output) --
@@ -36,21 +92,25 @@ def run_pipeline_stages(input_dir: Path) -> Generator[dict[str, Any], None, None
     entities = normaliser.normalise_all(entities)
 
     # -- Stage 4: SNKG Graph --
-    yield _stage_snkg(entities)
+    yield _yield_and_save(_stage_snkg(entities))
 
     # -- Stage 5: Reconciliation --
     reconciled, recon_result = _stage_reconcile(entities)
-    yield recon_result
+    yield _yield_and_save(recon_result)
 
     # -- Stage 6: SABLE Assessability --
     assessability_results, sable_result = _stage_sable(entities, reconciled, configs_dir)
-    yield sable_result
+    yield _yield_and_save(sable_result)
 
     # -- Stage 7: Rule Evaluation --
-    yield _stage_evaluate(assessability_results, reconciled, configs_dir)
+    yield _yield_and_save(_stage_evaluate(assessability_results, reconciled, configs_dir))
 
     # -- Stage 8: Ablation Comparison --
-    yield _stage_ablation_comparison()
+    yield _yield_and_save(_stage_ablation_comparison())
+
+    # Write summary after all stages complete
+    if job_id:
+        save_run_summary(job_id, all_stages)
 
 
 # ---------------------------------------------------------------------------

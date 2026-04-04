@@ -6,8 +6,98 @@
   const stagesEl = document.getElementById("pipeline-stages");
   const uploadZone = document.getElementById("upload-zone");
   const fileInput = document.getElementById("file-input");
+  const historyEl = document.getElementById("run-history");
 
   let stageCounter = 0;
+
+  // ── Run History ──
+
+  async function loadRunHistory() {
+    try {
+      const res = await fetch("/api/runs");
+      const data = await res.json();
+      if (!data.runs || data.runs.length === 0) {
+        historyEl.innerHTML =
+          '<p style="color: var(--text-muted); text-align: center; padding: 1rem;">No previous runs.</p>';
+        return;
+      }
+      let html = '<div class="run-history-grid">';
+      for (const run of data.runs) {
+        const sourceLabel = run.source_id || run.source_type || "";
+        const ts = run.timestamp ? timeAgo(run.timestamp) : "";
+        const summary = run.summary;
+        let summaryHtml = "";
+        if (summary) {
+          summaryHtml = `<div class="run-summary">PASS: ${summary.pass} | FAIL: ${summary.fail} | PA: ${summary.partially_assessable} | NA: ${summary.not_assessable}</div>`;
+        } else if (run.status === "pending") {
+          summaryHtml = '<div class="run-summary" style="color:var(--amber)">In progress...</div>';
+        }
+        html += `
+          <div class="run-card" onclick="loadRun('${escapeHtml(run.job_id)}')">
+            <div class="run-id">${escapeHtml(run.job_id)}</div>
+            <div class="run-meta">${escapeHtml(sourceLabel)} &bull; ${escapeHtml(ts)}</div>
+            ${summaryHtml}
+          </div>`;
+      }
+      html += "</div>";
+      historyEl.innerHTML = html;
+    } catch (_err) {
+      // Silently ignore — history is non-critical
+    }
+  }
+
+  window.loadRun = async function (jobId) {
+    stageCounter = 0;
+    stagesEl.innerHTML = "";
+    showLoading("Loading saved run " + jobId + "...");
+
+    try {
+      const res = await fetch("/api/runs/" + encodeURIComponent(jobId));
+      const data = await res.json();
+      if (data.error) {
+        removeLoading();
+        showError(data.error);
+        return;
+      }
+      removeLoading();
+
+      // Show job ID badge
+      const badge = document.createElement("div");
+      badge.className = "job-id-badge";
+      badge.textContent = "Job: " + jobId;
+      stagesEl.appendChild(badge);
+
+      // Render all saved stages
+      if (data.stages) {
+        for (const stage of data.stages) {
+          renderStage(stage);
+        }
+      }
+
+      stagesEl.insertAdjacentHTML(
+        "beforeend",
+        '<div class="complete-banner">Pipeline complete (loaded from history)</div>'
+      );
+    } catch (err) {
+      removeLoading();
+      showError("Failed to load run: " + err.message);
+    }
+  };
+
+  function timeAgo(isoStr) {
+    const diff = Date.now() - new Date(isoStr).getTime();
+    const seconds = Math.floor(diff / 1000);
+    if (seconds < 60) return seconds + "s ago";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return minutes + " min ago";
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + "h ago";
+    const days = Math.floor(hours / 24);
+    return days + "d ago";
+  }
+
+  // Load history on page load
+  loadRunHistory();
 
   // ── File Upload ──
 
@@ -82,6 +172,13 @@
   function connectSSE(runId) {
     stageCounter = 0;
     stagesEl.innerHTML = "";
+
+    // Show job ID badge
+    const badge = document.createElement("div");
+    badge.className = "job-id-badge";
+    badge.textContent = "Job: " + runId;
+    stagesEl.appendChild(badge);
+
     showLoading("Running pipeline...");
 
     const source = new EventSource("/api/stream/" + runId);
@@ -103,6 +200,7 @@
           '<div class="complete-banner">Pipeline complete</div>'
         );
         source.close();
+        loadRunHistory();
         return;
       }
 

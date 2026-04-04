@@ -4,13 +4,15 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import AsyncGenerator
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Request, UploadFile
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -29,8 +31,33 @@ if _figures_dir.exists():
 
 templates = Jinja2Templates(directory=WEB_DIR / "templates")
 
+# Persistent run storage
+RUNS_DIR = Path("data/runs")
+RUNS_DIR.mkdir(parents=True, exist_ok=True)
+
 # Store active pipeline runs
 _runs: dict[str, dict] = {}
+
+
+def _generate_job_id() -> str:
+    """Generate a job ID in RUN-{8hex} format."""
+    return f"RUN-{uuid.uuid4().hex[:8]}"
+
+
+def _save_metadata(job_id: str, metadata: dict) -> None:
+    """Write metadata.json for a run."""
+    run_dir = RUNS_DIR / job_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    dest = run_dir / "metadata.json"
+    dest.write_text(json.dumps(metadata, default=str, indent=2), encoding="utf-8")
+
+
+def _load_json(path: Path) -> dict | list | None:
+    """Load a JSON file, returning None on failure."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -68,16 +95,24 @@ async def index(request: Request):
 @app.post("/api/upload")
 async def upload_files(files: list[UploadFile] = File(...)):
     """Upload files and return a run_id."""
-    run_id = str(uuid.uuid4())[:8]
-    upload_dir = Path(tempfile.mkdtemp(prefix=f"planproof_{run_id}_"))
+    job_id = _generate_job_id()
+    upload_dir = Path(tempfile.mkdtemp(prefix=f"planproof_{job_id}_"))
 
     for f in files:
         dest = upload_dir / f.filename
         content = await f.read()
         dest.write_bytes(content)
 
-    _runs[run_id] = {"input_dir": str(upload_dir), "status": "pending"}
-    return {"run_id": run_id, "file_count": len(files)}
+    _runs[job_id] = {"input_dir": str(upload_dir), "status": "pending"}
+    _save_metadata(job_id, {
+        "job_id": job_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "source_type": "upload",
+        "source_id": ", ".join(f.filename for f in files),
+        "input_dir": str(upload_dir),
+        "status": "pending",
+    })
+    return {"run_id": job_id, "file_count": len(files)}
 
 
 @app.get("/api/run-test-set/{set_id}")
@@ -86,9 +121,17 @@ async def run_test_set(set_id: str):
     for category in ["compliant", "non_compliant", "edge_case", "noncompliant"]:
         candidate = Path("data/synthetic_diverse") / category / set_id
         if candidate.exists():
-            run_id = str(uuid.uuid4())[:8]
-            _runs[run_id] = {"input_dir": str(candidate), "status": "pending"}
-            return {"run_id": run_id}
+            job_id = _generate_job_id()
+            _runs[job_id] = {"input_dir": str(candidate), "status": "pending"}
+            _save_metadata(job_id, {
+                "job_id": job_id,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "source_type": "test_set",
+                "source_id": set_id,
+                "input_dir": str(candidate),
+                "status": "pending",
+            })
+            return {"run_id": job_id}
     return {"error": f"Test set {set_id} not found"}
 
 
@@ -106,7 +149,8 @@ async def stream_pipeline(run_id: str):
 
     async def event_stream() -> AsyncGenerator[str, None]:
         input_dir = Path(run["input_dir"])
-        for stage_result in run_pipeline_stages(input_dir):
+        start_time = time.monotonic()
+        for stage_result in run_pipeline_stages(input_dir, job_id=run_id):
             # Strip internal keys (non-serializable objects)
             data = stage_result.get("data", {})
             clean_data = {k: v for k, v in data.items() if not k.startswith("_")}
@@ -116,9 +160,79 @@ async def stream_pipeline(run_id: str):
                 "data": clean_data,
             }
             yield f"data: {json.dumps(payload, default=str)}\n\n"
+
+        # Update metadata with completion status
+        duration = round(time.monotonic() - start_time, 1)
+        meta_path = RUNS_DIR / run_id / "metadata.json"
+        if meta_path.exists():
+            meta = _load_json(meta_path) or {}
+            meta["status"] = "complete"
+            meta["duration_seconds"] = duration
+            meta_path.write_text(
+                json.dumps(meta, default=str, indent=2), encoding="utf-8"
+            )
+
         yield f"data: {json.dumps({'stage': 'complete', 'message': 'Pipeline finished'})}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+@app.get("/api/runs")
+async def list_runs():
+    """List all historical runs, sorted by timestamp descending."""
+    runs: list[dict] = []
+    if RUNS_DIR.exists():
+        for run_dir in RUNS_DIR.iterdir():
+            if not run_dir.is_dir():
+                continue
+            meta_path = run_dir / "metadata.json"
+            meta = _load_json(meta_path) if meta_path.exists() else None
+            if meta:
+                # Attach summary if available
+                summary_path = run_dir / "summary.json"
+                if summary_path.exists():
+                    meta["summary"] = _load_json(summary_path)
+                runs.append(meta)
+
+    runs.sort(key=lambda r: r.get("timestamp", ""), reverse=True)
+    return {"runs": runs[:50]}
+
+
+@app.get("/api/runs/{job_id}")
+async def get_run(job_id: str):
+    """Get full results for a specific historical run."""
+    run_dir = RUNS_DIR / job_id
+    if not run_dir.exists():
+        return JSONResponse({"error": "Run not found"}, status_code=404)
+
+    meta = _load_json(run_dir / "metadata.json") or {}
+    summary = _load_json(run_dir / "summary.json")
+    stages: list[dict] = []
+
+    stages_dir = run_dir / "stages"
+    if stages_dir.exists():
+        # Ordered by pipeline sequence
+        stage_order = [
+            "classification", "extraction", "snkg",
+            "reconciliation", "sable", "verdicts", "ablation",
+        ]
+        for name in stage_order:
+            stage_file = stages_dir / f"{name}.json"
+            if stage_file.exists():
+                stage_data = _load_json(stage_file)
+                if stage_data:
+                    stages.append(stage_data)
+
+    return {"metadata": meta, "summary": summary, "stages": stages}
+
+
+@app.get("/api/runs/{job_id}/stage/{stage_name}")
+async def get_run_stage(job_id: str, stage_name: str):
+    """Get a specific stage's data for a historical run."""
+    stage_file = RUNS_DIR / job_id / "stages" / f"{stage_name}.json"
+    if not stage_file.exists():
+        return JSONResponse({"error": "Stage not found"}, status_code=404)
+    return _load_json(stage_file)
 
 
 @app.get("/api/figures")

@@ -183,6 +183,67 @@ body {
 .cat-non_compliant { color: var(--red); }
 .cat-edge_case { color: var(--amber); }
 
+/* ── Job ID Badge ── */
+
+.job-id-badge {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 0.3rem 0.85rem;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    letter-spacing: 0.3px;
+    margin-bottom: 1rem;
+}
+
+/* ── Run History ── */
+
+.run-history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.run-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow);
+}
+
+.run-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.run-id {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    margin-bottom: 0.2rem;
+}
+
+.run-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+}
+
+.run-summary {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.2px;
+}
+
 /* ── Pipeline Stages ── */
 
 #pipeline-stages {

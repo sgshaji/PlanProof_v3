@@ -48,3 +48,6 @@ data/synthetic/
 
 # Experiment results (regeneratable)
 data/results/
+
+# Persistent run history (regeneratable)
+data/runs/
