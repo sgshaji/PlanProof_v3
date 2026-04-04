@@ -202,6 +202,56 @@
 
 ---
 
+## Key Decisions & Tradeoffs
+
+### Architecture
+
+| Decision | Rationale | Alternative considered | Why rejected |
+|---|---|---|---|
+| **Protocols over ABCs** | Structural subtyping — no inheritance coupling; components swappable at runtime for ablation | Abstract base classes | ABCs force inheritance hierarchies; Protocols enable duck typing + static checking |
+| **Composition root (bootstrap.py)** | Single file wires all dependencies; business logic never imports concrete types | Service locator pattern | Service locator hides dependencies; composition root makes them explicit |
+| **YAML-driven rules** | New compliance rules = config only, no code changes | Hardcoded rule classes | Hardcoded rules require code changes + redeployment for each new regulation |
+| **Frozen dataclasses for data models** | Immutability prevents mutation bugs across pipeline stages | Mutable Pydantic models | Pydantic for config (needs validation); frozen dataclasses for runtime data (needs safety) |
+
+### Algorithm
+
+| Decision | Rationale | Alternative considered | Why rejected |
+|---|---|---|---|
+| **Dempster-Shafer over Bayesian** | D-S handles ignorance explicitly (m(Theta)); Bayesian forces prior specification | Bayesian posterior updating | Planning evidence is sparse — no meaningful prior exists; D-S ignorance mass is more honest |
+| **Three-state assessability** | NOT_ASSESSABLE prevents false verdicts on insufficient evidence | Binary PASS/FAIL only | Binary forces guessing when evidence is missing — the root cause of false violations |
+| **PARTIALLY_ASSESSABLE** | Evidence present but contested; belief between thresholds | Only ASSESSABLE/NOT_ASSESSABLE | Two states lose information about borderline cases; three states enable nuanced reporting |
+| **Weakest-link aggregation** | Overall assessability limited by weakest evidence requirement | Average or product aggregation | Average hides weak links; weakest-link is conservative and interpretable |
+| **Semantic similarity for attribute matching** | Embedding cosine similarity resolves "height" ↔ "building_height" | Exact string matching | Exact matching fails on LLM-returned attribute name variations |
+
+### Evaluation
+
+| Decision | Rationale | Alternative considered | Why rejected |
+|---|---|---|---|
+| **Oracle extraction for ablation** | Isolates reasoning layer contribution; no extraction noise in measurement | End-to-end with real extraction | E2E conflates extraction quality with reasoning quality; oracle is cleaner science |
+| **Synthetic data for evaluation** | Full control over ground truth; deterministic; reproducible | Real BCC data only | BCC data has no forms, no ground truth verdicts; can't measure accuracy without GT |
+| **Robustness curves with NoisyEntityTransformer** | Tests SABLE under controlled degradation; simulates real extraction noise | Only test with real LLM extraction | Real extraction is noisy but uncontrolled; NoisyTransformer gives systematic degradation curves |
+| **McNemar over chi-squared** | Paired test on same data; accounts for per-sample correlation | Independent chi-squared test | Chi-squared assumes independence; our configs share the same test sets |
+
+### Infrastructure
+
+| Decision | Rationale | Alternative considered | Why rejected |
+|---|---|---|---|
+| **Groq (free) over OpenAI for LLM** | Free tier enables unlimited ablation runs; cached responses | OpenAI GPT-4 for all extraction | Cost: ablation study needs hundreds of runs; Groq free tier + cache = $0 |
+| **GPT-4o for VLM** | Best available vision model for architectural drawings | Open-source VLM (LLaVA) | GPT-4o significantly better at structured JSON extraction from drawings |
+| **Pure Python INSPIRE parser** | geopandas/fiona/shapely fail on ARM64 Windows | geopandas + shapely | ARM64 dependency failure; pure Python with shoelace formula is sufficient for area + centroid |
+| **FlatEvidenceProvider as SNKG fallback** | Enables ablation_b (no graph) and testing without Neo4j | Require Neo4j always | Graph dependency would block all testing when Neo4j is unavailable |
+| **Neo4j Aura (free cloud)** | Zero local infrastructure; accessible from any machine | Local Neo4j Docker | Docker not available on ARM64 Windows dev machine; Aura free tier is sufficient |
+
+### Data
+
+| Decision | Rationale | Alternative considered | Why rejected |
+|---|---|---|---|
+| **33 test sets (not 50+)** | Sufficient for McNemar statistical test; balanced across categories | Larger corpus | Diminishing returns — McNemar p<0.0001 with 33 sets; more sets don't change significance |
+| **9 rules (not 40+)** | Covers all evaluator types (numeric, ratio, enum, fuzzy, tolerance, diff, boundary, spatial); demonstrates extensibility | Full BCC rule set | 40+ rules requires domain expertise to define thresholds; 9 rules prove the architecture |
+| **BCC drawings anonymised without forms** | PII in forms requires careful handling; drawings are safe | Include forms with PII redaction | Time constraint; redaction process not established; drawings sufficient for VLM testing |
+
+---
+
 ## Project Summary
 
 | Metric | Count |
