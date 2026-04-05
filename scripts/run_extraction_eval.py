@@ -85,6 +85,17 @@ def _parse_args() -> argparse.Namespace:
         help="Directory containing configuration files (e.g. classifier_patterns.yaml).",
     )
     parser.add_argument(
+        "--docs-dir",
+        type=Path,
+        default=None,
+        help=(
+            "Separate directory containing the actual PDF/image documents. "
+            "When set, ground truth is read from --data-dir but documents are "
+            "loaded from --docs-dir/<set_name>/. Useful for BCC evaluation "
+            "where ground truth is in data/annotated/ but documents are in data/raw/."
+        ),
+    )
+    parser.add_argument(
         "--all-sets",
         action="store_true",
         help="Run all discovered test sets instead of the default 5.",
@@ -322,20 +333,10 @@ def _extract_from_document(
         entities = extractor.extract_entities(raw_text, doc_type=doc_type)
 
     elif doc_type == "DRAWING" or is_image:
-        # Vision path: VLM spatial extractor
+        # Vision path: VLM spatial extractor (handles both images and PDF drawings)
         if vlm_client is None:
             _log.warning(
                 "Skipping VLM extraction for %s — no VLM client.", doc_path.name
-            )
-            return []
-
-        if not is_image:
-            # For PDF drawings we need to rasterise first — warn and skip if
-            # the rasteriser is unavailable; don't hard-fail the whole run.
-            _log.warning(
-                "VLM extraction for PDF drawings requires rasterisation; "
-                "skipping %s. Convert to PNG first.",
-                doc_path.name,
             )
             return []
 
@@ -450,8 +451,15 @@ def run_set(
     llm_client: Any | None,
     vlm_client: Any | None,
     prompts_dir: Path,
+    docs_dir: Path | None = None,
 ) -> dict[str, float] | None:
     """Process a single test set end-to-end.
+
+    Args:
+        docs_dir: If set, documents are loaded from ``docs_dir/<set_name>/``
+            instead of from *test_set_dir*.  Ground truth is always read from
+            *test_set_dir*.  This supports BCC evaluation where ground truth
+            lives in ``data/annotated/`` and documents in ``data/raw/``.
 
     Returns a dict with recall/precision/value_accuracy on success, or None on
     unrecoverable error.
@@ -462,10 +470,16 @@ def run_set(
     set_id = test_set_dir.name
     _log.info("--- Processing set: %s ---", set_id)
 
-    # Load ground truth
+    # Load ground truth from the annotation directory
     ground_truth = load_ground_truth(test_set_dir)
     gt_entities = _gt_entities_from_ground_truth(ground_truth)
     _log.info("Ground truth entities: %d", len(gt_entities))
+
+    # Determine where documents live
+    doc_search_dir = (docs_dir / set_id) if docs_dir else test_set_dir
+    if not doc_search_dir.is_dir():
+        _log.warning("Document directory does not exist: %s", doc_search_dir)
+        return None
 
     # Build classifier (per-set so the patterns file path is resolved cleanly)
     patterns_path = configs_dir / "classifier_patterns.yaml"
@@ -473,7 +487,7 @@ def run_set(
 
     # Run extraction over all documents in the set
     predicted_entities = _run_extraction_on_set(
-        test_set_dir=test_set_dir,
+        test_set_dir=doc_search_dir,
         classifier=classifier,
         llm_client=llm_client,
         vlm_client=vlm_client,
@@ -584,6 +598,7 @@ def main() -> None:
     output_dir: Path = args.output_dir
     configs_dir: Path = args.configs_dir
     version: str = args.version
+    docs_dir: Path | None = args.docs_dir
     prompts_dir = configs_dir / "prompts"
 
     if not data_dir.is_dir():
@@ -632,6 +647,7 @@ def main() -> None:
                 llm_client=llm_client,
                 vlm_client=vlm_client,
                 prompts_dir=prompts_dir,
+                docs_dir=docs_dir,
             )
             if metrics is not None:
                 results.append((test_set_dir.name, metrics))

@@ -1,8 +1,8 @@
 PlanProof — Execution Status
 
-> **Last updated**: 2026-04-04
+> **Last updated**: 2026-04-05
 > **Current phase**: Write-up (Dissertation)
-> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). **Phase 8b complete** (Architectural Polish — @runtime_checkable, XML prompt wrapping, graceful degradation). **Phase 8c complete** (Extraction Evaluation — accuracy metrics, v1/v2 prompt comparison, 2×2 false-FAIL matrix, error attribution, 4 new dissertation figures). **Phase 9 complete** (Three-Tier Boundary Verification Pipeline — INSPIRE GML parser, VLM visual alignment, scale-bar measurement, INSPIRE polygon cross-reference, C005 rule, BoundaryVerificationEvaluator). **Enhancement Sprint complete** (P1.1–P1.4 + P2.1–P2.4 — robustness curves, noncompliant corpus expansion, statistical rigour, extraction eval v3, threshold sensitivity, CoT baseline comparison, SABLE formal properties, BCC partial annotation). **DA1 complete** (SNKG Spatial Containment Rule C006 — Neo4j graph traversal, ablation_b now differs from full_system: 33 additional PASS verdicts, neurosymbolic claim validated). All implementation and evaluation work done. Dissertation write-up in progress.
+> **Overall status**: Phases 0–6 complete. **Phase 7 complete** (Ablation Study & Evaluation — SABLE algorithm, D-S evidence theory, ablation experiments). **Phase 7b complete** (Critical bug fixes — assessability wiring, rule_id propagation). **Phase 8a complete** (Evaluation Enrichment — enriched datagen, SABLE metrics, dissertation visualisations, error analysis). **Phase 8b complete** (Architectural Polish — @runtime_checkable, XML prompt wrapping, graceful degradation). **Phase 8c complete** (Extraction Evaluation — accuracy metrics, v1/v2 prompt comparison, 2×2 false-FAIL matrix, error attribution, 4 new dissertation figures). **Phase 9 complete** (Three-Tier Boundary Verification Pipeline — INSPIRE GML parser, VLM visual alignment, scale-bar measurement, INSPIRE polygon cross-reference, C005 rule, BoundaryVerificationEvaluator). **Enhancement Sprint complete** (P1.1–P1.4 + P2.1–P2.4 — robustness curves, noncompliant corpus expansion, statistical rigour, extraction eval v3, threshold sensitivity, CoT baseline comparison, SABLE formal properties, BCC partial annotation). **DA1 complete** (SNKG Spatial Containment Rule C006 — Neo4j graph traversal, ablation_b now differs from full_system: 33 additional PASS verdicts, neurosymbolic claim validated). **Real BCC Extraction Eval complete** (2026-04-05 — 9 real BCC forms, recall=93.3%, value accuracy=86.7%, comprehensive datagen fix for all 8 assessable rules). **Classifier & VLM PDF fix complete** (2026-04-05 — content-based classifier correctly routes drawing PDFs; VLM extracts measurements from PDF drawings via page-to-image conversion; building_height, ridge_height, room_dimensions, site_area etc. now extracted from real BCC drawings). Dissertation write-up in progress.
 
 ---
 
@@ -27,6 +27,11 @@ PlanProof — Execution Status
 | Enhancement Sprint | Research Rigour (P1.1–P1.4, P2.1–P2.4) | **Complete** | 2026-04-03 | 2026-04-03 |
 | DA1 | SNKG Spatial Containment Rule (C006) | **Complete** | 2026-04-04 | 2026-04-04 |
 | Research Demo UI | FastAPI + SSE Web Interface | **Complete** | 2026-04-04 | 2026-04-04 |
+| Real BCC Eval | Extraction Eval on 9 Real BCC Forms | **Complete** | 2026-04-05 | 2026-04-05 |
+| Datagen V2 | Comprehensive Synthetic Data (all 8 rules fire) | **Complete** | 2026-04-05 | 2026-04-05 |
+| Classifier Fix | Content-based classification (replaces filename) | **Complete** | 2026-04-05 | 2026-04-05 |
+| VLM PDF Support | PDF drawing → image → GPT-4o VLM extraction | **Complete** | 2026-04-05 | 2026-04-05 |
+| Combined Eval | Merge LLM forms + VLM drawings, enrich GT | **Pending** | — | — |
 | Write-up | Dissertation | In Progress | 2026-04-03 | — |
 
 ---

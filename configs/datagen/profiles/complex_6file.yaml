@@ -22,6 +22,8 @@ document_composition:
   - type: DRAWING
     subtypes: [floor_plan]
     count: 1
+  - type: EXTERNAL_DATA
+    count: 1
 
 difficulty: high
 degradation_preset: heavy_scan

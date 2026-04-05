@@ -93,6 +93,7 @@ def _build_registry() -> DocumentGeneratorRegistry:
     # because it handles the most common drawing type (site plan).
     """
     from planproof.datagen.rendering.elevation_generator import ElevationGenerator
+    from planproof.datagen.rendering.external_data_generator import ExternalDataGenerator
     from planproof.datagen.rendering.floor_plan_generator import FloorPlanGenerator
     from planproof.datagen.rendering.form_generator import FormGenerator
     from planproof.datagen.rendering.registry import DocumentGeneratorRegistry
@@ -103,10 +104,12 @@ def _build_registry() -> DocumentGeneratorRegistry:
     # WHY: Register by subtype string so the runner can dispatch DRAWING
     # documents to different generators based on DocumentSpec.subtype.
     # FORM has no subtype, so we register it under "FORM".
+    # EXTERNAL_DATA has no subtype either, so register under "EXTERNAL_DATA".
     registry.register("FORM", FormGenerator())
     registry.register("site_plan", SitePlanGenerator())
     registry.register("floor_plan", FloorPlanGenerator())
     registry.register("elevation", ElevationGenerator())
+    registry.register("EXTERNAL_DATA", ExternalDataGenerator())
 
     return registry
 

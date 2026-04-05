@@ -11,12 +11,17 @@ user_message_template: |
 
   Target attributes (extract ONLY these):
   - site_address (ADDRESS): the site/property address for the development
+  - form_address (ADDRESS): the formal application address as printed on the form (may differ from site_address)
+  - site_location (ADDRESS): the area/suburb name where the site is located (e.g. Edgbaston, Moseley)
   - building_height (MEASUREMENT): proposed building height in metres
   - rear_garden_depth (MEASUREMENT): rear garden depth after development in metres
   - site_coverage (MEASUREMENT): site coverage percentage (built footprint as % of site area)
   - building_footprint_area (MEASUREMENT): building footprint area in square metres
   - total_site_area (MEASUREMENT): total site area in square metres
+  - stated_site_area (MEASUREMENT): stated site area in square metres (may appear as "Stated Site Area")
   - certificate_type (CERTIFICATE): ownership certificate type — one of A, B, C, or D
+  - ownership_declaration (OWNERSHIP): ownership declaration type — sole_owner, part_owner, or other
+  - zone_category (ZONE): planning zone classification — e.g. residential, suburban_residential
 
   Do NOT extract applicant names, agent names, agent addresses, flood zones,
   conservation areas, floor areas, or any other attributes not listed above.
@@ -54,14 +59,28 @@ output_schema:
 few_shot_examples:
   - input: |
       Page 1: Site Address: 42 Oak Lane, Bristol, BS3 4QR
+      Form Address: 42 Oak Lane, Bristol, BS3 4QR
+      Site Location: Edgbaston
+      Zone Classification: residential
       Applicant: John Smith
       Certificate of Ownership: Certificate A
+      Ownership Declaration: sole_owner
       Page 3: Proposed building height: 6.8m
       Rear garden depth after development: 11.2m
+      Stated Site Area: 450m²
+      Building Footprint Area: 120m²
+      Total Site Area: 450m²
     output: |
       {"entities": [
         {"entity_type": "ADDRESS", "attribute": "site_address", "value": "42 Oak Lane, Bristol, BS3 4QR", "unit": null, "source_page": 1},
+        {"entity_type": "ADDRESS", "attribute": "form_address", "value": "42 Oak Lane, Bristol, BS3 4QR", "unit": null, "source_page": 1},
+        {"entity_type": "ADDRESS", "attribute": "site_location", "value": "Edgbaston", "unit": null, "source_page": 1},
+        {"entity_type": "ZONE", "attribute": "zone_category", "value": "residential", "unit": null, "source_page": 1},
         {"entity_type": "CERTIFICATE", "attribute": "certificate_type", "value": "A", "unit": null, "source_page": 1},
+        {"entity_type": "OWNERSHIP", "attribute": "ownership_declaration", "value": "sole_owner", "unit": null, "source_page": 1},
         {"entity_type": "MEASUREMENT", "attribute": "building_height", "value": 6.8, "unit": "metres", "source_page": 3},
-        {"entity_type": "MEASUREMENT", "attribute": "rear_garden_depth", "value": 11.2, "unit": "metres", "source_page": 3}
+        {"entity_type": "MEASUREMENT", "attribute": "rear_garden_depth", "value": 11.2, "unit": "metres", "source_page": 3},
+        {"entity_type": "MEASUREMENT", "attribute": "stated_site_area", "value": 450.0, "unit": "square_metres", "source_page": 3},
+        {"entity_type": "MEASUREMENT", "attribute": "building_footprint_area", "value": 120.0, "unit": "square_metres", "source_page": 3},
+        {"entity_type": "MEASUREMENT", "attribute": "total_site_area", "value": 450.0, "unit": "square_metres", "source_page": 3}
       ]}

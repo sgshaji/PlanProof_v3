@@ -1,29 +1,29 @@
 {
-  "set_id": "2025 00867 PA Held",
+  "set_id": "2025 00532 PA Held",
   "category": "real_bcc",
   "seed": 0,
   "difficulty": "real",
   "values": [
     {
       "attribute": "site_address",
-      "value": "20 Twyning Road, Birmingham, B30 2XY",
+      "value": "15 Purley Grove, Birmingham, B23 7TX",
       "unit": null,
-      "display_text": "20 Twyning Road, Birmingham, B30 2XY",
-      "str_value": "20 Twyning Road, Birmingham, B30 2XY"
+      "display_text": "15 Purley Grove, Birmingham, B23 7TX",
+      "str_value": "15 Purley Grove, Birmingham, B23 7TX"
     },
     {
       "attribute": "form_address",
-      "value": "20 Twyning Road, Birmingham, B30 2XY",
+      "value": "15 Purley Grove, Birmingham, B23 7TX",
       "unit": null,
-      "display_text": "20 Twyning Road, Birmingham, B30 2XY",
-      "str_value": "20 Twyning Road, Birmingham, B30 2XY"
+      "display_text": "15 Purley Grove, Birmingham, B23 7TX",
+      "str_value": "15 Purley Grove, Birmingham, B23 7TX"
     },
     {
       "attribute": "site_location",
-      "value": "Bournville",
+      "value": "Erdington",
       "unit": null,
-      "display_text": "Bournville",
-      "str_value": "Bournville"
+      "display_text": "Erdington",
+      "str_value": "Erdington"
     },
     {
       "attribute": "certificate_type",
@@ -41,47 +41,29 @@
     },
     {
       "attribute": "drawing_address",
-      "value": "20 Twyning Road, Bournville, Birmingham, B30 2XY",
+      "value": "15 Purley Grove, Birmingham, B23 7TX",
       "unit": null,
-      "display_text": "20 Twyning Road, Bournville, Birmingham, B30 2XY",
-      "str_value": "20 Twyning Road, Bournville, Birmingham, B30 2XY"
+      "display_text": "15 Purley Grove, Birmingham, B23 7TX",
+      "str_value": "15 Purley Grove, Birmingham, B23 7TX"
     },
     {
-      "attribute": "building_height",
-      "value": 8.5,
+      "attribute": "boundary_lengths",
+      "value": 26,
       "unit": "metres",
-      "display_text": "8.5"
-    },
-    {
-      "attribute": "ridge_height",
-      "value": 8.5,
-      "unit": "metres",
-      "display_text": "8.5"
-    },
-    {
-      "attribute": "eave_height",
-      "value": 5.0,
-      "unit": "metres",
-      "display_text": "5.0"
-    },
-    {
-      "attribute": "floor_area",
-      "value": 14.0,
-      "unit": "square_metres",
-      "display_text": "14.0"
+      "display_text": "26"
     }
   ],
   "rule_verdicts": [],
   "documents": [
     {
-      "filename": "6132914-Forms-Planning Application Form.pdf",
+      "filename": "6125163-Forms-Planning Application Form.pdf",
       "doc_type": "FORM",
       "file_format": "pdf",
       "extractions": [
         {
           "attribute": "site_address",
-          "value": "20 Twyning Road, Birmingham, B30 2XY",
-          "text_rendered": "20 Twyning Road, Birmingham, B30 2XY",
+          "value": "15 Purley Grove, Birmingham, B23 7TX",
+          "text_rendered": "15 Purley Grove, Birmingham, B23 7TX",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -94,8 +76,8 @@
         },
         {
           "attribute": "form_address",
-          "value": "20 Twyning Road, Birmingham, B30 2XY",
-          "text_rendered": "20 Twyning Road, Birmingham, B30 2XY",
+          "value": "15 Purley Grove, Birmingham, B23 7TX",
+          "text_rendered": "15 Purley Grove, Birmingham, B23 7TX",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -108,8 +90,8 @@
         },
         {
           "attribute": "site_location",
-          "value": "Bournville",
-          "text_rendered": "Bournville",
+          "value": "Erdington",
+          "text_rendered": "Erdington",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -150,8 +132,8 @@
         },
         {
           "attribute": "drawing_address",
-          "value": "20 Twyning Road, Bournville, Birmingham, B30 2XY",
-          "text_rendered": "20 Twyning Road, Bournville, Birmingham, B30 2XY",
+          "value": "15 Purley Grove, Birmingham, B23 7TX",
+          "text_rendered": "15 Purley Grove, Birmingham, B23 7TX",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -171,8 +153,8 @@
       "extractions": [
         {
           "attribute": "drawing_address",
-          "value": "20 Twyning Road, Bournville, Birmingham, B30 2XY",
-          "text_rendered": "20 Twyning Road, Bournville, Birmingham, B30 2XY",
+          "value": "15 Purley Grove, Birmingham, B23 7TX",
+          "text_rendered": "15 Purley Grove, Birmingham, B23 7TX",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -184,51 +166,9 @@
           "entity_type": "ADDRESS"
         },
         {
-          "attribute": "building_height",
-          "value": 8.5,
-          "text_rendered": "8.5",
-          "page": 1,
-          "bounding_box": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0,
-            "page": 1
-          },
-          "entity_type": "MEASUREMENT"
-        },
-        {
-          "attribute": "ridge_height",
-          "value": 8.5,
-          "text_rendered": "8.5",
-          "page": 1,
-          "bounding_box": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0,
-            "page": 1
-          },
-          "entity_type": "MEASUREMENT"
-        },
-        {
-          "attribute": "eave_height",
-          "value": 5.0,
-          "text_rendered": "5.0",
-          "page": 1,
-          "bounding_box": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0,
-            "page": 1
-          },
-          "entity_type": "MEASUREMENT"
-        },
-        {
-          "attribute": "floor_area",
-          "value": 14.0,
-          "text_rendered": "14.0",
+          "attribute": "boundary_lengths",
+          "value": 26,
+          "text_rendered": "26",
           "page": 1,
           "bounding_box": {
             "x": 0,

@@ -54,3 +54,11 @@ evidence_locations:
     field: building_footprint_area
   - doc_type: FORM
     field: total_site_area
+  - doc_type: DRAWING
+    drawing_type: site_plan
+    annotation: building_footprint_area
+  - doc_type: DRAWING
+    drawing_type: site_plan
+    annotation: total_site_area
+  - doc_type: FORM
+    field: zone_category

@@ -10,6 +10,14 @@ violation_types:
     range: { min: 0.0, max: 0.0 }
 valid_values: ["false"]
 invalid_values: ["true"]
+extra_attributes:
+  - attribute: site_location
+    unit: categorical
+    type: companion
+    valid_values: ["Edgbaston", "Moseley", "Harborne", "Selly Oak", "Kings Heath"]
+    invalid_values: []
 evidence_locations:
   - doc_type: EXTERNAL_DATA
     field: conservation_area_status
+  - doc_type: FORM
+    field: site_location

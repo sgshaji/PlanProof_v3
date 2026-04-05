@@ -47,6 +47,7 @@ class DocumentType(StrEnum):
     DRAWING = "DRAWING"
     REPORT = "REPORT"
     CERTIFICATE = "CERTIFICATE"
+    EXTERNAL_DATA = "EXTERNAL_DATA"
     OTHER = "OTHER"
 
 

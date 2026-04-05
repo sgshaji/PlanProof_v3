@@ -41,7 +41,10 @@ _MIME_MAP: dict[str, str] = {
     "jpg": "jpeg",
     "jpeg": "jpeg",
     "tiff": "tiff",
+    "pdf": "pdf",
 }
+
+_PDF_EXTENSIONS: frozenset[str] = frozenset({".pdf"})
 
 
 class VLMSpatialExtractor:
@@ -70,7 +73,10 @@ class VLMSpatialExtractor:
     # ------------------------------------------------------------------
 
     def extract_spatial_attributes(self, image: Path) -> list[ExtractedEntity]:
-        """Extract spatial entities from *image*.
+        """Extract spatial entities from an image or PDF drawing.
+
+        For PDF files, each page is converted to a PNG image using pdfplumber
+        and sent to the VLM individually. Results from all pages are merged.
 
         Raises:
             FileNotFoundError: if *image* does not exist on disk.
@@ -79,12 +85,71 @@ class VLMSpatialExtractor:
             msg = f"Image not found: {image}"
             raise FileNotFoundError(msg)
 
+        # Handle PDF drawings by converting pages to images
+        if image.suffix.lower() in _PDF_EXTENSIONS:
+            return self._extract_from_pdf(image)
+
         subtype = self._infer_subtype(image)
 
         if self._method == "zeroshot":
             return self._zeroshot_path(image, subtype)
 
         return self._structured_path(image, subtype)
+
+    def _extract_from_pdf(self, pdf_path: Path) -> list[ExtractedEntity]:
+        """Convert each PDF page to an image and run VLM extraction."""
+        try:
+            import pdfplumber
+        except ImportError:
+            logger.warning("pdfplumber not available for PDF→image conversion")
+            return []
+
+        all_entities: list[ExtractedEntity] = []
+
+        try:
+            with pdfplumber.open(pdf_path) as pdf:
+                for page_num, page in enumerate(pdf.pages, 1):
+                    try:
+                        # Convert page to PIL Image
+                        pil_image = page.to_image(resolution=150).original
+
+                        # Save to temp PNG
+                        with tempfile.NamedTemporaryFile(
+                            suffix=".png", delete=False
+                        ) as tmp:
+                            tmp_path = Path(tmp.name)
+
+                        try:
+                            pil_image.save(tmp_path, format="PNG")
+                            subtype = self._infer_subtype(pdf_path)
+
+                            if self._method == "zeroshot":
+                                entities = self._zeroshot_path(tmp_path, subtype)
+                            else:
+                                entities = self._structured_path(tmp_path, subtype)
+
+                            # Fix source_document to point to original PDF
+                            for entity in entities:
+                                object.__setattr__(entity, "source_document", str(pdf_path))
+                                object.__setattr__(entity, "source_page", page_num)
+
+                            all_entities.extend(entities)
+                        finally:
+                            tmp_path.unlink(missing_ok=True)
+
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning(
+                            "vlm_pdf_page_failed",
+                            page=page_num,
+                            path=str(pdf_path),
+                            error=str(exc),
+                        )
+                        continue
+
+        except Exception as exc:  # noqa: BLE001
+            logger.error("vlm_pdf_open_failed", path=str(pdf_path), error=str(exc))
+
+        return all_entities
 
     # ------------------------------------------------------------------
     # Subtype inference

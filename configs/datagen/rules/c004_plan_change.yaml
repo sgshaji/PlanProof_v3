@@ -48,3 +48,9 @@ evidence_locations:
   - doc_type: DRAWING
     drawing_type: site_plan
     annotation: approved_building_footprint_area
+  - doc_type: DRAWING
+    drawing_type: elevation
+    annotation: proposed_storeys
+  - doc_type: DRAWING
+    drawing_type: elevation
+    annotation: approved_storeys

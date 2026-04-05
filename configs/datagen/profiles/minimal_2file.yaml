@@ -18,6 +18,8 @@ document_composition:
   - type: DRAWING
     subtypes: [site_plan]
     count: 1
+  - type: EXTERNAL_DATA
+    count: 1
 
 difficulty: low
 degradation_preset: clean

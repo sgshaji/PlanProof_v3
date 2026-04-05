@@ -25,6 +25,15 @@ violation_types:
   - name: extreme_exceed
     range: { min: 12.0, max: 20.0 }
 
+# WHY: zone_category is required by the runtime rule (configs/rules/r001)
+# to determine applicability — height limits only apply in residential zones.
+extra_attributes:
+  - attribute: zone_category
+    unit: categorical
+    type: companion
+    valid_values: ["residential", "suburban_residential"]
+    invalid_values: ["industrial", "commercial"]
+
 # WHY: Evidence locations tell the document renderer where to embed the value
 # and tell the extraction layer where to look for it.  Each rule may appear in
 # multiple document types — discrepancies between sources are themselves a
@@ -35,3 +44,5 @@ evidence_locations:
   - doc_type: DRAWING
     drawing_type: elevation
     annotation: dimension_line
+  - doc_type: FORM
+    field: zone_category

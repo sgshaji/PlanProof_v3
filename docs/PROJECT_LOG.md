@@ -5,11 +5,43 @@
 
 ---
 
+## 2026-04-05 — Content-Based Classifier & VLM PDF Drawing Support
+
+- **Classifier rewritten**: Content-first classification replaces filename-pattern-first. Analyses PDF text for domain keywords (form: "householder application", "certificate of ownership"; drawing: "site plan", "scale 1:", "site boundary") + page geometry (landscape A3+ → DRAWING). Filename patterns demoted to fallback.
+- **Root cause fixed**: BCC names all drawings "Plans & Drawings-Application Plans.pdf" — old classifier matched "Application" → FORM. New classifier reads content → correctly identifies as DRAWING (0.96-0.98 confidence).
+- **VLM PDF support added**: `VLMSpatialExtractor._extract_from_pdf()` converts each PDF page to PNG via pdfplumber `page.to_image()`, sends to GPT-4o VLM. Removed artificial block in `run_extraction_eval.py` that skipped PDF drawings.
+- **Results**: VLM now extracts building_height, ridge_height, eave_height, room_dimensions, floor_area, rear_garden_depth, site_coverage, site_area from real BCC drawing PDFs. `2025 07100` yielded 136 entities across 7 drawing pages.
+- **Groq daily limit hit**: 100K tokens/day exhausted during full run. Need to re-run or merge v1 (LLM forms) + v2_full (VLM drawings) for complete results.
+
+---
+
+## 2026-04-05 — Real BCC Extraction Evaluation
+
+- **Extraction eval on 9 real BCC planning applications** — first validation on real data
+- Results: recall=93.3%, precision=38.6%, value accuracy=86.7% (5 GT attributes: site_address, form_address, certificate_type, ownership_declaration, site_location)
+- Low precision reflects conservative GT annotation (3→5 attributes), not extraction error — LLM correctly extracts ~12 entities per form
+- Formal results saved to `data/results/extraction_bcc/bcc_v1_enriched_summary.json`
+- **GAP 2 resolved**: Application forms exist in `data/raw/` (9/10 sets). `data/anonymised/` was missing them due to PII stripping.
+
+---
+
+## 2026-04-05 — Comprehensive Synthetic Data Generation (V2)
+
+- Fixed datagen pipeline: all **8 assessable rules now produce PASS/FAIL verdicts** (was 1-2)
+- Root cause: three-layer disconnect — missing rule config extras, scenario generator not mapping extras to doc specs, renderers not tracking attributes
+- Form generator: 12 tracked attributes (was 3) — added certificate_type, ownership_declaration, form_address, zone_category, site_location, stated_site_area, building_footprint_area, total_site_area, rear_garden_depth
+- New EXTERNAL_DATA document generator for C003 (reference_parcel_area) and C006 (conservation_area_status)
+- Updated datagen rule configs (R001, R002, R003, C004, C006), profile configs, extraction prompts
+- Added `--docs-dir` support to `run_extraction_eval.py` for split-directory BCC evaluation
+- Generated `data/synthetic_v2/` (existing synthetic data preserved)
+
+---
+
 ## 2026-04-04 — E2E Integration Gap Identified
 
 - Documented critical gap: full pipeline never validated on real BCC data end-to-end
 - Each component tested individually; ablation validates the reasoning layer in isolation
-- Real data blocked by: no application forms available, SNKG not wired to live data, VLM unreliable on scanned PDFs
+- Real data blocked by: ~~no application forms available~~ (CORRECTED 2026-04-05: forms exist in data/raw/), SNKG not wired to live data, VLM unreliable on scanned PDFs
 - Cleaned GAPS_AND_IDEAS.md: 6 open gaps, 5 limitations, 9 resolved items
 
 ---

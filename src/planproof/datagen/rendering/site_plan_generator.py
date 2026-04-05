@@ -226,6 +226,40 @@ class SitePlanGenerator:
             if pv is not None:
                 placed.append(pv)
 
+        # building_footprint_area — label inside the building polygon
+        if "building_footprint_area" in doc_spec.values_to_place:
+            pv = self._draw_area_label(
+                c, page_h,
+                bldg_min_x, bldg_min_y,
+                bldg_max_x - bldg_min_x, bldg_max_y - bldg_min_y,
+                value_by_attr.get("building_footprint_area"),
+                "Footprint",
+            )
+            if pv is not None:
+                placed.append(pv)
+
+        # total_site_area — label inside the boundary polygon
+        if "total_site_area" in doc_spec.values_to_place:
+            pv = self._draw_area_label(
+                c, page_h,
+                bnd_min_x, bnd_min_y,
+                bnd_max_x - bnd_min_x, bnd_max_y - bnd_min_y,
+                value_by_attr.get("total_site_area"),
+                "Site Area",
+                offset_y=20 * mm,
+            )
+            if pv is not None:
+                placed.append(pv)
+
+        # drawing_address — text in the title block area for C002
+        if "drawing_address" in doc_spec.values_to_place:
+            pv = self._draw_title_address(
+                c, page_w, page_h,
+                value_by_attr.get("drawing_address"),
+            )
+            if pv is not None:
+                placed.append(pv)
+
         c.save()
         pdf_bytes = buf.getvalue()
 
@@ -694,6 +728,80 @@ class SitePlanGenerator:
             page=1,
             bounding_box=bb,
             entity_type=EntityType.MEASUREMENT,
+        )
+
+    def _draw_area_label(
+        self,
+        c: rl_canvas.Canvas,
+        page_h: float,
+        rect_x: float,
+        rect_y: float,
+        rect_w: float,
+        rect_h: float,
+        value: Value | None,
+        prefix: str,
+        offset_y: float = 0.0,
+    ) -> PlacedValue | None:
+        """Draw an area label inside a rectangle and return its PlacedValue."""
+        if value is None:
+            return None
+
+        label = f"{prefix}: {value.display_text}"
+        text_x_pt = rect_x + 4 * mm
+        text_y_pt = rect_y + 4 * mm + offset_y
+
+        c.saveState()
+        c.setFont(ANNO_FONT, ANNO_FONT_SIZE)
+        c.drawString(text_x_pt, text_y_pt, label)
+        c.restoreState()
+
+        text_w_pt = len(label) * ANNO_FONT_SIZE * 0.6
+        text_h_pt = ANNO_FONT_SIZE * 1.2
+
+        bb = _make_bounding_box(text_x_pt, text_y_pt, text_w_pt, text_h_pt, page_h)
+
+        return PlacedValue(
+            attribute=value.attribute,
+            value=value.value,
+            text_rendered=value.display_text,
+            page=1,
+            bounding_box=bb,
+            entity_type=EntityType.MEASUREMENT,
+        )
+
+    def _draw_title_address(
+        self,
+        c: rl_canvas.Canvas,
+        page_w: float,
+        page_h: float,
+        value: Value | None,
+    ) -> PlacedValue | None:
+        """Draw drawing_address text below the title block."""
+        if value is None:
+            return None
+
+        addr_text = value.str_value or value.display_text
+        tb_x = page_w - MARGIN - TITLE_BLOCK_W
+        text_x_pt = tb_x + 4 * mm
+        text_y_pt = MARGIN / 2 - 4 * mm
+
+        c.saveState()
+        c.setFont(ANNO_FONT, ANNO_FONT_SIZE)
+        c.drawString(text_x_pt, text_y_pt, addr_text)
+        c.restoreState()
+
+        text_w_pt = len(addr_text) * ANNO_FONT_SIZE * 0.6
+        text_h_pt = ANNO_FONT_SIZE * 1.2
+
+        bb = _make_bounding_box(text_x_pt, text_y_pt, text_w_pt, text_h_pt, page_h)
+
+        return PlacedValue(
+            attribute=value.attribute,
+            value=addr_text,
+            text_rendered=addr_text,
+            page=1,
+            bounding_box=bb,
+            entity_type=EntityType.ADDRESS,
         )
 
     def _draw_dimension_line_vertical(

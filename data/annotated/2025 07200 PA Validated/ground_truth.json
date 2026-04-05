@@ -1,22 +1,22 @@
 {
-  "set_id": "2025 07100 PA Validated",
+  "set_id": "2025 07200 PA Validated",
   "category": "real_bcc",
   "seed": 0,
   "difficulty": "real",
   "values": [
     {
       "attribute": "site_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "41 Wheats Avenue, Birmingham, B17 0RH",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "41 Wheats Avenue, Birmingham, B17 0RH",
+      "str_value": "41 Wheats Avenue, Birmingham, B17 0RH"
     },
     {
       "attribute": "form_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "41 Wheats Avenue, Birmingham, B17 0RH",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "41 Wheats Avenue, Birmingham, B17 0RH",
+      "str_value": "41 Wheats Avenue, Birmingham, B17 0RH"
     },
     {
       "attribute": "site_location",
@@ -41,23 +41,23 @@
     },
     {
       "attribute": "drawing_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "41 Wheats Avenue, Birmingham, B17 0RH",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "41 Wheats Avenue, Birmingham, B17 0RH",
+      "str_value": "41 Wheats Avenue, Birmingham, B17 0RH"
     }
   ],
   "rule_verdicts": [],
   "documents": [
     {
-      "filename": "6303071-Forms-Planning Application Form.pdf",
+      "filename": "6305224-Forms-Planning Application Form.pdf",
       "doc_type": "FORM",
       "file_format": "pdf",
       "extractions": [
         {
           "attribute": "site_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "41 Wheats Avenue, Birmingham, B17 0RH",
+          "text_rendered": "41 Wheats Avenue, Birmingham, B17 0RH",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -70,8 +70,8 @@
         },
         {
           "attribute": "form_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "41 Wheats Avenue, Birmingham, B17 0RH",
+          "text_rendered": "41 Wheats Avenue, Birmingham, B17 0RH",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -100,13 +100,13 @@
           "attribute": "certificate_type",
           "value": "A",
           "text_rendered": "A",
-          "page": 7,
+          "page": 8,
           "bounding_box": {
             "x": 0,
             "y": 0,
             "width": 0,
             "height": 0,
-            "page": 7
+            "page": 8
           },
           "entity_type": "CERTIFICATE"
         },
@@ -114,20 +114,20 @@
           "attribute": "ownership_declaration",
           "value": "sole_owner",
           "text_rendered": "sole_owner",
-          "page": 7,
+          "page": 8,
           "bounding_box": {
             "x": 0,
             "y": 0,
             "width": 0,
             "height": 0,
-            "page": 7
+            "page": 8
           },
           "entity_type": "OWNERSHIP"
         },
         {
           "attribute": "drawing_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "41 Wheats Avenue, Birmingham, B17 0RH",
+          "text_rendered": "41 Wheats Avenue, Birmingham, B17 0RH",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -147,8 +147,8 @@
       "extractions": [
         {
           "attribute": "drawing_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "41 Wheats Avenue, Birmingham, B17 0RH",
+          "text_rendered": "41 Wheats Avenue, Birmingham, B17 0RH",
           "page": 1,
           "bounding_box": {
             "x": 0,

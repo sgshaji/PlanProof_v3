@@ -377,6 +377,61 @@ def _draw_page1(
     )
     y -= 22
 
+    # form_address — tracked separately for C002 address consistency check.
+    # Uses the C002 fixture address if present, otherwise mirrors site_address.
+    if "form_address" in values_map:
+        fa_val = values_map["form_address"]
+        fa_text = fa_val.str_value or fa_val.display_text
+        field_vals = _draw_field(c, y, "Form Address:", fa_text, label_width=130)
+        _place_value(
+            state,
+            attribute="form_address",
+            raw_value=fa_text,
+            text_rendered=fa_text,
+            x_pt=field_vals[0],
+            y_pt=field_vals[1],
+            w_pt=field_vals[2],
+            h_pt=field_vals[3],
+            entity_type=EntityType.ADDRESS,
+        )
+        y -= 22
+
+    # site_location — area/suburb name for C006 conservation area check
+    if "site_location" in values_map:
+        sl_val = values_map["site_location"]
+        sl_text = sl_val.str_value or sl_val.display_text
+        field_vals = _draw_field(c, y, "Site Location:", sl_text, label_width=130)
+        _place_value(
+            state,
+            attribute="site_location",
+            raw_value=sl_text,
+            text_rendered=sl_text,
+            x_pt=field_vals[0],
+            y_pt=field_vals[1],
+            w_pt=field_vals[2],
+            h_pt=field_vals[3],
+            entity_type=EntityType.ADDRESS,
+        )
+        y -= 22
+
+    # zone_category — planning zone classification for R001/R002/R003
+    if "zone_category" in values_map:
+        zc_val = values_map["zone_category"]
+        zc_text = zc_val.str_value or zc_val.display_text
+        field_vals = _draw_field(c, y, "Zone Classification:", zc_text, label_width=150)
+        _place_value(
+            state,
+            attribute="zone_category",
+            raw_value=zc_text,
+            text_rendered=zc_text,
+            x_pt=field_vals[0],
+            y_pt=field_vals[1],
+            w_pt=field_vals[2],
+            h_pt=field_vals[3],
+            entity_type=EntityType.ZONE,
+        )
+        y -= 22
+
     y = _draw_section_heading(c, y, "3. Applicant Details")
     first = rng.choice(_FIRST_NAMES)
     last = rng.choice(_LAST_NAMES)
@@ -514,14 +569,18 @@ def _draw_page3(
     # WHY: Defining the display order here (not in the scenario) keeps layout
     # concerns separate from the scenario data model.
     MEASUREMENT_ROWS: list[tuple[str, str, str]] = [
-        ("building_height",   "Building Height (m):",        "m"),
-        ("ridge_height",      "Ridge Height (m):",           "m"),
-        ("eaves_height",      "Eaves Height (m):",           "m"),
-        ("site_coverage",     "Site Coverage (%):",          "%"),
-        ("floor_area",        "Floor Area (m²):",            "m²"),
-        ("extension_length",  "Extension Length (m):",       "m"),
-        ("extension_depth",   "Extension Depth (m):",        "m"),
-        ("extension_height",  "Extension Height (m):",       "m"),
+        ("building_height",        "Building Height (m):",         "m"),
+        ("ridge_height",           "Ridge Height (m):",            "m"),
+        ("eaves_height",           "Eaves Height (m):",            "m"),
+        ("rear_garden_depth",      "Rear Garden Depth (m):",       "m"),
+        ("site_coverage",          "Site Coverage (%):",           "%"),
+        ("building_footprint_area","Building Footprint Area (m²):", "m²"),
+        ("total_site_area",        "Total Site Area (m²):",        "m²"),
+        ("stated_site_area",       "Stated Site Area (m²):",       "m²"),
+        ("floor_area",             "Floor Area (m²):",             "m²"),
+        ("extension_length",       "Extension Length (m):",        "m"),
+        ("extension_depth",        "Extension Depth (m):",         "m"),
+        ("extension_height",       "Extension Height (m):",        "m"),
     ]
 
     for attr, label, unit_suffix in MEASUREMENT_ROWS:
@@ -531,14 +590,18 @@ def _draw_page3(
         else:
             # Synthetic placeholder — realistic range for the attribute
             placeholder_map: dict[str, str] = {
-                "building_height":  f"{rng.uniform(4.5, 9.0):.1f}m",
-                "ridge_height":     f"{rng.uniform(6.0, 10.0):.1f}m",
-                "eaves_height":     f"{rng.uniform(2.5, 5.5):.1f}m",
-                "site_coverage":    f"{rng.uniform(20.0, 50.0):.0f}%",
-                "floor_area":       f"{rng.uniform(20.0, 120.0):.0f} m²",
-                "extension_length": f"{rng.uniform(2.0, 8.0):.1f}m",
-                "extension_depth":  f"{rng.uniform(1.5, 6.0):.1f}m",
-                "extension_height": f"{rng.uniform(2.4, 4.0):.1f}m",
+                "building_height":         f"{rng.uniform(4.5, 9.0):.1f}m",
+                "ridge_height":            f"{rng.uniform(6.0, 10.0):.1f}m",
+                "eaves_height":            f"{rng.uniform(2.5, 5.5):.1f}m",
+                "rear_garden_depth":       f"{rng.uniform(8.0, 25.0):.1f}m",
+                "site_coverage":           f"{rng.uniform(20.0, 50.0):.0f}%",
+                "building_footprint_area": f"{rng.uniform(40.0, 200.0):.0f}m²",
+                "total_site_area":         f"{rng.uniform(200.0, 800.0):.0f}m²",
+                "stated_site_area":        f"{rng.uniform(200.0, 800.0):.0f}m²",
+                "floor_area":              f"{rng.uniform(20.0, 120.0):.0f}m²",
+                "extension_length":        f"{rng.uniform(2.0, 8.0):.1f}m",
+                "extension_depth":         f"{rng.uniform(1.5, 6.0):.1f}m",
+                "extension_height":        f"{rng.uniform(2.4, 4.0):.1f}m",
             }
             display = placeholder_map.get(attr, "N/A")
 
@@ -628,16 +691,28 @@ def _draw_page5(state: _CanvasState, rng: random.Random) -> None:
     _draw_field(c, y, "Recycling provision:", "Existing provision adequate")
 
 
-def _draw_page6(state: _CanvasState, rng: random.Random) -> None:
+def _draw_page6(
+    state: _CanvasState,
+    rng: random.Random,
+    values_map: dict[str, Value],
+) -> None:
     """Page 6 — Ownership certificate (Certificate A or B)."""
     c = state.c
     _draw_header(c, "Ownership Certificate", 6)
     y = TOP_MARGIN_PT - 40
 
-    cert_type = rng.choice(["Certificate A", "Certificate B"])
+    # Use scenario value for certificate_type if available; otherwise random.
+    if "certificate_type" in values_map:
+        cert_val = values_map["certificate_type"]
+        cert_letter = cert_val.str_value or cert_val.display_text
+        cert_type = f"Certificate {cert_letter}"
+    else:
+        cert_type = rng.choice(["Certificate A", "Certificate B"])
+        cert_letter = cert_type.split()[-1]
+
     y = _draw_section_heading(c, y, f"17. {cert_type}")
 
-    if cert_type == "Certificate A":
+    if "A" in cert_letter:
         blurb = (
             "I certify that on the date this application was made, no person other "
             "than the applicant was the owner of any part of the land to which the "
@@ -677,7 +752,39 @@ def _draw_page6(state: _CanvasState, rng: random.Random) -> None:
     y -= 20
     _draw_field(c, y, "Date:", "25/03/2026")
     y -= 20
-    _draw_field(c, y, "Certificate type:", cert_type)
+
+    # Track certificate_type as a PlacedValue (C001)
+    field_vals = _draw_field(c, y, "Certificate type:", cert_type)
+    if "certificate_type" in values_map:
+        _place_value(
+            state,
+            attribute="certificate_type",
+            raw_value=cert_letter,
+            text_rendered=cert_type,
+            x_pt=field_vals[0],
+            y_pt=field_vals[1],
+            w_pt=field_vals[2],
+            h_pt=field_vals[3],
+            entity_type=EntityType.CERTIFICATE,
+        )
+    y -= 22
+
+    # Render ownership_declaration if present (C001 companion)
+    if "ownership_declaration" in values_map:
+        od_val = values_map["ownership_declaration"]
+        od_text = od_val.str_value or od_val.display_text
+        field_vals = _draw_field(c, y, "Ownership Declaration:", od_text)
+        _place_value(
+            state,
+            attribute="ownership_declaration",
+            raw_value=od_text,
+            text_rendered=od_text,
+            x_pt=field_vals[0],
+            y_pt=field_vals[1],
+            w_pt=field_vals[2],
+            h_pt=field_vals[3],
+            entity_type=EntityType.OWNERSHIP,
+        )
 
 
 def _draw_page7(state: _CanvasState, rng: random.Random) -> None:
@@ -838,7 +945,7 @@ class FormGenerator:
 
         # Page 6 — Ownership certificate
         state_p6 = _CanvasState(c, page_num=6)
-        _draw_page6(state_p6, rng)
+        _draw_page6(state_p6, rng, values_map)
         c.showPage()
 
         # Page 7 — Declaration and signature

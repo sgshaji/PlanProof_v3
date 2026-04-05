@@ -9,8 +9,21 @@ user_message_template: |
 
   Entity types to look for:
   - MEASUREMENT: building height, width, depth, setback distances, garden depth,
-    floor areas, site area, coverage ratios, scale annotations
+    floor areas, site area, building footprint area, total site area, coverage
+    ratios, scale annotations, proposed/approved building heights, storey counts
   - BOUNDARY: property boundary dimensions, setback distances from boundaries
+  - ADDRESS: drawing address (usually in title block — the site address shown on the drawing)
+
+  Specific attributes to extract if present:
+  - building_height (MEASUREMENT): overall building height in metres
+  - approved_building_height (MEASUREMENT): previously approved building height (often shown dashed)
+  - rear_garden_depth (MEASUREMENT): rear garden depth in metres
+  - building_footprint_area (MEASUREMENT): building footprint area in square metres
+  - total_site_area (MEASUREMENT): total site area in square metres
+  - site_coverage (MEASUREMENT): site coverage percentage
+  - proposed_storeys (MEASUREMENT): number of proposed storeys
+  - approved_storeys (MEASUREMENT): number of approved storeys
+  - drawing_address (ADDRESS): site address shown in the drawing title block
 
   <document>
   {text}
@@ -27,11 +40,11 @@ output_schema:
         properties:
           entity_type:
             type: string
-            enum: [MEASUREMENT, BOUNDARY]
+            enum: [MEASUREMENT, BOUNDARY, ADDRESS]
           attribute:
             type: string
           value:
-            description: "The extracted value — numeric for measurements"
+            description: "The extracted value — numeric for measurements, string for addresses"
           unit:
             type: string
             nullable: true
@@ -39,10 +52,19 @@ output_schema:
             type: integer
 
 few_shot_examples:
-  - input: "[Elevation drawing showing building dimensions]"
+  - input: "[Elevation drawing showing proposed and approved building dimensions]"
     output: |
       {"entities": [
         {"entity_type": "MEASUREMENT", "attribute": "building_height", "value": 7.2, "unit": "metres", "source_page": 1},
-        {"entity_type": "MEASUREMENT", "attribute": "building_width", "value": 8.5, "unit": "metres", "source_page": 1},
+        {"entity_type": "MEASUREMENT", "attribute": "approved_building_height", "value": 6.5, "unit": "metres", "source_page": 1},
+        {"entity_type": "MEASUREMENT", "attribute": "proposed_storeys", "value": 2, "unit": null, "source_page": 1},
         {"entity_type": "BOUNDARY", "attribute": "rear_setback", "value": 12.0, "unit": "metres", "source_page": 1}
+      ]}
+  - input: "[Site plan with area annotations and title block address]"
+    output: |
+      {"entities": [
+        {"entity_type": "MEASUREMENT", "attribute": "building_footprint_area", "value": 120.0, "unit": "square_metres", "source_page": 1},
+        {"entity_type": "MEASUREMENT", "attribute": "total_site_area", "value": 450.0, "unit": "square_metres", "source_page": 1},
+        {"entity_type": "MEASUREMENT", "attribute": "site_coverage", "value": 35.0, "unit": "percent", "source_page": 1},
+        {"entity_type": "ADDRESS", "attribute": "drawing_address", "value": "123 Example St, Birmingham, B1 1AA", "unit": null, "source_page": 1}
       ]}

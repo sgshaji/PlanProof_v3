@@ -1,63 +1,63 @@
 {
-  "set_id": "2025 07100 PA Validated",
+  "set_id": "2025 00768 PA Held",
   "category": "real_bcc",
   "seed": 0,
   "difficulty": "real",
   "values": [
     {
       "attribute": "site_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "575 Bordesley Green East, Birmingham, B33 8RX",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "575 Bordesley Green East, Birmingham, B33 8RX",
+      "str_value": "575 Bordesley Green East, Birmingham, B33 8RX"
     },
     {
       "attribute": "form_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "575 Bordesley Green East, Birmingham, B33 8RX",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "575 Bordesley Green East, Birmingham, B33 8RX",
+      "str_value": "575 Bordesley Green East, Birmingham, B33 8RX"
     },
     {
       "attribute": "site_location",
-      "value": "Birmingham",
+      "value": "Bordesley Green East",
       "unit": null,
-      "display_text": "Birmingham",
-      "str_value": "Birmingham"
+      "display_text": "Bordesley Green East",
+      "str_value": "Bordesley Green East"
     },
     {
       "attribute": "certificate_type",
-      "value": "A",
+      "value": "B",
       "unit": null,
-      "display_text": "A",
-      "str_value": "A"
+      "display_text": "B",
+      "str_value": "B"
     },
     {
       "attribute": "ownership_declaration",
-      "value": "sole_owner",
+      "value": "not_sole_owner",
       "unit": null,
-      "display_text": "sole_owner",
-      "str_value": "sole_owner"
+      "display_text": "not_sole_owner",
+      "str_value": "not_sole_owner"
     },
     {
       "attribute": "drawing_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "575 Bordesley Green East, Birmingham, B33 8RX",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "575 Bordesley Green East, Birmingham, B33 8RX",
+      "str_value": "575 Bordesley Green East, Birmingham, B33 8RX"
     }
   ],
   "rule_verdicts": [],
   "documents": [
     {
-      "filename": "6303071-Forms-Planning Application Form.pdf",
+      "filename": "6130701-Forms-Planning Application Form.pdf",
       "doc_type": "FORM",
       "file_format": "pdf",
       "extractions": [
         {
           "attribute": "site_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "575 Bordesley Green East, Birmingham, B33 8RX",
+          "text_rendered": "575 Bordesley Green East, Birmingham, B33 8RX",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -70,8 +70,8 @@
         },
         {
           "attribute": "form_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "575 Bordesley Green East, Birmingham, B33 8RX",
+          "text_rendered": "575 Bordesley Green East, Birmingham, B33 8RX",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -84,8 +84,8 @@
         },
         {
           "attribute": "site_location",
-          "value": "Birmingham",
-          "text_rendered": "Birmingham",
+          "value": "Bordesley Green East",
+          "text_rendered": "Bordesley Green East",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -98,36 +98,36 @@
         },
         {
           "attribute": "certificate_type",
-          "value": "A",
-          "text_rendered": "A",
-          "page": 7,
+          "value": "B",
+          "text_rendered": "B",
+          "page": 5,
           "bounding_box": {
             "x": 0,
             "y": 0,
             "width": 0,
             "height": 0,
-            "page": 7
+            "page": 5
           },
           "entity_type": "CERTIFICATE"
         },
         {
           "attribute": "ownership_declaration",
-          "value": "sole_owner",
-          "text_rendered": "sole_owner",
-          "page": 7,
+          "value": "not_sole_owner",
+          "text_rendered": "not_sole_owner",
+          "page": 5,
           "bounding_box": {
             "x": 0,
             "y": 0,
             "width": 0,
             "height": 0,
-            "page": 7
+            "page": 5
           },
           "entity_type": "OWNERSHIP"
         },
         {
           "attribute": "drawing_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "575 Bordesley Green East, Birmingham, B33 8RX",
+          "text_rendered": "575 Bordesley Green East, Birmingham, B33 8RX",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -147,8 +147,8 @@
       "extractions": [
         {
           "attribute": "drawing_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "575 Bordesley Green East, Birmingham, B33 8RX",
+          "text_rendered": "575 Bordesley Green East, Birmingham, B33 8RX",
           "page": 1,
           "bounding_box": {
             "x": 0,

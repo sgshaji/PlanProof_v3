@@ -25,6 +25,15 @@ violation_types:
   - name: extreme_below
     range: { min: 1.0, max: 5.0 }
 
+# WHY: zone_category is required by the runtime rule (configs/rules/r002)
+# to determine applicability — garden depth limits apply in suburban zones.
+extra_attributes:
+  - attribute: zone_category
+    unit: categorical
+    type: companion
+    valid_values: ["residential", "suburban_residential"]
+    invalid_values: ["industrial", "commercial"]
+
 # WHY: The site_plan drawing is the primary source for spatial measurements
 # like garden depth.  Including FORM as well lets us generate conflicting-value
 # edge cases where the form and drawing disagree.
@@ -34,3 +43,5 @@ evidence_locations:
   - doc_type: DRAWING
     drawing_type: site_plan
     annotation: dimension_line
+  - doc_type: FORM
+    field: zone_category

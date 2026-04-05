@@ -18,8 +18,10 @@ document_composition:
   - type: FORM
     count: 1
   - type: DRAWING
-    subtypes: [site_plan, floor_plan]
-    count: 2
+    subtypes: [site_plan, floor_plan, elevation]
+    count: 3
+  - type: EXTERNAL_DATA
+    count: 1
 
 difficulty: medium
 degradation_preset: moderate_scan

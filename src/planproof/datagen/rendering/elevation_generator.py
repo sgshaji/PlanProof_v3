@@ -528,6 +528,97 @@ class ElevationGenerator:
         )
 
         # ------------------------------------------------------------------
+        # Additional C004 annotations: approved_building_height, storeys
+        # ------------------------------------------------------------------
+
+        value_by_attr = {v.attribute: v for v in scenario.values}
+        extra_placed: list[PlacedValue] = []
+
+        # approved_building_height — dashed dimension line to the left
+        approved_height_val = value_by_attr.get("approved_building_height")
+        if approved_height_val is not None:
+            app_h_numeric = approved_height_val.value
+            app_h_display = approved_height_val.display_text
+            app_dim_x = bldg_left - dim_offset_x
+
+            # Compute approved building top pixel position
+            app_bldg_height_px = int(app_h_numeric * px_per_metre)
+            app_bldg_top = ground_y - app_bldg_height_px
+            app_bldg_top = max(app_bldg_top, draw_top + 200)
+
+            # Extension lines (dashed style via segments)
+            for ey in [app_bldg_top, ground_y]:
+                draw.line(
+                    [(app_dim_x - 30, ey), (bldg_left - 10, ey)],
+                    fill=DIM_COLOUR,
+                    width=DIM_LINE_W,
+                )
+
+            # Dashed vertical dimension line (segments)
+            dash_len = 20
+            gap_len = 10
+            y_curr = app_bldg_top
+            while y_curr < ground_y:
+                y_end = min(y_curr + dash_len, ground_y)
+                draw.line(
+                    [(app_dim_x, y_curr), (app_dim_x, y_end)],
+                    fill=DIM_COLOUR,
+                    width=DIM_LINE_W,
+                )
+                y_curr = y_end + gap_len
+
+            # Arrowheads
+            _draw_arrow(draw, app_dim_x, app_bldg_top, "up", DIM_COLOUR, ARROW_SIZE)
+            _draw_arrow(draw, app_dim_x, ground_y, "down", DIM_COLOUR, ARROW_SIZE)
+
+            # Label
+            app_label_x = app_dim_x - 30
+            app_label_y = (app_bldg_top + ground_y) // 2 - FONT_MEDIUM // 2
+            app_label_text = f"(approved) {app_h_display}"
+            draw.text(
+                (app_label_x, app_label_y),
+                app_label_text,
+                fill=DIM_COLOUR,
+                font=font_small,
+                anchor="rt",
+            )
+
+            app_bbox = _text_bounding_box(
+                draw, app_label_x - len(app_label_text) * FONT_SMALL // 2,
+                app_label_y, app_label_text, font_small,
+            )
+            extra_placed.append(PlacedValue(
+                attribute="approved_building_height",
+                value=app_h_numeric,
+                text_rendered=app_h_display,
+                page=1,
+                bounding_box=app_bbox,
+                entity_type=EntityType.MEASUREMENT,
+            ))
+
+        # proposed_storeys and approved_storeys — text annotations
+        for storeys_attr in ("proposed_storeys", "approved_storeys"):
+            storeys_val = value_by_attr.get(storeys_attr)
+            if storeys_val is not None:
+                prefix = "Proposed" if "proposed" in storeys_attr else "Approved"
+                s_text = f"{prefix} Storeys: {storeys_val.display_text}"
+                s_x = bldg_left + 20
+                s_y = ground_y + 80 + (40 if "approved" in storeys_attr else 0)
+                draw.text(
+                    (s_x, s_y), s_text,
+                    fill=DIM_COLOUR, font=font_small, anchor="lt",
+                )
+                s_bbox = _text_bounding_box(draw, s_x, s_y, s_text, font_small)
+                extra_placed.append(PlacedValue(
+                    attribute=storeys_attr,
+                    value=storeys_val.value,
+                    text_rendered=storeys_val.display_text,
+                    page=1,
+                    bounding_box=s_bbox,
+                    entity_type=EntityType.MEASUREMENT,
+                ))
+
+        # ------------------------------------------------------------------
         # Encode image to PNG bytes.
         # ------------------------------------------------------------------
 
@@ -536,7 +627,7 @@ class ElevationGenerator:
         png_bytes: bytes = buf.getvalue()
 
         # ------------------------------------------------------------------
-        # Build the PlacedValue record for building_height.
+        # Build the PlacedValue records.
         # ------------------------------------------------------------------
 
         placed_height = PlacedValue(
@@ -547,6 +638,8 @@ class ElevationGenerator:
             bounding_box=height_bbox,
             entity_type=EntityType.MEASUREMENT,
         )
+
+        all_placed = [placed_height] + extra_placed
 
         # ------------------------------------------------------------------
         # Construct and return the GeneratedDocument.
@@ -559,5 +652,5 @@ class ElevationGenerator:
             doc_type=DocumentType.DRAWING,
             content_bytes=png_bytes,
             file_format="png",
-            placed_values=(placed_height,),
+            placed_values=tuple(all_placed),
         )

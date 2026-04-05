@@ -1,29 +1,29 @@
 {
-  "set_id": "2025 07100 PA Validated",
+  "set_id": "2026 00068 PA Validated",
   "category": "real_bcc",
   "seed": 0,
   "difficulty": "real",
   "values": [
     {
       "attribute": "site_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "9 Sandy Croft, Birmingham, B13 0EP",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "9 Sandy Croft, Birmingham, B13 0EP",
+      "str_value": "9 Sandy Croft, Birmingham, B13 0EP"
     },
     {
       "attribute": "form_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "9 Sandy Croft, Birmingham, B13 0EP",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "9 Sandy Croft, Birmingham, B13 0EP",
+      "str_value": "9 Sandy Croft, Birmingham, B13 0EP"
     },
     {
       "attribute": "site_location",
-      "value": "Birmingham",
+      "value": "Billesley",
       "unit": null,
-      "display_text": "Birmingham",
-      "str_value": "Birmingham"
+      "display_text": "Billesley",
+      "str_value": "Billesley"
     },
     {
       "attribute": "certificate_type",
@@ -41,23 +41,23 @@
     },
     {
       "attribute": "drawing_address",
-      "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
+      "value": "9 Sandy Croft, Billesley, Birmingham, B13 0EP",
       "unit": null,
-      "display_text": "65 Sir Harrys Road, Birmingham, B15 2UX",
-      "str_value": "65 Sir Harrys Road, Birmingham, B15 2UX"
+      "display_text": "9 Sandy Croft, Billesley, Birmingham, B13 0EP",
+      "str_value": "9 Sandy Croft, Billesley, Birmingham, B13 0EP"
     }
   ],
   "rule_verdicts": [],
   "documents": [
     {
-      "filename": "6303071-Forms-Planning Application Form.pdf",
+      "filename": "6310938-Forms-Planning Application Form.pdf",
       "doc_type": "FORM",
       "file_format": "pdf",
       "extractions": [
         {
           "attribute": "site_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "9 Sandy Croft, Birmingham, B13 0EP",
+          "text_rendered": "9 Sandy Croft, Birmingham, B13 0EP",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -70,8 +70,8 @@
         },
         {
           "attribute": "form_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "9 Sandy Croft, Birmingham, B13 0EP",
+          "text_rendered": "9 Sandy Croft, Birmingham, B13 0EP",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -84,8 +84,8 @@
         },
         {
           "attribute": "site_location",
-          "value": "Birmingham",
-          "text_rendered": "Birmingham",
+          "value": "Billesley",
+          "text_rendered": "Billesley",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -126,8 +126,8 @@
         },
         {
           "attribute": "drawing_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "9 Sandy Croft, Billesley, Birmingham, B13 0EP",
+          "text_rendered": "9 Sandy Croft, Billesley, Birmingham, B13 0EP",
           "page": 1,
           "bounding_box": {
             "x": 0,
@@ -147,8 +147,8 @@
       "extractions": [
         {
           "attribute": "drawing_address",
-          "value": "65 Sir Harrys Road, Birmingham, B15 2UX",
-          "text_rendered": "65 Sir Harrys Road, Birmingham, B15 2UX",
+          "value": "9 Sandy Croft, Billesley, Birmingham, B13 0EP",
+          "text_rendered": "9 Sandy Croft, Billesley, Birmingham, B13 0EP",
           "page": 1,
           "bounding_box": {
             "x": 0,
